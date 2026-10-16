@@ -572,9 +572,12 @@
           <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><TextBlock Text="인물·배경 마스크" Style="{StaticResource FieldTitle}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="선택한 영역의 자동 마스크를 프리셋에 추가합니다. 인물·피사체는 Lightroom의 피사체 선택, 배경은 그 선택 영역의 반전을 사용합니다. AI 사용을 꺼도 추가할 수 있습니다."/></StackPanel>
           <WrapPanel><CheckBox x:Name="AutoSubjectMask" Content="인물·피사체 추가"/><CheckBox x:Name="AutoBackgroundMask" Content="배경 추가"/></WrapPanel>
           <TextBlock Text="실제 영역은 Lightroom에서 프리셋을 적용할 때 계산합니다." Style="{StaticResource Muted}" Margin="0,4,0,16"/>
-          <TextBlock Text="직접 만든 템플릿 · 선택 사항" Style="{StaticResource Label}"/>
-          <DockPanel><Button x:Name="MaskClear" DockPanel.Dock="Right" Tag="&#xE711;" Margin="8,0,0,0" Padding="10,0" ToolTip="템플릿 해제" AutomationProperties.Name="마스크 템플릿 해제" Visibility="Collapsed"/><Button x:Name="MaskButton" DockPanel.Dock="Right" Content="템플릿 선택" Tag="&#xE8E5;" Margin="12,0,0,0"/><TextBlock x:Name="MaskPath" Text="선택 안 함" Style="{StaticResource Muted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/></DockPanel>
-          <CheckBox x:Name="VaryMasks" Content="씨드·템플릿의 기존 마스크도 변주" Margin="0,12,0,0" ToolTip="씨드나 템플릿에 있는 인물·배경 마스크의 보정값도 함께 바꿉니다. 선택 영역은 기존 마스크를 사용합니다."/>
+          <Border Height="1" Background="{StaticResource LineBrush}" Margin="0,0,0,14"/>
+          <TextBlock Text="다른 XMP의 마스크 가져오기 · 선택 사항" Style="{StaticResource Label}"/>
+          <TextBlock Text="Lightroom에서 마스크를 포함해 저장한 XMP를 선택하세요. 생성 결과에서는 이 파일의 마스크가 씨드의 기존 마스크를 대체합니다." Style="{StaticResource Muted}" Margin="0,0,0,10"/>
+          <DockPanel><Button x:Name="MaskClear" DockPanel.Dock="Right" Tag="&#xE711;" Margin="8,0,0,0" Padding="10,0" ToolTip="가져올 XMP를 해제하고 씨드의 기존 마스크를 사용합니다." AutomationProperties.Name="가져올 마스크 XMP 해제" Visibility="Collapsed"/><Button x:Name="MaskButton" DockPanel.Dock="Right" Content="XMP 선택" Tag="&#xE8E5;" Margin="12,0,0,0" ToolTip="이 파일에서 마스크의 선택 영역과 영역별 보정값을 가져옵니다. 전체 사진의 보정은 씨드 프리셋을 기준으로 합니다. 위에서 체크한 자동 마스크는 함께 추가됩니다."/><TextBlock x:Name="MaskPath" Text="선택 안 함" Style="{StaticResource Muted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/></DockPanel>
+          <CheckBox x:Name="VaryMasks" Content="기존 인물·배경 마스크의 보정값도 변경" Margin="0,14,0,0" ToolTip="씨드 또는 위에서 가져온 XMP의 마스크에 적용됩니다. 마스크 이름에 인물·피사체·배경 또는 Subject·Person·People·Portrait·Background가 포함되어 있거나, 이름이 BG인 경우에 인식합니다. 해당 마스크에 저장된 노출·대비·부분 대비·채도 값을 충실도와 변주 폭에 맞춰 바꾸며, 선택 영역은 유지합니다."/>
+          <TextBlock Text="이름으로 인물·배경을 확인할 수 있는 마스크의 노출·대비·부분 대비·채도를 바꿉니다. 해제하면 기존 값을 유지합니다." Style="{StaticResource Muted}" Margin="24,4,0,0"/>
          </StackPanel>
         </Border>
         <Border Style="{StaticResource StackCard}">
@@ -588,11 +591,12 @@
             <StackPanel Grid.Column="2"><TextBlock Text="모델" Style="{StaticResource Label}"/><TextBox x:Name="Model" Text="gpt-6-luna"/></StackPanel>
            </Grid>
            <DockPanel Margin="0,8,0,16"><CheckBox x:Name="RememberKey" DockPanel.Dock="Left" Content="이 PC에 API 키 저장" FontSize="12" Margin="0,0,14,0" ToolTip="API 키를 Windows 계정으로 암호화해 저장합니다. 이 옵션을 끄면 저장된 키를 삭제합니다."/></DockPanel>
-           <TextBlock Text="분석용 사진 · 선택 사항" Style="{StaticResource Label}"/>
+           <TextBlock Text="프리셋을 적용할 사진 · 선택 사항" Style="{StaticResource Label}"/>
+           <TextBlock Text="보정하려는 사진을 넣으면 AI가 밝기와 조명을 참고해 프리셋을 제안합니다. 선택한 사진은 AI에 전송되며, 사진 없이도 생성할 수 있습니다." Style="{StaticResource Muted}" Margin="0,0,0,10"/>
            <DockPanel Margin="0,0,0,16">
             <Border Style="{StaticResource Thumb}"><Grid><TextBlock Text="&#xEB9F;" Style="{StaticResource Icon}" FontSize="18" Foreground="{StaticResource FaintBrush}"/><Image x:Name="PhotoThumb" Stretch="UniformToFill"><Image.Clip><RectangleGeometry Rect="0,0,44,44" RadiusX="8" RadiusY="8"/></Image.Clip></Image></Grid></Border>
-            <Button x:Name="PhotoClear" DockPanel.Dock="Right" Tag="&#xE711;" Padding="10,0" Margin="8,0,0,0" ToolTip="사진 해제" AutomationProperties.Name="분석용 사진 해제" Visibility="Collapsed"/>
-            <Button x:Name="PhotoButton" DockPanel.Dock="Right" Content="사진 선택" Margin="8,0,0,0" ToolTip="보정 방향을 참고할 JPG나 PNG를 선택하세요. 긴 변이 1024px 이하인 사본을 AI에 전송합니다."/>
+            <Button x:Name="PhotoClear" DockPanel.Dock="Right" Tag="&#xE711;" Padding="10,0" Margin="8,0,0,0" ToolTip="사진을 해제하고 씨드와 키워드를 바탕으로 제안받습니다." AutomationProperties.Name="프리셋을 적용할 사진 해제" Visibility="Collapsed"/>
+            <Button x:Name="PhotoButton" DockPanel.Dock="Right" Content="사진 선택" Margin="8,0,0,0" ToolTip="실제로 보정할 JPG·PNG 사진을 선택하세요. AI 사용을 켜고 생성할 때 긴 변이 1024px 이하인 사본을 OpenAI에 전송합니다. 사진은 보정 방향을 정하는 데 사용하며, 결과는 XMP 프리셋으로 저장합니다."/>
             <TextBlock x:Name="PhotoPath" Text="선택 안 함" Style="{StaticResource Muted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
            </DockPanel>
            <TextBlock Text="원하는 보정" Style="{StaticResource Label}"/>
