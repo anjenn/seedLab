@@ -16,7 +16,7 @@ function Set-View([string]$View) {
     # The primary action only appears where a run can be configured.
     $controls.Generate.Visibility = $(if ($View -in @('generator','reference','mix')) { 'Visible' } else { 'Collapsed' })
     foreach ($pair in @(@('generator','CountGroup'), @('reference','RefCountGroup'), @('mix','MixCountGroup'))) { $controls[$pair[1]].Visibility = $(if ($View -eq $pair[0]) { 'Visible' } else { 'Collapsed' }) }
-    $controls.Generate.Content = $(if ($View -eq 'mix') { '믹스매치 생성' } elseif ($View -eq 'reference') { '레퍼런스 프리셋 생성' } else { '프리셋 생성' })
+    $controls.Generate.Content = $(if ($View -eq 'mix') { '믹스매치 생성' } else { '프리셋 생성' })
     $controls.OpenOutput.Visibility = $(if ($script:LastFolder -and $View -ne 'results') { 'Visible' } else { 'Collapsed' })
     Update-RunSummary
     if ($View -eq 'dashboard') { Refresh-Dashboard }
@@ -62,7 +62,7 @@ function Draw-UsageChart {
         }
         if ($series.Count -le 10 -or $i % [Math]::Ceiling($series.Count / 6.0) -eq 0 -or $i -eq $series.Count - 1) { Add-ChartText $day.date.Substring(5).Replace('-', '/') ($x + $barWidth / 2 - 15) 172 }
     }
-    if ($maximum -eq 0) { Add-ChartText '이 기간에는 기록된 사용량이 없어요.' ([Math]::Max(50, $width / 2 - 100)) 70 13 }
+    if ($maximum -eq 0) { Add-ChartText '선택한 기간에 사용 기록이 없습니다.' ([Math]::Max(50, $width / 2 - 100)) 70 13 }
     $controls.TrendLegend.Visibility = $(if ($metric -eq 'tokens') { 'Visible' } else { 'Collapsed' })
 }
 function Refresh-Dashboard {
@@ -79,7 +79,7 @@ function Refresh-Dashboard {
         $controls.CallKpi.Text = Format-Count $t.calls
         $controls.CallDetail.Text = '확인된 응답 ' + $t.knownCalls + '건 · 미확인 ' + $t.unknownCalls + '건'
         $controls.RunKpi.Text = Format-Count $t.runs
-        $controls.RunDetail.Text = '프리셋 ' + (Format-Count $t.generatedPresets) + '개 · 레퍼런스 작업 ' + $t.referenceRuns + '회'
+        $controls.RunDetail.Text = '프리셋 ' + (Format-Count $t.generatedPresets) + '개 · 레퍼런스 ' + $t.referenceRuns + '회'
         $controls.CostKpi.Text = Format-Cost $(if ($t.calls -gt 0 -and $t.costUnknownCalls -eq $t.calls) { $null } else { $t.estimatedUSD })
         $controls.CostDetail.Text = $(if ($t.costUnknownCalls -gt 0) { '비용 미확인 ' + $t.costUnknownCalls + '건 제외' } else { '기록 시점의 요금표 기준' })
         $controls.CacheDetail.Text = '검색 ' + $t.webSearchCalls + '회 · 캐시 입력 ' + (Format-Count $t.cachedTokens) + ' · 추론 ' + (Format-Count $t.reasoningTokens) + ' (출력에 포함)'
@@ -96,7 +96,7 @@ function Refresh-Dashboard {
         $controls.UsageRuns.ItemsSource = @($data.runs | Select-Object -First 200)
         $controls.HistoryHint.Text = '최근 200건 · CSV는 선택 기간 전체'
         $notices = @()
-        if ($t.unknownCalls -gt 0) { $notices += '응답을 받지 못한 ' + $t.unknownCalls + '건은 토큰·비용 합계에서 제외됩니다. 실제 청구와 차이가 있을 수 있어요.' }
+        if ($t.unknownCalls -gt 0) { $notices += '응답을 받지 못한 ' + $t.unknownCalls + '건은 토큰·비용 합계에서 제외됩니다. 실제 청구와 차이가 있을 수 있습니다.' }
         if ($data.unreadableLines -gt 0 -or $data.discardedEvents -gt 0) { $notices += '읽을 수 없는 기록 ' + ($data.unreadableLines + $data.discardedEvents) + '건을 건너뛰었습니다.' }
         $controls.UsageNotice.Visibility = $(if ($notices.Count) { 'Visible' } else { 'Collapsed' }); $controls.UsageNoticeText.Text = $notices -join ' '
         $controls.ModelFilter.Items.Clear()

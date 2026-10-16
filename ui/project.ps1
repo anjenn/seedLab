@@ -115,11 +115,11 @@ function Save-Project {
 }
 function Update-ProjectCard([string]$State = '', [bool]$Failed = $false) {
     $open = [bool]$script:ProjectRoot
-    $controls.ProjectName.Text = $(if ($open) { [IO.Path]::GetFileName($script:ProjectRoot) } else { '프로젝트 없음' })
+    $controls.ProjectName.Text = $(if ($open) { [IO.Path]::GetFileName($script:ProjectRoot) } else { '프로젝트를 선택하세요' })
     $controls.ProjectName.ToolTip = $(if ($open) { $script:ProjectRoot } else { $null })
-    $controls.ProjectState.Text = $(if ($State) { $State } elseif ($open) { '변경 내용을 자동 저장합니다' } else { '저장되지 않음' })
+    $controls.ProjectState.Text = $(if ($State) { $State } elseif ($open) { '변경 내용을 자동 저장합니다' } else { '폴더를 선택하면 자동 저장됩니다.' })
     $controls.ProjectState.Foreground = Get-Brush $(if ($Failed) { 'SideDangerBrush' } else { 'SideMutedBrush' })
-    $controls.ProjectPick.Content = $(if ($open) { '변경' } else { '폴더 지정' })
+    $controls.ProjectPick.Content = $(if ($open) { '변경' } else { '폴더 선택' })
     $controls.ProjectPick.Style = $window.FindResource($(if ($open) { 'SideButton' } else { 'Primary' }))
     $controls.ProjectOpenFolder.Visibility = $(if ($open) { 'Visible' } else { 'Collapsed' })
     $controls.ProjectCard.Background = Get-Brush $(if ($open) { 'SidePanelBrush' } else { 'SideAccentPanelBrush' })

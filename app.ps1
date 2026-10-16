@@ -30,19 +30,31 @@ function Get-KeywordHint($Keyword) {
     if (-not $parts.Count) { return $Keyword.label + "`n기본 색감을 바탕으로 균형 있게 변주합니다." }
     return $Keyword.label + "`n" + ($parts -join ' · ') + "`n씨드와 변주 설정에 따라 변화의 크기가 달라집니다."
 }
+function Update-KeywordLayout($Panel) {
+    if ($Panel.ActualWidth -le 0) { return }
+    $columns = $(if ($Panel.ActualWidth -ge 600) { 2 } else { 1 }); $index = 0
+    foreach ($group in $Panel.Children) {
+        $gap = $(if ($columns -eq 2 -and $index % 2 -eq 0) { 12 } else { 0 })
+        $group.Width = [Math]::Floor(($Panel.ActualWidth - ($columns - 1) * 12) / $columns)
+        $group.Margin = [Windows.Thickness]::new(0,0,$gap,12); $index++
+    }
+}
 function Add-KeywordChips($Panel, $List) {
     foreach ($category in @($keywords | Select-Object -ExpandProperty category -Unique)) {
-        $label = [Windows.Controls.TextBlock]::new(); $label.Text = $category; $label.Style = $window.FindResource('Section')
-        [void]$Panel.Children.Add($label)
-        $wrap = [Windows.Controls.WrapPanel]::new(); $wrap.Margin = [Windows.Thickness]::new(0,0,0,6)
+        $group = [Windows.Controls.Border]::new(); $group.Background = Get-Brush 'SubtleBrush'; $group.CornerRadius = [Windows.CornerRadius]::new(8); $group.Padding = [Windows.Thickness]::new(12)
+        $body = [Windows.Controls.StackPanel]::new()
+        $label = [Windows.Controls.TextBlock]::new(); $label.Text = $category; $label.Style = $window.FindResource('Section'); $label.Margin = [Windows.Thickness]::new(0,0,0,10)
+        [void]$body.Children.Add($label)
+        $wrap = [Windows.Controls.WrapPanel]::new(); $wrap.Margin = [Windows.Thickness]::new(0,0,-6,-6)
         foreach ($keyword in @($keywords | Where-Object { $_.category -eq $category })) {
             $check = [Windows.Controls.CheckBox]::new(); $check.Content = $keyword.label; $check.Tag = $keyword.id
             $check.Style = $window.FindResource('Chip'); $check.ToolTip = Get-KeywordHint $keyword
             $check.Add_Checked({ Update-KeywordSummary }); $check.Add_Unchecked({ Update-KeywordSummary })
             $List.Add($check); [void]$wrap.Children.Add($check)
         }
-        [void]$Panel.Children.Add($wrap)
+        [void]$body.Children.Add($wrap); $group.Child = $body; [void]$Panel.Children.Add($group)
     }
+    $Panel.Add_SizeChanged({ param($sender,$e) if ([Math]::Abs($e.NewSize.Width - $e.PreviousSize.Width) -gt 0.5) { Update-KeywordLayout $sender } })
 }
 # Edits schedule one debounced save of the open project and, if enabled, the API key.
 $script:AutoSaveTimer = [Windows.Threading.DispatcherTimer]::new(); $script:AutoSaveTimer.Interval = [TimeSpan]::FromMilliseconds(1200)

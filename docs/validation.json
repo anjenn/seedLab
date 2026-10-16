@@ -53,5 +53,11 @@
   "mixPipeline": "Windows PowerShell 5.1/WSH offline tests passed: weighted local mixtures; AI plans in two batches, component locks and token accounting; curve and child/attribute slider output; base profile/WB/mask preservation; input hash preflight; cancellation retains mixture provenance",
   "mixUi": "Real app run twice with isolated project: source import, ratio/options editing, default AI off, shared optional API key, local Start-Job output and result ratios, no API calls, relative project inputs/options/last-results restored",
   "mixVisual": "WPF mix tab rendered and inspected with sources, ratios and component selectors; no browser preview used",
-  "nonfiniteUsage": "Windows regression passed: new NaN run metadata and legacy Infinity ledger values normalize to unknown without breaking strict JSON/dashboard"
+  "nonfiniteUsage": "Windows regression passed: new NaN run metadata and legacy Infinity ledger values normalize to unknown without breaking strict JSON/dashboard",
+  "uiRefinement": {
+    "copy": "Korean headings, actions, empty states, API key help, masks, slider limits and keyword directions rewritten; misplaced output tooltip corrected.",
+    "layout": "Adaptive source/settings columns, keyword category groups in one or two columns, full-width mask and note fields, narrower adaptive results detail panel, summary above the count/action row.",
+    "visualVerification": "Real WPF rendered and inspected at 1380x940 and 1140x760: seed, reference, mix, dashboard, empty/filled results, scrolled settings/output, busy state and keyword/slider tooltip popups. All 120 keyword checkboxes retained; tooltip width and primary action bounds checked.",
+    "regression": "70 Node tests and real EXE Windows UI automation passed: 24 seed XMPs and 1 local mixed XMP, 60 keywords in each creation screen, ratio editing, results and dashboard. No real API calls."
+  }
 }
