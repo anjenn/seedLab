@@ -53,7 +53,7 @@ AI 설계는 후보 6개당 최대 한 호출(`ceil(개수/6)`)이며 대시보�
 - **부분 결과 복구:** 파일마다 manifest와 작업 이력을 갱신합니다. 오류나 중지 후에도 저장된 파일 수·후보 정보·폴더 경로가 남고 결과 화면에서 확인할 수 있습니다. 실패/중지 manifest의 `status`는 `failed`/`cancelled`입니다. 실행 중 강제 종료가 발생하면 마지막 체크포인트가 `exporting`으로 남을 수 있습니다.
 - **사용량 최적화:** 씨드·레퍼런스 API 기록을 공통 경로로 통합했습니다. 늦게 도착한 대기 상태가 확인된 토큰을 지우지 않습니다. JSONL은 줄 단위로 읽고, 파일·날짜·필터가 같으면 집계 캐시를 재사용합니다. 캐시 쓰기·추론의 행별 값과 합계에 같은 상한을 적용합니다. 일별 CSV에도 캐시 쓰기와 비용 미확인 건수를 포함합니다.
 
-기존 `%LOCALAPPDATA%\PresetSeedLab\usage-events.jsonl`을 그대로 읽으며 별도 이관은 필요하지 않습니다. 현재 프로젝트에서 `PresetSeedLab.exe`를 실행하세요. 새 런타임 파일 `runtime.ps1`을 비롯한 동봉 파일이 필요합니다. `DesignPreview.html`과 `DesignDashboard.png`는 이전 버전의 샘플 디자인 자료이며 현재 실행 검증의 근거로 사용하지 않습니다.
+기존 `%LOCALAPPDATA%\PresetSeedLab\usage-events.jsonl`을 그대로 읽으며 별도 이관은 필요하지 않습니다. 현재 프로젝트에서 `PresetSeedLab.exe`를 실행하세요. 새 런타임 파일 `runtime.ps1`을 비롯한 동봉 파일이 필요합니다.
 
 ## 실행
 
@@ -141,13 +141,7 @@ API 응답을 받은 즉시 사용량을 저장합니다. 이후 JSON 파싱이�
 
 이 버전부터 앱에서 실행한 작업을 추적합니다. 다른 앱에서 사용한 동일 API 키의 사용량, 이 버전 이전의 실행 기록, 공급자 청구서는 자동으로 가져오지 않습니다. 날짜는 실행 PC의 현지 날짜 기준입니다.
 
-`DesignPreview.html`은 브라우저에서 보는 오프라인 디자인 참고 화면입니다. 샘플 데이터라는 표기가 있으며 실제 API 호출이나 실제 사용 이력과 연결되지 않습니다. 실제 WPF 화면의 스크린샷이 아닙니다.
-
-`DesignDashboard.png`는 같은 색상·배치와 샘플 기록으로 렌더링한 대시보드 디자인 이미지입니다. 차트와 숫자는 `usage.js`의 실제 집계 로직에서 계산했습니다. Windows 앱 실행 캡처가 아닙니다. 개발 환경에서 `node src/export_design_sample.cjs sample.json`과 `python src/render_design.py sample.json DesignDashboard.png`로 다시 만들 수 있습니다(Pillow, PyMuPDF 필요).
-
 추가 검증: `node tests/usage.test.js` (16개 테스트). 기간 경계, 재시작 시 읽는 이벤트 재구성, 중복 제거, 실패 호출, 모델 분리, 주별 합계 보존, 캐시 요금 계산을 검사합니다. Windows 검증 도구는 별도 임시 기록 폴더를 사용하므로 샘플 사용량이 실제 대시보드에 섞이지 않습니다.
-
-검증 환경에 브라우저 실행 바이너리가 없어 HTML 미리보기의 실제 브라우저 렌더링은 확인하지 못했습니다. 미리보기 점검 스크립트 `src/check_preview.cjs`는 Playwright와 브라우저가 준비된 개발 환경에서 실행할 수 있습니다.
 
 ## v1.2 · 레퍼런스로 만들기
 
