@@ -63,7 +63,12 @@
    }
    if(req.groups.curves!=='base')for(k=0;k<curves.length;k++)if(s.curves&&own(s.curves,curves[k]))curve(s.curves[curves[k]],s.name+' · '+curves[k]);
   }
-  return {sources:active,base:base,weights:weights(raw,active.length),groups:req.groups,schema:schema(active.length)};
+  var prepared={sources:active,base:base,weights:weights(raw,active.length),groups:req.groups,schema:schema(active.length)};
+  var preview=blend(prepared,matrix(prepared,null,0)),available=false;
+  for(k in preview.values)if(own(preview.values,k))available=true;
+  for(k in preview.curves)if(own(preview.curves,k))available=true;
+  if(!available)throw Error('선택한 항목에 혼합 가능한 보정값이 없습니다. 다른 항목이나 프리셋을 선택하세요.');
+  return prepared;
  }
  function schema(n){
   var props={},j;

@@ -246,7 +246,7 @@ function Run-Generation($Request, [string]$AppRoot) {
         [void][IO.Directory]::CreateDirectory($Request.output)
         $probe = Join-Path $Request.output ('.SeedLab-write-' + [Guid]::NewGuid().ToString('N'))
         try { [IO.File]::WriteAllText($probe, '') } finally { if ([IO.File]::Exists($probe)) { [IO.File]::Delete($probe) } }
-        $result = $(if ($Request.generationMode -eq 'reference') { Run-ReferenceGenerationCore $Request $AppRoot } else { Run-GenerationCore $Request $AppRoot })
+        $result = $(if ($Request.generationMode -eq 'reference') { Run-ReferenceGenerationCore $Request $AppRoot } elseif ($Request.generationMode -eq 'mix') { Run-MixGenerationCore $Request $AppRoot } else { Run-GenerationCore $Request $AppRoot })
         Record-RunFinish $Request 'completed' $result.folder
         return $result
     } catch {
@@ -258,3 +258,5 @@ function Run-Generation($Request, [string]$AppRoot) {
 
 . (Join-Path $PSScriptRoot 'api.ps1')
 . (Join-Path $PSScriptRoot 'reference.ps1')
+
+. (Join-Path $PSScriptRoot 'mix.ps1')

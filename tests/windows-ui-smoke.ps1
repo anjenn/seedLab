@@ -57,9 +57,25 @@ try {
     if (@($manifest.variants | Where-Object { $_.Details.keywordId -ne 'cute_fantasy' }).Count) { throw 'Selected style keyword was not used for generation.' }
     Click-Control 'ReferenceNav'; $null = Find-Control 'RefAdd'
     $null = Check-KeywordChoices 'ReferencePage'
+    Click-Control 'MixNav'; Click-Control 'MixFromSeeds'
+    $mixToggle = (Find-Control 'MixUseAi').GetCurrentPattern([Windows.Automation.TogglePattern]::Pattern)
+    if ($mixToggle.Current.ToggleState -ne [Windows.Automation.ToggleState]::Off) { throw 'Mix AI was enabled by default.' }
+    (Find-Control 'RatioSlider').GetCurrentPattern([Windows.Automation.RangeValuePattern]::Pattern).SetValue(25)
+    (Find-Control 'MixOutput').GetCurrentPattern([Windows.Automation.ValuePattern]::Pattern).SetValue((Join-Path $temporary 'mix-output'))
+    Click-Control 'Generate'
+    $deadline = [DateTime]::UtcNow.AddSeconds(40)
+    while ([DateTime]::UtcNow -lt $deadline) {
+        $status = (Find-Control 'Status').Current.Name
+        if ($status -match '^XMP 1/1') { break }
+        Start-Sleep -Milliseconds 200
+    }
+    if ($status -notmatch '^XMP 1/1') { throw ('UI mix generation failed: ' + $status) }
+    $mixFile = @(Get-ChildItem -LiteralPath (Join-Path $temporary 'mix-output') -Filter 'manifest.json' -Recurse)[0].FullName
+    $mixture = Get-Content -LiteralPath $mixFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($mixture.mode -ne 'mix' -or $mixture.mix.useAi -or $mixture.usage.calls -ne 0 -or @($mixture.mix.sources).Count -ne 12 -or $mixture.mix.sources[0].weight -ne 25) { throw 'UI mixture did not preserve source weights or local mode.' }
     Click-Control 'DashboardNav'
-    if ((Find-Control 'RunKpi').Current.Name -ne '1') { throw 'Dashboard did not show the local generation.' }
-    Write-Host 'PASS: real EXE launch, navigation, sample import, local generation through Start-Job, 24 XMPs, results and persistent dashboard.'
+    if ((Find-Control 'RunKpi').Current.Name -ne '2') { throw 'Dashboard did not show both local generations.' }
+    Write-Host 'PASS: real EXE launch, navigation, sample import, local generation through Start-Job, 24 seed XMPs and 1 mixed XMP, ratio slider, results and persistent dashboard.'
     Write-Host 'No external API was called. The test used isolated usage/output directories.'
 } finally {
     if ($windowElement) { $windowElement.GetCurrentPattern([Windows.Automation.WindowPattern]::Pattern).Close() }

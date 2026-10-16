@@ -5,6 +5,11 @@ function Get-UsageDirectory {
     if ($env:SEEDLAB_TEST_USAGE_DIR) { return $env:SEEDLAB_TEST_USAGE_DIR }
     return Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'PresetSeedLab'
 }
+function ConvertTo-TrackingValue($Value) {
+    # PowerShell's JSON writer emits NaN/Infinity, which strict JSON readers reject.
+    if (($Value -is [double] -or $Value -is [single]) -and ([double]::IsNaN([double]$Value) -or [double]::IsInfinity([double]$Value))) { return $null }
+    return $Value
+}
 function Write-UsageEvent($Event) {
     $dir = Get-UsageDirectory
     [void][IO.Directory]::CreateDirectory($dir)
@@ -18,7 +23,7 @@ function Write-UsageEvent($Event) {
         # Explicit allowlist: never persist credentials, prompts, source photos.
         $safe = @{}
         foreach ($key in @('eventId','kind','runId','timestampUtc','updatedAtUtc','localDate','localTime','model','responseModel','responseId','status','usageKnown','inputTokens','outputTokens','cachedTokens','cacheWriteTokens','reasoningTokens','estimatedUSD','tokenUSD','searchUSD','webSearchCalls','phase','priceDate','serviceTier','durationMs','batchIndex','requestedCount','generatedCount','seedCount','referenceCount','mode','folder')) {
-            if ($Event.ContainsKey($key)) { $safe[$key] = $Event[$key] }
+            if ($Event.ContainsKey($key)) { $safe[$key] = ConvertTo-TrackingValue $Event[$key] }
         }
         [IO.File]::AppendAllText($path, ($safe | ConvertTo-Json -Compress -Depth 8) + "`n", [Text.UTF8Encoding]::new($false))
     } finally { if ($locked) { $mutex.ReleaseMutex() }; $mutex.Dispose() }
@@ -35,7 +40,11 @@ function Read-UsageEvents {
             try {
                 while ($null -ne ($line = $reader.ReadLine())) {
                     if ([string]::IsNullOrWhiteSpace($line)) { continue }
-                    try { $events.Add(($line | ConvertFrom-Json)) } catch { $unreadable++ }
+                    try {
+                        $event = $line | ConvertFrom-Json
+                        foreach ($property in $event.PSObject.Properties) { $property.Value = ConvertTo-TrackingValue $property.Value }
+                        $events.Add($event)
+                    } catch { $unreadable++ }
                 }
             } finally { $reader.Dispose() }
         }
@@ -59,8 +68,8 @@ function Record-RunStart($Request) {
     $Request.generatedCount = 0
     $model = $(if ($Request.useAi) { $Request.model } else { 'local' })
     $event = New-TrackingBase ($Request.runId + ':start') 'run_start' $Request.runId $model
-    $event.requestedCount = $Request.count; $event.seedCount = $(if ($Request.generationMode -eq 'reference') { 0 } else { @($Request.seeds).Count })
-    $event.mode = $(if ($Request.generationMode -eq 'reference') { 'reference' } elseif ($Request.useAi) { 'ai' } else { 'local' })
+    $event.requestedCount = $Request.count; $event.seedCount = $(if ($Request.generationMode -eq 'mix') { @($Request.sources).Count } elseif ($Request.generationMode -eq 'reference') { 0 } else { @($Request.seeds).Count })
+    $event.mode = $(if ($Request.generationMode -eq 'mix') { 'mix' } elseif ($Request.generationMode -eq 'reference') { 'reference' } elseif ($Request.useAi) { 'ai' } else { 'local' })
     if ($Request.generationMode -eq 'reference') { $event.referenceCount = @($Request.references).Count }
     Write-UsageEvent $event
 }
@@ -69,7 +78,7 @@ function Record-RunFinish($Request, [string]$Status, [string]$Folder = '') {
     $event = New-TrackingBase ($Request.runId + ':finish') 'run_result' $Request.runId $(if ($Request.useAi) { $Request.model } else { 'local' })
     $event.status = $Status; $event.generatedCount = [int]$Request.generatedCount
     $event.requestedCount = $Request.count; $event.folder = $(if ($Folder) { $Folder } else { $Request.runFolder })
-    $event.mode = $(if ($Request.generationMode -eq 'reference') { 'reference' } elseif ($Request.useAi) { 'ai' } else { 'local' })
+    $event.mode = $(if ($Request.generationMode -eq 'mix') { 'mix' } elseif ($Request.generationMode -eq 'reference') { 'reference' } elseif ($Request.useAi) { 'ai' } else { 'local' })
     $event.durationMs = [Math]::Max(0, ([DateTime]::UtcNow - [DateTime]::Parse($Request.startedAt).ToUniversalTime()).TotalMilliseconds)
     Write-UsageEvent $event
 }

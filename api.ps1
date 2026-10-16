@@ -4,7 +4,7 @@
     $Body.model = $Request.model; $Body.store = $false; $Body.service_tier = 'default'
     if ($Request.model -match '^gpt-[56]') { $Body.reasoning = @{ effort = 'low' } }
     $event = New-TrackingBase ($Request.runId + ':' + $Phase + ':' + $BatchIndex) 'api' $Request.runId $Request.model
-    $event.phase = $Phase; $event.mode = $(if ($Request.generationMode -eq 'reference') { 'reference' } else { 'seed' }); $event.batchIndex = $BatchIndex
+    $event.phase = $Phase; $event.mode = $(if ($Request.generationMode -eq 'mix') { 'mix' } elseif ($Request.generationMode -eq 'reference') { 'reference' } else { 'seed' }); $event.batchIndex = $BatchIndex
     $event.status = 'pending'; $event.usageKnown = $false
     Write-UsageEvent $event
     $watch = [Diagnostics.Stopwatch]::StartNew()

@@ -3,7 +3,7 @@ $previousUsageDir = $env:SEEDLAB_TEST_USAGE_DIR
 $temporary = Join-Path ([IO.Path]::GetTempPath()) ('SeedLab-Validation-' + [Guid]::NewGuid().ToString('N'))
 $env:SEEDLAB_TEST_USAGE_DIR = Join-Path $temporary 'usage'
 try {
-    foreach ($name in @('app.ps1', 'functions.ps1', 'tracking.ps1', 'dashboard.ps1', 'api.ps1', 'reference.ps1', 'reference-ui.ps1', 'results-ui.ps1', 'project.ps1', 'runtime.ps1', 'tests/windows-regressions.ps1', 'tests/windows-reference-recovery.ps1', 'ValidateOnWindows.ps1')) {
+    foreach ($name in @('app.ps1', 'functions.ps1', 'tracking.ps1', 'dashboard.ps1', 'api.ps1', 'reference.ps1', 'reference-ui.ps1', 'results-ui.ps1', 'project.ps1', 'runtime.ps1', 'mix.ps1', 'mix-ui.ps1', 'tests/windows-mix.ps1', 'tests/windows-regressions.ps1', 'tests/windows-reference-recovery.ps1', 'ValidateOnWindows.ps1')) {
         $tokens = $null; $parseErrors = $null
         $null = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot $name), [ref]$tokens, [ref]$parseErrors)
         if (@($parseErrors).Count) { throw ($name + ': ' + ($parseErrors.Message -join '; ')) }
@@ -12,7 +12,7 @@ try {
     Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase
     [xml]$ui = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'ui.xaml'), [Text.Encoding]::UTF8)
     $view = [Windows.Markup.XamlReader]::Load([Xml.XmlNodeReader]::new($ui))
-    foreach ($name in @('ReferencePage','RefSubjectGroup','RefBackgroundGroup','UsageCalls','GeneratorForm','ReferenceForm','ReferenceList','ResultsBody','Progress','RunSummary','ProjectCard','ProjectPick','RememberKey','RefRememberKey')) { if (-not $view.FindName($name)) { throw ('Missing WPF control ' + $name) } }
+    foreach ($name in @('ReferencePage','RefSubjectGroup','RefBackgroundGroup','UsageCalls','GeneratorForm','ReferenceForm','ReferenceList','ResultsBody','Progress','RunSummary','ProjectCard','ProjectPick','RememberKey','RefRememberKey','MixPage','MixForm','MixGrid','MixUseAi','MixBase')) { if (-not $view.FindName($name)) { throw ('Missing WPF control ' + $name) } }
     $view.Close()
     $seeds = @(Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot 'examples') -Filter '*.xmp' | ForEach-Object { Get-Seed $_.FullName })
     if ($seeds.Count -ne 12) { throw 'Missing samples.' }
@@ -85,6 +85,7 @@ try {
     if ([IO.File]::ReadAllText($ledgerPath).Contains('TEST_KEY_DO_NOT_SAVE')) { throw 'Reference key was persisted.' }
     . (Join-Path $PSScriptRoot 'tests/windows-regressions.ps1')
     . (Join-Path $PSScriptRoot 'tests/windows-reference-recovery.ps1')
+    . (Join-Path $PSScriptRoot 'tests/windows-mix.ps1')
     # Saved API key: DPAPI round trip, no plaintext on disk, removable.
     . (Join-Path $PSScriptRoot 'project.ps1')
     Save-ApiKey 'sk-TEST_ROUNDTRIP_DO_NOT_STORE'

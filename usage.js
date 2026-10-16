@@ -84,7 +84,7 @@
    if(end&&end.status==='completed'){total.completedRuns++;dayOf(beg.localDate).completedRuns++;}
    runRows.push({RunId:beg.runId,Time:beg.localTime||beg.timestampUtc,Model:modelOf(beg)==='local'?'로컬':modelOf(beg),
     Status:!end?'진행 중 / 종료 미확인':end.status==='completed'?'완료':end.status==='cancelled'?'중지':end.status==='exporting'?'내보내는 중':'실패',
-    Requested:beg.requestedCount||0,Generated:count,Mode:beg.mode==='reference'?'레퍼런스':beg.mode==='local'?'로컬':'씨드',DurationMs:end&&number(end.durationMs)?end.durationMs:null,Folder:end?end.folder||'':''});
+    Requested:beg.requestedCount||0,Generated:count,Mode:beg.mode==='mix'?'믹스매치':beg.mode==='reference'?'레퍼런스':beg.mode==='local'?'로컬':'씨드',DurationMs:end&&number(end.durationMs)?end.durationMs:null,Folder:end?end.folder||'':''});
   }
   var d=start;while(d<=today){dayOf(d);d=shift(d,1);}
   var dailyList=[];for(id in daily)if(own(daily,id))dailyList.push(daily[id]);dailyList.sort(function(a,b){return a.date.localeCompare(b.date);});

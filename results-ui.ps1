@@ -50,7 +50,7 @@ function Show-ResultDetail($Row) {
     $controls.DetailName.Text = $Row.Name; $controls.DetailKeyword.Text = $Row.Keyword; $controls.DetailMode.Text = $Row.ModeText
     $controls.DetailSeed.Text = $Row.Seed
     $controls.DetailReason.Text = $(if ($Row.Reason) { $Row.Reason } else { '기록된 이유가 없습니다.' })
-    $controls.DetailChangesTitle.Text = $(if ($reference) { '추정 보정값' } else { '씨드 대비 변경' })
+    $controls.DetailChangesTitle.Text = $(if ($reference) { '추정 보정값' } elseif ($Row.Details.mode -like 'mix_*') { '기준 프리셋 대비 변경' } else { '씨드 대비 변경' })
     $controls.DetailChanges.Children.Clear(); $controls.DetailLocal.Children.Clear()
     $pairs = @(Get-NamedValues $(if ($reference) { $Row.Details.values } else { $Row.Details.delta }))
     if ($pairs.Count) { Add-ChipGroup $controls.DetailChanges $pairs (-not $reference) }

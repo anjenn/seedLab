@@ -51,6 +51,7 @@ Add-KeywordChips $controls.KeywordGroups $script:KeywordChecks
 . (Join-Path $script:AppRoot 'reference-ui.ps1')
 . (Join-Path $script:AppRoot 'results-ui.ps1')
 . (Join-Path $script:AppRoot 'project.ps1')
+. (Join-Path $script:AppRoot 'mix-ui.ps1')
 
 function Pick-Files([string]$Filter, [bool]$Multi) {
     $dialog = New-Object Microsoft.Win32.OpenFileDialog
@@ -141,6 +142,11 @@ function Update-RunSummary {
             $text = '씨드 {0}개 · 키워드 {1} · 후보 {2}개' -f $used, $(if ($picked) { $picked.ToString() + '개' } else { '자동' }), $count
             $text += $(if ($controls.UseAi.IsChecked) { ' · AI 호출 약 ' + [Math]::Ceiling($count / 12) + '회' } else { ' · 로컬 변주 (API 비용 없음)' })
         }
+    } elseif ($script:CurrentView -eq 'mix') {
+        $used = @($script:MixSources | Where-Object { $_.weight -gt 0 }).Count; $count = 0
+        if ($used -lt 2) { $text = '비율이 0보다 큰 프리셋을 2개 이상 선택하세요'; $warn = $true }
+        elseif (-not [int]::TryParse($controls.MixCount.Text, [ref]$count) -or $count -lt 1 -or $count -gt 24) { $text = '생성 개수는 1–24 사이로 입력하세요'; $warn = $true }
+        else { $text = '프리셋 ' + $used + '개 혼합 · 후보 ' + $count + '개 · ' + $(if ($controls.MixUseAi.IsChecked) { 'AI 설계 약 ' + [Math]::Ceiling($count / 6) + '회' } else { '로컬 처리 (API 비용 없음)' }) }
     } elseif ($script:CurrentView -eq 'reference') {
         $photos = $script:References.Count; $mode = $controls.RefMode.SelectedItem.Tag
         $count = 0; $validCount = [int]::TryParse($controls.RefCount.Text, [ref]$count) -and $count -ge 1 -and $count -le 120
@@ -220,12 +226,19 @@ $controls.MaskButton.Add_Click({ $files = @(Pick-Files 'Mask preset (*.xmp)|*.xm
 $controls.MaskClear.Add_Click({ Set-SeedMask '' })
 $controls.ChooseOutput.Add_Click({ $folder = Pick-Folder $controls.Output.Text; if ($folder) { $controls.Output.Text = $folder } })
 $controls.OpenOutput.Add_Click({ Open-Folder $script:LastFolder })
-# One OpenAI key serves both creation screens; it only lives in these two PasswordBoxes.
-$controls.ApiKey.Add_PasswordChanged({ if (-not $script:SyncingKey -and $controls.RefApiKey.Password -ne $controls.ApiKey.Password) { $script:SyncingKey = $true; $controls.RefApiKey.Password = $controls.ApiKey.Password; $script:SyncingKey = $false } })
-$controls.RefApiKey.Add_PasswordChanged({ if (-not $script:SyncingKey -and $controls.ApiKey.Password -ne $controls.RefApiKey.Password) { $script:SyncingKey = $true; $controls.ApiKey.Password = $controls.RefApiKey.Password; $script:SyncingKey = $false } })
+# One OpenAI key is shared by the creation screens.
+function Sync-SharedApiKey($Sender) {
+    if ($script:SyncingKey) { return }
+    $script:SyncingKey = $true
+    try { foreach ($name in @('ApiKey','RefApiKey','MixApiKey')) { if ($controls[$name] -ne $Sender -and $controls[$name].Password -ne $Sender.Password) { $controls[$name].Password = $Sender.Password } } }
+    finally { $script:SyncingKey = $false }
+    if ($controls.RememberKey.IsChecked) { Request-AutoSave }
+}
+foreach ($name in @('ApiKey','RefApiKey','MixApiKey')) { $controls[$name].Add_PasswordChanged({ param($sender,$e) Sync-SharedApiKey $sender }) }
+
 
 function Set-Busy([bool]$Busy) {
-    foreach ($name in @('GeneratorForm','ReferenceForm','ProjectPick')) { $controls[$name].IsEnabled = -not $Busy }
+    foreach ($name in @('GeneratorForm','ReferenceForm','MixForm','ProjectPick')) { $controls[$name].IsEnabled = -not $Busy }
     $controls.Generate.IsEnabled = -not $Busy; $controls.Cancel.IsEnabled = $Busy
     $controls.Cancel.Visibility = $(if ($Busy) { 'Visible' } else { 'Collapsed' })
     $controls.Progress.Visibility = $(if ($Busy) { 'Visible' } else { 'Collapsed' }); $controls.Progress.IsIndeterminate = $true
@@ -252,7 +265,7 @@ $timer.Add_Tick({
     $state = $script:Job.State
     Remove-Job $script:Job -Force; $script:Job = $null
     if ($script:ActiveRequest.cancelPath -and [IO.File]::Exists($script:ActiveRequest.cancelPath)) { [IO.File]::Delete($script:ActiveRequest.cancelPath) }
-    $requestedCount = $script:ActiveRequest.count; $mode = $(if ($script:ActiveRequest.generationMode -eq 'reference') { '레퍼런스' } elseif ($script:ActiveRequest.useAi) { 'AI 설계' } else { '로컬 변주' })
+    $requestedCount = $script:ActiveRequest.count; $mode = $(if ($script:ActiveRequest.generationMode -eq 'mix') { '믹스매치' } elseif ($script:ActiveRequest.generationMode -eq 'reference') { '레퍼런스' } elseif ($script:ActiveRequest.useAi) { 'AI 설계' } else { '로컬 변주' })
     $script:ActiveRequest = $null; $script:CancelRequested = $false
     if ($state -eq 'Stopped') { Set-Status '중지됨. 이미 처리된 API 요청은 과금될 수 있습니다.' 'error'; return }
     if (-not $reply.Count -or -not $reply[-1].success) {
@@ -280,7 +293,9 @@ $timer.Add_Tick({
 function Start-Generation {
     if ($script:Job) { return }
     try {
-        if ($script:CurrentView -eq 'reference') {
+        if ($script:CurrentView -eq 'mix') {
+            $request = New-MixRequest
+        } elseif ($script:CurrentView -eq 'reference') {
             $request = New-ReferenceRequest
         } else {
         [void]$controls.SeedGrid.CommitEdit(); [void]$controls.SeedGrid.CommitEdit([Windows.Controls.DataGridEditingUnit]::Row, $true)
@@ -302,7 +317,7 @@ function Start-Generation {
         $script:CancelRequested = $false
         Record-RunStart $request; $script:ActiveRequest = $request
         Set-Busy $true; $script:JobStarted = [DateTime]::Now
-        Set-Status $(if ($request.generationMode -eq 'reference') { '레퍼런스 분석·검색·보정값 추정 중… 사용량 대시보드에서 진행된 호출을 확인할 수 있어요.' } elseif ($request.useAi) { 'AI가 방향을 설계하고 있습니다…' } else { '씨드 기반 변주를 생성하고 있습니다…' }) 'busy'
+        Set-Status $(if ($request.generationMode -eq 'mix') { '프리셋 조합을 만들고 있습니다…' } elseif ($request.generationMode -eq 'reference') { '레퍼런스 분석·검색·보정값 추정 중… 사용량 대시보드에서 진행된 호출을 확인할 수 있어요.' } elseif ($request.useAi) { 'AI가 방향을 설계하고 있습니다…' } else { '씨드 기반 변주를 생성하고 있습니다…' }) 'busy'
         $script:Job = Start-Job -ScriptBlock { param($root, $req); try { . (Join-Path $root 'functions.ps1'); @{ success = $true; result = (Run-Generation $req $root) } } catch { @{ success = $false; error = $_.Exception.Message; cancelled = ($_.Exception -is [OperationCanceledException]); folder = $req.runFolder; rows = $(if ($req.exportedRows) { @($req.exportedRows.ToArray()) } else { @() }) } } } -ArgumentList $script:AppRoot, $request
         $timer.Start()
     } catch { Set-Busy $false; if ($script:ActiveRequest -and -not $script:Job) { Record-RunFinish $script:ActiveRequest 'failed'; $script:ActiveRequest = $null; Refresh-Dashboard }; Show-Notice $_.Exception.Message '확인' }
@@ -318,14 +333,14 @@ $script:References.Add_CollectionChanged({ Request-AutoSave })
 $controls.ApiKey.Add_PasswordChanged({ if ($controls.RememberKey.IsChecked) { Request-AutoSave } })
 
 function Update-KeyHint {
-    $text = $(if ($controls.RememberKey.IsChecked) { 'Windows 계정으로 암호화해 이 PC에만 저장 · 두 화면 공용' } else { '꺼 두면 키는 메모리에만 있고 앱을 닫을 때 지워집니다' })
+    $text = $(if ($controls.RememberKey.IsChecked) { 'Windows 계정으로 암호화해 이 PC에만 저장 · 세 화면 공용' } else { '꺼 두면 키는 메모리에만 있고 앱을 닫을 때 지워집니다' })
     $controls.KeyHint.Text = $text; $controls.RefKeyHint.Text = $text
 }
 function Set-RememberKey([bool]$On) {
     if ($script:SyncingRemember) { return }
     $script:SyncingRemember = $true
     try {
-        foreach ($name in @('RememberKey','RefRememberKey')) { if ([bool]$controls[$name].IsChecked -ne $On) { $controls[$name].IsChecked = $On } }
+        foreach ($name in @('RememberKey','RefRememberKey','MixRememberKey')) { if ([bool]$controls[$name].IsChecked -ne $On) { $controls[$name].IsChecked = $On } }
         if (-not $script:Restoring) {
             if ($On -and $controls.ApiKey.Password) { try { Save-ApiKey $controls.ApiKey.Password; Set-Status 'API 키를 암호화해 이 PC에 저장했습니다.' 'success' } catch { Set-Status ('API 키를 저장하지 못했습니다: ' + $_.Exception.Message) 'error' } }
             elseif ($On) { Set-Status '키를 입력하면 이 PC에 암호화해 저장합니다.' }
@@ -334,7 +349,7 @@ function Set-RememberKey([bool]$On) {
     } finally { $script:SyncingRemember = $false }
     Update-KeyHint
 }
-foreach ($name in @('RememberKey','RefRememberKey')) { $controls[$name].Add_Checked({ Set-RememberKey $true }); $controls[$name].Add_Unchecked({ Set-RememberKey $false }) }
+foreach ($name in @('RememberKey','RefRememberKey','MixRememberKey')) { $controls[$name].Add_Checked({ Set-RememberKey $true }); $controls[$name].Add_Unchecked({ Set-RememberKey $false }) }
 $controls.ProjectPick.Add_Click({
     $folder = Pick-Folder $(if ($script:ProjectRoot) { $script:ProjectRoot } else { [Environment]::GetFolderPath('MyDocuments') }) '프로젝트로 쓸 폴더를 고르거나 새 폴더를 만드세요. 기존 Seed Lab 프로젝트 폴더를 고르면 그 작업을 엽니다.'
     if ($folder) { try { Open-Project $folder $true } catch { Show-Notice $_.Exception.Message '프로젝트' } }
@@ -363,11 +378,11 @@ Update-ProjectCard
 $window.Add_PreviewKeyDown({ param($sender, $e)
     $ctrl = ([Windows.Input.Keyboard]::Modifiers -band [Windows.Input.ModifierKeys]::Control) -eq [Windows.Input.ModifierKeys]::Control
     if ($ctrl) {
-        $view = switch ($e.Key.ToString()) { { $_ -in 'D1','NumPad1' } { 'generator' } { $_ -in 'D2','NumPad2' } { 'reference' } { $_ -in 'D3','NumPad3' } { 'results' } { $_ -in 'D4','NumPad4' } { 'dashboard' } }
+        $view = switch ($e.Key.ToString()) { { $_ -in 'D1','NumPad1' } { 'generator' } { $_ -in 'D2','NumPad2' } { 'reference' } { $_ -in 'D3','NumPad3' } { 'results' } { $_ -in 'D4','NumPad4' } { 'dashboard' } { $_ -in 'D5','NumPad5' } { 'mix' } }
         if ($view) { Set-View $view; $e.Handled = $true }
         elseif ($e.Key -eq [Windows.Input.Key]::Enter) { if ($controls.Generate.IsVisible -and $controls.Generate.IsEnabled) { Start-Generation }; $e.Handled = $true }
         elseif ($e.Key -eq [Windows.Input.Key]::O -and -not $script:Job) {
-            if ($script:CurrentView -eq 'generator') { Add-Seeds (Pick-Files 'Lightroom preset (*.xmp)|*.xmp' $true) } elseif ($script:CurrentView -eq 'reference') { Add-References (Pick-Files 'Reference photos (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png' $true) }
+            if ($script:CurrentView -eq 'generator') { Add-Seeds (Pick-Files 'Lightroom preset (*.xmp)|*.xmp' $true) } elseif ($script:CurrentView -eq 'mix') { Add-MixSources (Pick-Files 'Lightroom preset (*.xmp)|*.xmp' $true) } elseif ($script:CurrentView -eq 'reference') { Add-References (Pick-Files 'Reference photos (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png' $true) }
             $e.Handled = $true
         }
     } elseif ($e.Key -eq [Windows.Input.Key]::F5 -and $script:CurrentView -eq 'dashboard') { Refresh-Dashboard; $e.Handled = $true }
@@ -377,9 +392,9 @@ $window.Add_Closing({ param($sender, $e)
         if ([Windows.MessageBox]::Show($window, '생성 작업이 진행 중입니다. 창을 닫으면 작업을 중지합니다. 그래도 닫을까요?', '작업 진행 중', 'YesNo', 'Warning') -ne 'Yes') { $e.Cancel = $true; return }
     }
     Save-AutoNow; Save-Settings
-    $timer.Stop(); $usageTimer.Stop(); $controls.ApiKey.Clear(); $controls.RefApiKey.Clear(); Stop-TrackedJob -Force; if ($script:Job) { Remove-Job $script:Job -Force }
+    $timer.Stop(); $usageTimer.Stop(); $controls.ApiKey.Clear(); $controls.RefApiKey.Clear(); $controls.MixApiKey.Clear(); Stop-TrackedJob -Force; if ($script:Job) { Remove-Job $script:Job -Force }
 })
-$window.Add_Loaded({ Update-SeedCount; Update-ReferenceCount; Update-KeywordSummary; Set-View $script:StartView })
+$window.Add_Loaded({ Refresh-MixChoices; Update-SeedCount; Update-ReferenceCount; Update-KeywordSummary; Set-View $script:StartView })
 [void]$window.ShowDialog()
 } catch {
     Add-Type -AssemblyName PresentationFramework

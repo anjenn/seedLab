@@ -2,19 +2,20 @@
 function Format-Cost($Value) { if ($null -eq $Value) { return '—' }; return '$' + ([double]$Value).ToString('0.0000', [Globalization.CultureInfo]::InvariantCulture) }
 function Set-View([string]$View) {
     $script:CurrentView = $View
-    foreach ($name in @('DashboardPage','GeneratorPage','ReferencePage','ResultsPage')) { $controls[$name].Visibility = 'Collapsed' }
-    foreach ($name in @('DashboardNav','GeneratorNav','ReferenceNav','ResultsNav')) { $controls[$name].Background = 'Transparent'; $controls[$name].Foreground = '#3E4C63'; $controls[$name].FontWeight = [Windows.FontWeights]::Normal }
+    foreach ($name in @('DashboardPage','GeneratorPage','ReferencePage','MixPage','ResultsPage')) { $controls[$name].Visibility = 'Collapsed' }
+    foreach ($name in @('DashboardNav','GeneratorNav','ReferenceNav','MixNav','ResultsNav')) { $controls[$name].Background = 'Transparent'; $controls[$name].Foreground = '#3E4C63'; $controls[$name].FontWeight = [Windows.FontWeights]::Normal }
     switch ($View) {
         'dashboard' { $page = 'DashboardPage'; $nav = 'DashboardNav'; $title = '사용량 대시보드'; $subtitle = '토큰과 이용 추세를 한눈에 확인하세요.' }
         'generator' { $page = 'GeneratorPage'; $nav = 'GeneratorNav'; $title = '프리셋 생성'; $subtitle = '내 스타일을 유지하며 새로운 보정 방향을 탐색하세요.' }
         'reference' { $page = 'ReferencePage'; $nav = 'ReferenceNav'; $title = '레퍼런스로 만들기'; $subtitle = '사진의 스타일을 분석해 전체·인물·배경 보정값을 추정합니다.' }
+        'mix' { $page = 'MixPage'; $nav = 'MixNav'; $title = '프리셋 믹스매치'; $subtitle = '내 프리셋의 톤과 색감을 원하는 비율로 조합하세요.' }
         'results' { $page = 'ResultsPage'; $nav = 'ResultsNav'; $title = '생성 결과'; $subtitle = '후보별 변화와 보정값을 확인하고 Lightroom의 프리셋 가져오기로 불러오세요.' }
     }
     $controls[$page].Visibility = 'Visible'; $controls[$nav].Background = '#EAF1FC'; $controls[$nav].Foreground = '#2F5A97'; $controls[$nav].FontWeight = [Windows.FontWeights]::SemiBold
     $controls.PageTitle.Text = $title; $controls.PageSubtitle.Text = $subtitle
     # The primary action only appears where a run can be configured.
-    $controls.Generate.Visibility = $(if ($View -in @('generator','reference')) { 'Visible' } else { 'Collapsed' })
-    $controls.Generate.Content = $(if ($View -eq 'reference') { '레퍼런스 프리셋 생성' } else { '프리셋 생성' })
+    $controls.Generate.Visibility = $(if ($View -in @('generator','reference','mix')) { 'Visible' } else { 'Collapsed' })
+    $controls.Generate.Content = $(if ($View -eq 'mix') { '믹스매치 생성' } elseif ($View -eq 'reference') { '레퍼런스 프리셋 생성' } else { '프리셋 생성' })
     $controls.OpenOutput.Visibility = $(if ($script:LastFolder -and $View -ne 'results') { 'Visible' } else { 'Collapsed' })
     Update-RunSummary
     if ($View -eq 'dashboard') { Refresh-Dashboard }
@@ -88,7 +89,7 @@ function Refresh-Dashboard {
             $_ | Add-Member -NotePropertyName OutputText -NotePropertyValue $(if ($_.UsageKnown) { Format-Count $_.Output } else { '—' })
             $_ | Add-Member -NotePropertyName TotalText -NotePropertyValue $(if ($_.UsageKnown) { Format-Count $_.Total } else { '—' })
             $_ | Add-Member -NotePropertyName CostText -NotePropertyValue (Format-Cost $_.USD)
-            $_ | Add-Member -NotePropertyName PhaseText -NotePropertyValue $(if ($_.Phase -eq 'reference_analysis') { '사진 분석' } elseif ($_.Phase -eq 'reference_research') { '보정 검색' } elseif ($_.Phase -eq 'reference_recipe') { '보정 추정' } else { '씨드 변주' })
+            $_ | Add-Member -NotePropertyName PhaseText -NotePropertyValue $(if ($_.Phase -eq 'mix_design') { '믹스매치 설계' } elseif ($_.Phase -eq 'reference_analysis') { '사진 분석' } elseif ($_.Phase -eq 'reference_research') { '보정 검색' } elseif ($_.Phase -eq 'reference_recipe') { '보정 추정' } else { '씨드 변주' })
             $_
         })
         $controls.UsageRuns.ItemsSource = @($data.runs | Select-Object -First 200)
@@ -148,6 +149,7 @@ function Stop-TrackedJob([switch]$Force) {
 $controls.DashboardNav.Add_Click({ Set-View 'dashboard' })
 $controls.GeneratorNav.Add_Click({ Set-View 'generator' })
 $controls.ReferenceNav.Add_Click({ Set-View 'reference' })
+$controls.MixNav.Add_Click({ Set-View 'mix' })
 $controls.ResultsNav.Add_Click({ Set-View 'results' })
 $controls.RefreshUsage.Add_Click({ Refresh-Dashboard })
 $controls.Period.Add_SelectionChanged({ if (-not $script:DashboardBusy) { Refresh-Dashboard } })

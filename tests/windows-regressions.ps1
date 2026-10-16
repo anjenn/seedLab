@@ -92,6 +92,14 @@ try {
     Write-UsageEvent $more
     $fresh = Get-UsageDashboard $root 7 'all'
     Assert-Regression ($fresh.totals.calls -eq $cold.totals.calls + 1) 'Dashboard did not invalidate after an append.'
+    # Invalid numeric input must not poison the JSONL ledger or later dashboards.
+    $invalid = New-TrackingBase 'nonfinite-run' 'run_start' 'nonfinite-run' 'local'
+    $invalid.mode = 'local'; $invalid.requestedCount = [double]::NaN
+    Write-UsageEvent $invalid
+    $invalid.eventId = 'legacy-infinity'; $invalid.runId = 'legacy-infinity'; $invalid.requestedCount = [double]::PositiveInfinity
+    [IO.File]::AppendAllText((Join-Path (Get-UsageDirectory) 'usage-events.jsonl'), ($invalid | ConvertTo-Json -Compress) + "`n", [Text.UTF8Encoding]::new($false))
+    $repairedLedger = Get-UsageDashboard $root 7 'all'
+    Assert-Regression (@($repairedLedger.runs | Where-Object { $_.RunId -in @('nonfinite-run','legacy-infinity') -and $_.Requested -eq 0 }).Count -eq 2) 'Nonfinite run metadata broke dashboard parsing.'
     Write-Host 'PASS: mutation preflight, atomic XMP, seed shared API, malformed-output usage, cancellation during HTTP/export, partial recovery, dashboard cache.'
 } finally {
     Set-Item Function:Invoke-RestMethod $transport

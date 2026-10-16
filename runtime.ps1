@@ -25,11 +25,11 @@ function Set-GenerationProgress($Request, [string]$Phase, [int]$Done = 0, [int]$
 function Save-PartialManifest($Request, [string]$Status) {
     if (-not $Request.runFolder) { return }
     $manifest = @{ version = '1.4.0'; runId = $Request.runId; status = $Status; createdAt = $Request.startedAt;
-        mode = $(if ($Request.generationMode -eq 'reference') { 'reference' } elseif ($Request.useAi) { 'ai' } else { 'local' });
+        mode = $(if ($Request.generationMode -eq 'mix') { 'mix' } elseif ($Request.generationMode -eq 'reference') { 'reference' } elseif ($Request.useAi) { 'ai' } else { 'local' });
         requestedCount = $Request.count; generatedCount = $Request.generatedCount; randomSeed = $Request.randomSeed;
         fidelity = $Request.fidelity; variation = $Request.variation; keywordIds = $Request.keywordIds;
         variants = @($Request.exportedRows.ToArray()); usage = $Request.usageSummary;
-        repairs = @($Request.repairs); warnings = @($Request.generationWarnings) }
+        mix = $Request.mix; repairs = @($Request.repairs); warnings = @($Request.generationWarnings) }
     Write-AtomicJson (Join-Path $Request.runFolder 'manifest.json') $manifest
 }
 
