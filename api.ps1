@@ -15,7 +15,18 @@
         $watch.Stop(); $event.status = 'failed'; $event.durationMs = $watch.ElapsedMilliseconds
         $event.updatedAtUtc = [DateTime]::UtcNow.ToString('o'); Write-UsageEvent $event
         Test-GenerationCancelled $Request
-        throw ('AI 요청 실패 (' + $Phase + '). 사용량 미확인 호출은 대시보드에 별도로 남습니다. ' + $_.Exception.Message)
+        $statusCode = 0
+        if ($_.Exception.Response) { $statusCode = [int]$_.Exception.Response.StatusCode }
+        $hint = switch ($statusCode) {
+            400 { '선택한 모델이 이미지·구조화 출력·검색 옵션을 지원하는지 확인하세요.' }
+            401 { 'API 키가 올바른지 확인하고 다시 입력하세요.' }
+            403 { '이 API 키와 프로젝트에 모델 접근 권한이 있는지 확인하세요.' }
+            404 { '모델 ID와 해당 모델의 접근 권한을 확인하세요.' }
+            429 { 'API 사용 한도·잔액·요청 속도 제한을 확인하고 잠시 후 다시 실행하세요.' }
+            { $_ -ge 500 } { 'API 서버 오류입니다. 잠시 후 다시 실행하세요.' }
+            default { '연결 또는 응답 대기 중 실패했습니다. 네트워크를 확인하세요.' }
+        }
+        throw ('AI 요청 실패 (' + $Phase + $(if ($statusCode) { ', HTTP ' + $statusCode }) + '). ' + $hint + ' 자동 재요청은 하지 않았습니다. 사용량 미확인 호출은 대시보드에 별도로 남습니다.')
     }
     $watch.Stop(); $event.durationMs = $watch.ElapsedMilliseconds
     $event.status = $(if ($response.status -eq 'completed') { 'completed' } else { 'incomplete' })
@@ -52,13 +63,30 @@
     # A cancellation during HTTP must still account for the returned usage.
     Test-GenerationCancelled $Request
     if ($refusals.Count) { throw 'AI가 요청을 거절했습니다. 입력 사진이나 보정 설명을 변경하세요. 확인된 사용량은 기록되었습니다.' }
-    if ($response.status -ne 'completed') { throw ('AI 응답이 완료되지 않았습니다 (' + $Phase + '). 레퍼런스 수를 줄이거나 모델을 변경하세요.') }
+    if ($response.status -ne 'completed') {
+        $hint = switch ($response.incomplete_details.reason) {
+            'max_output_tokens' { '출력 토큰 한도로 응답이 잘렸습니다. 사진 수를 줄이거나 모델을 변경하세요.' }
+            'content_filter' { '응답이 콘텐츠 필터에서 중단되었습니다. 입력 사진이나 설명을 변경하세요.' }
+            default { '서버가 완성된 응답을 반환하지 않았습니다. 잠시 후 다시 실행하거나 모델을 변경하세요.' }
+        }
+        throw ('AI 응답 미완료 (' + $Phase + '). ' + $hint + ' 확인된 사용량은 기록되었습니다.')
+    }
     return $response
 }
 function Get-ResponseText($Response) {
     $parts = @($Response.output | Where-Object { $_.type -eq 'message' } | ForEach-Object { $_.content } | Where-Object { $_.type -eq 'output_text' } | ForEach-Object { $_.text })
     if (-not $parts.Count) { throw 'AI가 분석 결과를 반환하지 않았습니다.' }
     return $parts -join "`n"
+}
+function ConvertFrom-ResponseJson($Response, [string]$Phase) {
+    try {
+        $parsed = (Get-ResponseText $Response) | ConvertFrom-Json
+        if ($null -eq $parsed -or $parsed -isnot [pscustomobject]) { throw 'Expected a JSON object.' }
+        return $parsed
+    } catch {
+        # Do not include the raw response or auto-resubmit a paid request.
+        throw ('AI 응답 형식 오류 (' + $Phase + '). 완전한 JSON 객체를 받지 못했습니다. 구조화 출력을 지원하는 모델인지 확인한 뒤 다시 실행하세요. 확인된 사용량은 기록되었습니다.')
+    }
 }
 function New-StructuredBody([string]$Prompt, $Context, $Schema, [string]$Name, [int]$Budget, $Images = @()) {
     $content = @(@{ type = 'input_text'; text = ($Context | ConvertTo-Json -Depth 40 -Compress) })

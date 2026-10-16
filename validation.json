@@ -15,12 +15,13 @@
     "real seed/reference visual fidelity and diversity evaluation in Lightroom"
   ],
   "usageTests": "16 passed",
-  "totalLogicTests": 47,
+  "totalLogicTests": 54,
   "nativeUi": "real EXE UI Automation passed: navigation, sample import, Start-Job local generation, 24 XMPs, results and dashboard",
   "uiRedesign": "v1.4 WPF redesign rendered offscreen and inspected (dashboard, both creation screens, busy state, empty and filled results); preferences save/restore without API key, shared API key, seed select-all toggle, run summary call estimates and result detail chips checked by script. Drag and drop, keyboard shortcuts and EXIF-rotated thumbnails were not exercised by automation.",
+  "projectPersistence": "Real app.ps1 run three times offscreen: new project copies current seeds and later additions without duplicates, photos copied, relative paths, local Start-Job generation into project outputs, restart restores seeds/use flags/keywords/notes/options/reference photos/target/last results/view; remembered API key is DPAPI-encrypted outside settings and project files, restored, and deleted when turned off. ValidateOnWindows adds DPAPI round trip and project import checks.",
   "preview": "Offline HTML sample preview included; browser execution unavailable in this environment",
   "designImage": "1380 x 940 rendered design reference inspected; not a Windows screenshot; sample totals from shared usage.js",
-  "referenceTests": "17 passed",
+  "referenceTests": "24 passed",
   "referenceCapacityTested": 24,
   "referenceMaximumCandidatesTested": 120,
   "referenceMaskUnits": "UI exposure converted to EV/4; supported local sliders converted to UI/100",
@@ -45,5 +46,9 @@
       "스타일": 8
     },
     "verification": "Exact requested labels/order, shared engine/UI data, both Windows screens, selected cute_fantasy style exported to 24 XMPs"
-  }
+  },
+  "referenceRecovery": "Windows PowerShell 5.1 / WSH passed: nonmonotonic, fractional and out-of-range curves; degenerate curve neutral fallback; finite slider clamping; audit in XMP/manifest/analysis and cancelled partial export; no additional API calls",
+  "referenceInputPreflight": "Real System.Drawing decoding passed: valid PNG, hash mismatch, corrupt fifth reference and corrupt target rejected before HTTP, handles released; analyzed image snapshots reused for recipes",
+  "apiFailureHandling": "Offline fixtures passed: malformed JSON/recipe, incomplete max_output_tokens, refusal, network failure; no automatic retry, recorded usage retained",
+  "curveStress": "400 deterministic cases / 1,600 channel curves: integer, bounded, nondecreasing and nonconstant"
 }

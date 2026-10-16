@@ -28,7 +28,8 @@ function Save-PartialManifest($Request, [string]$Status) {
         mode = $(if ($Request.generationMode -eq 'reference') { 'reference' } elseif ($Request.useAi) { 'ai' } else { 'local' });
         requestedCount = $Request.count; generatedCount = $Request.generatedCount; randomSeed = $Request.randomSeed;
         fidelity = $Request.fidelity; variation = $Request.variation; keywordIds = $Request.keywordIds;
-        variants = @($Request.exportedRows.ToArray()); usage = $Request.usageSummary }
+        variants = @($Request.exportedRows.ToArray()); usage = $Request.usageSummary;
+        repairs = @($Request.repairs); warnings = @($Request.generationWarnings) }
     Write-AtomicJson (Join-Path $Request.runFolder 'manifest.json') $manifest
 }
 

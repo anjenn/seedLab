@@ -120,14 +120,23 @@ function Invoke-Engine([string]$AppRoot, $Core) {
         return $result
     } finally { if (Test-Path -LiteralPath $tmp) { Remove-Item -LiteralPath $tmp -Recurse -Force } }
 }
-function Get-PhotoData([string]$Path, [int]$MaxEdge = 1024) {
+function Get-PhotoData([string]$Path, [int]$MaxEdge = 1024, [string]$ExpectedHash = '') {
     Add-Type -AssemblyName System.Drawing
-    $image = [Drawing.Image]::FromFile($Path, $true)
-    $bitmap = $null; $graphics = $null; $stream = $null
+    $image = $null; $file = $null; $sha = $null; $bitmap = $null; $graphics = $null; $stream = $null
     try {
+        if ($MaxEdge -lt 1 -or $MaxEdge -gt 2048) { throw '사진 축소 크기는 1~2048이어야 합니다.' }
+        $file = [IO.File]::Open($Path, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
+        if ($ExpectedHash) {
+            $sha = [Security.Cryptography.SHA256]::Create()
+            $hash = [BitConverter]::ToString($sha.ComputeHash($file)).Replace('-', '')
+            if ($hash -ne $ExpectedHash) { throw '등록 후 사진이 변경되었습니다. 다시 추가하세요.' }
+            $file.Position = 0
+        }
+        $image = [Drawing.Image]::FromStream($file, $true, $true)
         # Honor common EXIF orientations before vision analysis.
         if ($image.PropertyIdList -contains 274) {
-            $orientation = [BitConverter]::ToUInt16($image.GetPropertyItem(274).Value, 0)
+            $orientationBytes = $image.GetPropertyItem(274).Value
+            $orientation = $(if ($orientationBytes.Length -ge 2) { [BitConverter]::ToUInt16($orientationBytes, 0) } else { 1 })
             $rotation = @{ 2 = 4; 3 = 2; 4 = 6; 5 = 5; 6 = 1; 7 = 7; 8 = 3 }
             if ($rotation.ContainsKey([int]$orientation)) { $image.RotateFlip([Drawing.RotateFlipType]($rotation[[int]$orientation])) }
         }
@@ -140,8 +149,11 @@ function Get-PhotoData([string]$Path, [int]$MaxEdge = 1024) {
         $stream = New-Object IO.MemoryStream
         $bitmap.Save($stream, [Drawing.Imaging.ImageFormat]::Jpeg)
         return 'data:image/jpeg;base64,' + [Convert]::ToBase64String($stream.ToArray())
+    } catch {
+        throw ('사진을 읽을 수 없습니다: ' + [IO.Path]::GetFileName($Path) + '. 파일을 확인하고 JPG/PNG로 다시 저장해 추가하세요. ' + $_.Exception.Message)
     } finally {
-        if ($stream) { $stream.Dispose() }; if ($graphics) { $graphics.Dispose() }; if ($bitmap) { $bitmap.Dispose() }; $image.Dispose()
+        if ($stream) { $stream.Dispose() }; if ($graphics) { $graphics.Dispose() }; if ($bitmap) { $bitmap.Dispose() }
+        if ($image) { $image.Dispose() }; if ($file) { $file.Dispose() }; if ($sha) { $sha.Dispose() }
     }
 }
 function Invoke-AiPlans($Request, $Prepared) {
@@ -169,7 +181,7 @@ You design constrained Lightroom preset variations. Each assignment has one immu
         $images = $(if ($photo) { @(@{ label = '보정 방향 분석용 사진'; data = $photo }) } else { @() })
         $body = New-StructuredBody $prompt $context $schema 'preset_variant_plans' ([Math]::Max(2500, $batch.Count * 320 + 1500)) $images
         $response = Invoke-TrackedResponse $Request $body 'seed_variation' ([int]($offset / 12) + 1)
-        $parsed = (Get-ResponseText $response) | ConvertFrom-Json
+        $parsed = ConvertFrom-ResponseJson $response '씨드 AI 설계'
         if (@($parsed.plans).Count -ne $batch.Count) { throw 'AI 후보 수가 요청과 다릅니다.' }
         foreach ($plan in @($parsed.plans)) { $allPlans.Add($plan) }
     }
@@ -228,7 +240,7 @@ function Run-Generation($Request, [string]$AppRoot) {
         foreach ($key in @('fidelity','variation')) {
             if ($null -eq $Request[$key] -or [double]::IsNaN([double]$Request[$key]) -or [double]$Request[$key] -lt 0 -or [double]$Request[$key] -gt 100) { throw '충실도와 변주 폭은 0~100이어야 합니다.' }
         }
-        if ($Request.count -lt 1 -or $Request.count -gt 120 -or [double]$Request.count -ne [Math]::Floor([double]$Request.count)) { throw '생성 개수는 1~120 정수여야 합니다.' }
+        if ($null -eq $Request.count -or [double]::IsNaN([double]$Request.count) -or $Request.count -lt 1 -or $Request.count -gt 120 -or [double]$Request.count -ne [Math]::Floor([double]$Request.count)) { throw '생성 개수는 1~120 정수여야 합니다.' }
         if ($Request.useAi -and ([string]::IsNullOrWhiteSpace($Request.apiKey) -or [string]::IsNullOrWhiteSpace($Request.model))) { throw 'API 키와 모델을 입력하세요.' }
         Test-GenerationCancelled $Request
         [void][IO.Directory]::CreateDirectory($Request.output)

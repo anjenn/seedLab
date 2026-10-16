@@ -11,29 +11,47 @@ function Update-ReferenceCount {
     foreach ($name in @('RefRemove','RefClear')) { $controls[$name].IsEnabled = $script:References.Count -gt 0 }
     Update-RunSummary
 }
-function Add-References($Paths) {
+function Add-References($Paths, [switch]$Quiet) {
     $errors = @(); $added = 0
     foreach ($path in @($Paths)) {
         try {
             $hash = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash
             if (@($script:References | Where-Object { $_.hash -eq $hash }).Count) { continue }
             if ($script:References.Count -ge 24) { $errors += '레퍼런스는 최대 24장입니다. 나머지 사진은 추가하지 않았습니다.'; break }
+            $stored = Import-ProjectFile $path 'references'
             $script:ReferenceSerial++
-            $script:References.Add([pscustomobject]@{ id = ('R{0:000}' -f $script:ReferenceSerial); name = [IO.Path]::GetFileName($path); path = $path; hash = $hash; thumb = (New-Thumbnail $path 200) }); $added++
+            $script:References.Add([pscustomobject]@{ id = ('R{0:000}' -f $script:ReferenceSerial); name = [IO.Path]::GetFileName($path); path = $stored; hash = $hash; thumb = (New-Thumbnail $stored 200) }); $added++
         } catch { $errors += ([IO.Path]::GetFileName($path) + ': ' + $_.Exception.Message) }
     }
     Update-ReferenceCount
-    if ($added) { Set-Status ('레퍼런스 사진 ' + $added + '장 추가') }
+    if ($Quiet) { return }
+    if ($added) { Set-Status ('레퍼런스 사진 ' + $added + '장 추가' + $(if ($script:ProjectRoot) { ' · 프로젝트에 복사됨' } else { '' })) }
     if ($errors.Count) { Show-Notice ($errors -join "`n") '레퍼런스 추가' }
 }
 function Remove-SelectedReferences { foreach ($item in @($controls.ReferenceList.SelectedItems)) { [void]$script:References.Remove($item) }; Update-ReferenceCount }
 function Set-ReferenceTarget([string]$Path) {
+    $Path = Import-ProjectFile $Path 'photos'
     $script:ReferenceTarget = $Path
     $controls.RefTargetPath.Text = $(if ($Path) { [IO.Path]::GetFileName($Path) } else { '보정 전 JPG/PNG를 넣으면 그 사진에 맞춰 보정값을 추정합니다.' })
     $controls.RefTargetPath.ToolTip = $(if ($Path) { $Path } else { $null })
     $controls.RefTargetThumb.Source = $(if ($Path) { New-Thumbnail $Path 120 } else { $null })
     $controls.RefTargetClear.Visibility = $(if ($Path) { 'Visible' } else { 'Collapsed' })
+    Request-AutoSave
 }
+# Loads a Lightroom AI mask template and pre-selects subject/background groups by name.
+function Set-ReferenceMask([string]$Path) {
+    $x = Read-Xmp $Path; $groups = @(Get-ReferenceMaskGroups $x)
+    if (-not $groups.Count) { throw '템플릿에서 마스크 그룹을 찾지 못했습니다.' }
+    $Path = Import-ProjectFile $Path 'masks'
+    $script:ReferenceMask = $Path; $script:ReferenceMaskHash = (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash
+    $controls.RefSubjectGroup.ItemsSource = $groups; $controls.RefBackgroundGroup.ItemsSource = $groups
+    $subject = @($groups | Where-Object { $_.Name -match '(?i)subject|person|people|portrait|인물|피사체' } | Select-Object -First 1)
+    $background = @($groups | Where-Object { $_.Name -match '(?i)background|배경|^bg$' } | Select-Object -First 1)
+    $controls.RefSubjectGroup.SelectedIndex = $(if ($subject.Count) { $subject[0].Index } else { 0 })
+    $controls.RefBackgroundGroup.SelectedIndex = $(if ($background.Count) { $background[0].Index } elseif ($groups.Count -gt 1) { 1 } else { -1 })
+    Update-MaskState; Request-AutoSave
+}
+function Clear-ReferenceMask { $script:ReferenceMask = ''; $script:ReferenceMaskHash = ''; $controls.RefSubjectGroup.ItemsSource = @(); $controls.RefBackgroundGroup.ItemsSource = @(); Update-MaskState; Request-AutoSave }
 # The info box explains what the current subject/background choices will do before a run starts.
 function Update-MaskState {
     $hasTemplate = [bool]$script:ReferenceMask
@@ -56,7 +74,7 @@ $controls.ReferenceList.Add_KeyDown({ param($sender, $e) if ($e.Key -eq 'Delete'
 $controls.RefCard.Add_DragOver({ param($sender, $e) Set-DropFeedback $sender $e })
 $controls.RefCard.Add_DragLeave({ param($sender, $e) Clear-DropFeedback $sender })
 $controls.RefCard.Add_Drop({ param($sender, $e) Clear-DropFeedback $sender; $paths = @(Get-DropPaths $e @('.jpg','.jpeg','.png')); if ($paths.Count) { Add-References $paths } else { Set-Status 'JPG·PNG 사진이나 사진이 든 폴더를 놓아 주세요.' 'error' } })
-$controls.RefTargetButton.Add_Click({ $files = @(Pick-Files 'Unedited target (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png' $false); if ($files.Count) { Set-ReferenceTarget $files[0] } })
+$controls.RefTargetButton.Add_Click({ $files = @(Pick-Files 'Unedited target (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png' $false); if ($files.Count) { try { Set-ReferenceTarget $files[0] } catch { Show-Notice $_.Exception.Message '원본 사진' } } })
 $controls.RefTargetClear.Add_Click({ Set-ReferenceTarget '' })
 $controls.RefChooseOutput.Add_Click({ $folder = Pick-Folder $controls.RefOutput.Text; if ($folder) { $controls.RefOutput.Text = $folder } })
 $controls.RefFidelity.Add_ValueChanged({ $controls.RefFidelityValue.Text = [int]$controls.RefFidelity.Value })
@@ -68,20 +86,10 @@ $controls.RefSearch.Add_Checked({ Update-RunSummary }); $controls.RefSearch.Add_
 $controls.RefKeywordClear.Add_Click({ foreach ($check in $script:RefKeywordChecks) { $check.IsChecked = $false } })
 foreach ($name in @('RefSubject','RefBackground')) { $controls[$name].Add_Checked({ Update-MaskState }); $controls[$name].Add_Unchecked({ Update-MaskState }) }
 $controls.RefMaskButton.Add_Click({
-    try {
-        $files = @(Pick-Files 'Lightroom AI mask preset (*.xmp)|*.xmp' $false); if (-not $files.Count) { return }
-        $x = Read-Xmp $files[0]; $groups = @(Get-ReferenceMaskGroups $x)
-        if (-not $groups.Count) { throw '템플릿에서 마스크 그룹을 찾지 못했습니다.' }
-        $script:ReferenceMask = $files[0]; $script:ReferenceMaskHash = (Get-FileHash -LiteralPath $files[0] -Algorithm SHA256).Hash
-        $controls.RefSubjectGroup.ItemsSource = $groups; $controls.RefBackgroundGroup.ItemsSource = $groups
-        $subject = @($groups | Where-Object { $_.Name -match '(?i)subject|person|people|portrait|인물|피사체' } | Select-Object -First 1)
-        $background = @($groups | Where-Object { $_.Name -match '(?i)background|배경|^bg$' } | Select-Object -First 1)
-        $controls.RefSubjectGroup.SelectedIndex = $(if ($subject.Count) { $subject[0].Index } else { 0 })
-        $controls.RefBackgroundGroup.SelectedIndex = $(if ($background.Count) { $background[0].Index } elseif ($groups.Count -gt 1) { 1 } else { -1 })
-        Update-MaskState
-    } catch { Show-Notice $_.Exception.Message '마스크 템플릿' }
+    try { $files = @(Pick-Files 'Lightroom AI mask preset (*.xmp)|*.xmp' $false); if ($files.Count) { Set-ReferenceMask $files[0] } }
+    catch { Show-Notice $_.Exception.Message '마스크 템플릿' }
 })
-$controls.RefMaskClear.Add_Click({ $script:ReferenceMask = ''; $script:ReferenceMaskHash = ''; $controls.RefSubjectGroup.ItemsSource = @(); $controls.RefBackgroundGroup.ItemsSource = @(); Update-MaskState })
+$controls.RefMaskClear.Add_Click({ Clear-ReferenceMask })
 Update-MaskState
 function New-ReferenceRequest {
     if (-not $script:References.Count) { throw '레퍼런스 사진을 하나 이상 추가하세요.' }

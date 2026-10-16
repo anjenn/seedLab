@@ -31,6 +31,46 @@
   for(var n=0;n<allowed.length;n++)if(!own(o,allowed[n]))throw new Error('Missing '+label+' field: '+allowed[n]);
  }
  function bounded(o,s,label){exact(o,keys(s),label);var r={},k;for(k in s)if(own(s,k)){if(!finite(o[k])||o[k]<s[k][0]||o[k]>s[k][1])throw new Error('Out of range '+label+': '+k);r[k]=round(o[k],k==='Exposure2012'||k==='exposure'?2:0);}return r;}
+ function repairRecord(recipe,field,before,after,method){return {referenceIds:recipe.referenceIds.slice(0),recipeName:recipe.name,field:field,before:before,after:after,method:method};}
+ function normalizeValues(o,s,label,recipe,repairs){
+  exact(o,keys(s),label);var r={},k;
+  for(k in s)if(own(s,k)){
+   if(!finite(o[k]))throw new Error('Invalid numeric value: '+label+'.'+k);
+   r[k]=round(clamp(o[k],s[k][0],s[k][1]),k==='Exposure2012'||k==='exposure'?2:0);
+   // Routine slider rounding is expected; disclose values outside the contract.
+   if(o[k]<s[k][0]||o[k]>s[k][1])repairs.push(repairRecord(recipe,label+'.'+k,o[k],r[k],'clamp'));
+  }
+  return r;
+ }
+ function normalizeCurve(c,field,recipe,repairs){
+  if(Object.prototype.toString.call(c)!=='[object Array]'||c.length!==5)throw new Error('Curve '+field+' requires exactly five numeric Y values');
+  var blocks=[],out=[],n,b,last,previous,changed=false,method='bounded-isotonic';
+  // Pool adjacent violators: preserve the X coordinates, never sort Y values.
+  // Each block stores its mean and weight; fitting after clipping keeps sums finite.
+  for(n=0;n<5;n++){
+   if(!finite(c[n]))throw new Error('Curve '+field+' has a nonfinite or nonnumeric point at '+n);
+   blocks.push({sum:clamp(c[n],0,255),weight:1});
+   while(blocks.length>1){
+    last=blocks[blocks.length-1];previous=blocks[blocks.length-2];
+    if(previous.sum/previous.weight<=last.sum/last.weight)break;
+    previous.sum+=last.sum;previous.weight+=last.weight;blocks.pop();
+   }
+  }
+  for(n=0;n<blocks.length;n++){b=blocks[n];for(var p=0;p<b.weight;p++)out.push(round(b.sum/b.weight));}
+  // A constant channel destroys all tonal detail; a neutral curve is explicit fallback.
+  if(out[0]===out[4]){out=[0,64,128,192,255];method='identity-fallback';}
+  for(n=0;n<5;n++)if(out[n]!==c[n])changed=true;
+  if(changed)repairs.push(repairRecord(recipe,'curves.'+field,c.slice(0),out.slice(0),method));
+  return out;
+ }
+ function repairWarnings(repairs){
+  var names=[],seen={},fallback=0;
+  for(var n=0;n<repairs.length;n++){
+   var r=repairs[n],id=r.referenceIds.join(',');if(!seen['r:'+id]){seen['r:'+id]=true;names.push(id);}
+   if(r.method==='identity-fallback')fallback++;
+  }
+  return repairs.length?['AI 보정값 '+repairs.length+'개를 자동 보정했습니다 ('+names.join(', ')+'). 커브는 점의 위치를 유지해 0~255의 비감소 값으로, 슬라이더는 허용 범위로 맞췄습니다.'+(fallback?' 밝기 정보를 없애는 평탄 커브 '+fallback+'개는 기본 직선으로 대체했습니다.':'')+' 추가 API 호출은 없으며 보정 전후 값은 manifest.json의 repairs에 기록됩니다.']:[];
+ }
  function clean(s,max){if(typeof s!=='string')throw new Error('Invalid text field');return s.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'').slice(0,max);}
  function confidence(s){if(['low','medium','high'].indexOf(s)<0)throw new Error('Invalid confidence');return s;}
  function ids(a,expected,label){
@@ -49,23 +89,22 @@
   return {observations:r};
  }
  function validateRecipes(req){
-  var expected=req.referenceIds,a=req.recipes,r=[],seen={},common=req.referenceMode==='common';
+  var expected=req.referenceIds,a=req.recipes,r=[],seen={},repairs=[],common=req.referenceMode==='common';
   if(!a||a.length!==(common?1:expected.length))throw new Error('Recipe count mismatch');
   for(var n=0;n<a.length;n++){
    var o=a[n],v={},k,c;exact(o,['referenceIds','name','reason','confidence','limitations','values','curves','subject','background'],'recipe');
    v.referenceIds=ids(o.referenceIds,expected,'recipe');if(!common&&v.referenceIds.length!==1)throw new Error('Per-photo recipe must use one reference');
    for(var m=0;m<v.referenceIds.length;m++){k='i:'+v.referenceIds[m];if(seen[k])throw new Error('Reference appears in multiple recipes');seen[k]=true;}
    v.name=clean(o.name,80)||'Reference Style';v.reason=clean(o.reason,1600);v.limitations=clean(o.limitations,1600);v.confidence=confidence(o.confidence);
-   v.values=bounded(o.values,specs,'global');v.subject=bounded(o.subject,localSpecs,'subject');v.background=bounded(o.background,localSpecs,'background');
+   v.values=normalizeValues(o.values,specs,'values',v,repairs);v.subject=normalizeValues(o.subject,localSpecs,'subject',v,repairs);v.background=normalizeValues(o.background,localSpecs,'background',v,repairs);
    exact(o.curves,curveNames,'curves');v.curves={};
    for(m=0;m<curveNames.length;m++){
-    k=curveNames[m];c=o.curves[k];if(!c||c.length!==5)throw new Error('Curve must have five points');
-    v.curves[k]=[];for(var p=0;p<5;p++){if(!finite(c[p])||Math.floor(c[p])!==c[p]||c[p]<0||c[p]>255||(p&&c[p]<c[p-1]))throw new Error('Curve must be monotonic within 0..255');v.curves[k].push(c[p]);}
+    k=curveNames[m];v.curves[k]=normalizeCurve(o.curves[k],k,v,repairs);
    }
    r.push(v);
   }
   for(n=0;n<expected.length;n++)if(!seen['i:'+expected[n]])throw new Error('Reference missing from recipes');
-  return {recipes:r};
+  return {recipes:r,repairs:repairs,warnings:repairWarnings(repairs)};
  }
  // Lightroom local XMP: exposure = EV/4, other supported local sliders = UI/100.
  function encodeMask(sliders){var a=bounded(sliders,localSpecs,'mask'),r={},k;for(k in a)if(own(a,k))r[localNames[k]]=round(k==='exposure'?a[k]/4:a[k]/100,4);return r;}
@@ -77,9 +116,10 @@
  }
  function generate(req){
   E.validateSettings(req);
-  var recipes=validateRecipes(req).recipes,count=req.count,n,k;
+  var checked=validateRecipes(req),recipes=checked.recipes,count=req.count,n,k;
   if(!finite(count)||Math.floor(count)!==count||count<recipes.length||count>120)throw new Error('Count must cover every recipe and be <=120');
   var seeds=[],seedMap={},lookup={},seen={},out=[],zero={},warnings=['사진의 원래 보정값을 복원한 결과가 아닌 시각적 스타일 추정입니다. 조명·피사체·카메라와 적용할 원본에 따라 결과가 달라집니다.'];
+  warnings=warnings.concat(checked.warnings);
   for(n=0;n<E.axes.length;n++)zero[E.axes[n]]=0;
   for(n=0;n<recipes.length;n++){var s={id:'reference-'+n,name:recipes[n].name,values:recipes[n].values};seeds.push(s);seedMap[s.id]=s;lookup[s.id]=recipes[n];}
   var extras=[];
@@ -100,7 +140,7 @@
    out.push({index:out.length,seedId:seed.id,seedName:recipe.name,keyword:base?'레퍼런스 추정':original.keyword,keywordId:base?'reference':original.keywordId,values:values,delta:delta,curves:recipe.curves,axes:ax,reason:recipe.reason,confidence:recipe.confidence,limitations:recipe.limitations,referenceIds:recipe.referenceIds,mode:'reference',fidelity:req.fidelity,variation:req.variation,subject:sub,background:bg,encodedSubject:encodeMask(sub),encodedBackground:encodeMask(bg)});
   }
   if(out.length<count)warnings.push('중복·유사 후보 '+(count-out.length)+'개를 제외해 '+out.length+'개를 생성했습니다. 변주 폭을 높이면 후보를 더 만들 수 있습니다.');
-  return {candidates:out,warnings:warnings,diversity:{method:'normalized-slider-distance',minimumDistance:.65,omittedCount:count-out.length}};
+  return {candidates:out,warnings:warnings,repairs:checked.repairs,diversity:{method:'normalized-slider-distance',minimumDistance:.65,omittedCount:count-out.length}};
  }
  function researchMeta(req){
   var a=req.output||[],sources=[],seen={},calls=0,texts=[],i,j;

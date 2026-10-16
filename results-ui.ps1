@@ -68,7 +68,7 @@ function Show-ResultDetail($Row) {
     $controls.DetailMask.Text = $(if ([int]$Row.MaskChanges) { '마스크 보정 필드 ' + $Row.MaskChanges + '개를 변경했습니다.' } else { '' })
     $controls.DetailMask.Visibility = $(if ([int]$Row.MaskChanges) { 'Visible' } else { 'Collapsed' })
 }
-function Show-Results($Rows, [string]$Folder, [string]$Title, [string]$Meta, [bool]$Partial) {
+function Show-Results($Rows, [string]$Folder, [string]$Title, [string]$Meta, [bool]$Partial, [bool]$Activate = $true) {
     $position = 0
     $items = @(foreach ($row in @($Rows | Where-Object { $null -ne $_ })) {
         $position++
@@ -86,8 +86,14 @@ function Show-Results($Rows, [string]$Folder, [string]$Title, [string]$Meta, [bo
     $controls.ResultBadgeIcon.Text = $(if ($Partial) { [string][char]0xE7BA } else { [string][char]0xE73E })
     $controls.ResultBadgeIcon.Foreground = $(if ($Partial) { '#7F5A12' } else { '#2E7D55' })
     foreach ($name in @('OpenOutput','ResultsOpenFolder')) { $controls[$name].IsEnabled = [bool]$Folder }
-    Set-View 'results'
+    if ($Activate) { Set-View 'results' } elseif ($script:CurrentView -and $script:CurrentView -ne 'results') { $controls.OpenOutput.Visibility = $(if ($Folder) { 'Visible' } else { 'Collapsed' }) }
     if ($items.Count) { $controls.Results.SelectedIndex = 0; $controls.Results.ScrollIntoView($items[0]) } else { Show-ResultDetail $null }
+    Request-AutoSave
+}
+function Clear-Results {
+    $script:LastFolder = $null; $controls.Results.ItemsSource = $null; Show-ResultDetail $null; Set-ResultNotice ''
+    $controls.ResultsBody.Visibility = 'Collapsed'; $controls.ResultsEmpty.Visibility = 'Visible'
+    $controls.OpenOutput.Visibility = 'Collapsed'; $controls.OpenOutput.IsEnabled = $false
 }
 function Show-SelectedFile {
     $row = $controls.Results.SelectedItem

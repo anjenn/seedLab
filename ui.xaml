@@ -372,7 +372,18 @@
        <TextBlock Text="S" Foreground="White" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
       <StackPanel Margin="11,0,0,0" VerticalAlignment="Center"><TextBlock Text="Seed Lab" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="PRESET STUDIO" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource FaintBrush}"/></StackPanel>
      </StackPanel>
-     <TextBlock Text="만들기" Style="{StaticResource Section}" Margin="12,34,0,4"/>
+     <Border x:Name="ProjectCard" Background="#EAF1FC" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="12" Padding="12,10" Margin="0,24,0,0">
+      <StackPanel>
+       <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8B7;" Style="{StaticResource Icon}" FontSize="12" Foreground="{StaticResource MutedBrush}" Margin="0,0,6,0"/><TextBlock Text="프로젝트" FontSize="11.5" FontWeight="SemiBold" Foreground="{StaticResource MutedBrush}"/></StackPanel>
+       <TextBlock x:Name="ProjectName" Text="프로젝트 없음" FontWeight="SemiBold" Margin="0,6,0,2" TextTrimming="CharacterEllipsis"/>
+       <TextBlock x:Name="ProjectState" Text="폴더를 지정하면 추가한 파일과 작업이 저장됩니다" FontSize="11.5" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" LineHeight="16"/>
+       <StackPanel Orientation="Horizontal" Margin="0,9,0,0">
+        <Button x:Name="ProjectPick" Content="폴더 지정" Tag="&#xE8F4;" MinHeight="30" Padding="10,0" FontSize="12" Margin="0,0,6,0" ToolTip="프로젝트 폴더를 열거나 새로 만듭니다"/>
+        <Button x:Name="ProjectOpenFolder" Tag="&#xE838;" MinHeight="30" Padding="8,0" Margin="0" ToolTip="탐색기에서 프로젝트 폴더 열기" AutomationProperties.Name="프로젝트 폴더 열기" Visibility="Collapsed"/>
+       </StackPanel>
+      </StackPanel>
+     </Border>
+     <TextBlock Text="만들기" Style="{StaticResource Section}" Margin="12,22,0,4"/>
      <Button x:Name="GeneratorNav" Content="프리셋 생성" Tag="&#xE790;" Style="{StaticResource Nav}" ToolTip="씨드 XMP를 변주해 새 프리셋을 만듭니다 · Ctrl+1"/>
      <Button x:Name="ReferenceNav" Content="레퍼런스로 만들기" Tag="&#xEB9F;" Style="{StaticResource Nav}" ToolTip="사진의 색감을 분석해 프리셋을 만듭니다 · Ctrl+2"/>
      <TextBlock Text="확인" Style="{StaticResource Section}" Margin="12,20,0,4"/>
@@ -526,7 +537,7 @@
            <StackPanel><TextBlock Text="OpenAI API 키" Style="{StaticResource Label}"/><PasswordBox x:Name="ApiKey"/></StackPanel>
            <StackPanel Grid.Column="2"><TextBlock Text="모델" Style="{StaticResource Label}"/><TextBox x:Name="Model" Text="gpt-6-luna"/></StackPanel>
           </Grid>
-          <StackPanel Orientation="Horizontal" Margin="0,7,0,18"><TextBlock Text="&#xE8D7;" Style="{StaticResource Icon}" FontSize="11" Foreground="{StaticResource MutedBrush}" Margin="0,0,6,0"/><TextBlock Text="키는 메모리에만 두고 저장하지 않습니다. 레퍼런스 화면과 같은 키를 씁니다." Style="{StaticResource Muted}"/></StackPanel>
+          <DockPanel Margin="0,8,0,18"><CheckBox x:Name="RememberKey" DockPanel.Dock="Left" Content="이 PC에 키 저장" FontSize="12" Margin="0,0,14,0" ToolTip="Windows 계정으로 암호화해 이 PC에만 저장합니다. 끄면 저장된 키를 지웁니다."/><TextBlock x:Name="KeyHint" Style="{StaticResource Muted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/></DockPanel>
           <TextBlock Text="분석용 사진 · 선택 사항" Style="{StaticResource Label}"/>
           <DockPanel Margin="0,0,0,18">
            <Border Style="{StaticResource Thumb}"><Grid><TextBlock Text="&#xEB9F;" Style="{StaticResource Icon}" FontSize="18" Foreground="{StaticResource FaintBrush}"/><Image x:Name="PhotoThumb" Stretch="UniformToFill"><Image.Clip><RectangleGeometry Rect="0,0,44,44" RadiusX="8" RadiusY="8"/></Image.Clip></Image></Grid></Border>
@@ -592,6 +603,7 @@
           <StackPanel><TextBlock Text="OpenAI API 키" Style="{StaticResource Label}"/><PasswordBox x:Name="RefApiKey"/></StackPanel>
           <StackPanel Grid.Column="2"><TextBlock Text="모델 · 이미지 입력 지원" Style="{StaticResource Label}"/><TextBox x:Name="RefModel" Text="gpt-6-luna"/></StackPanel>
          </Grid>
+         <DockPanel Margin="0,8,0,0"><CheckBox x:Name="RefRememberKey" DockPanel.Dock="Left" Content="이 PC에 키 저장" FontSize="12" Margin="0,0,14,0" ToolTip="Windows 계정으로 암호화해 이 PC에만 저장합니다. 끄면 저장된 키를 지웁니다."/><TextBlock x:Name="RefKeyHint" Style="{StaticResource Muted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/></DockPanel>
          <Grid Margin="0,16,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions>
           <StackPanel><TextBlock Text="추출 방식" Style="{StaticResource Label}"/><ComboBox x:Name="RefMode" SelectedIndex="0"><ComboBoxItem Content="여러 장의 공통 스타일" Tag="common"/><ComboBoxItem Content="사진별 개별 스타일" Tag="individual"/></ComboBox></StackPanel>
           <StackPanel Grid.Column="2"><TextBlock Text="총 생성 개수 · 1–120" Style="{StaticResource Label}"/><TextBox x:Name="RefCount" Text="12" HorizontalContentAlignment="Center"/></StackPanel>

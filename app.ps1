@@ -35,24 +35,37 @@ function Add-KeywordChips($Panel, $List) {
         [void]$Panel.Children.Add($wrap)
     }
 }
+# Edits schedule one debounced save of the open project and, if enabled, the API key.
+$script:AutoSaveTimer = [Windows.Threading.DispatcherTimer]::new(); $script:AutoSaveTimer.Interval = [TimeSpan]::FromMilliseconds(1200)
+$script:AutoSaveTimer.Add_Tick({ Save-AutoNow })
+function Request-AutoSave { if (-not $script:Restoring) { $script:AutoSaveTimer.Stop(); $script:AutoSaveTimer.Start() } }
+function Save-AutoNow {
+    $script:AutoSaveTimer.Stop()
+    Save-Project
+    if ($controls.RememberKey.IsChecked) {
+        try { if ($controls.ApiKey.Password) { Save-ApiKey $controls.ApiKey.Password } else { [void](Remove-ApiKey) } } catch { Set-Status ('API 키를 저장하지 못했습니다: ' + $_.Exception.Message) 'error' }
+    }
+}
 Add-KeywordChips $controls.KeywordGroups $script:KeywordChecks
 . (Join-Path $script:AppRoot 'dashboard.ps1')
 . (Join-Path $script:AppRoot 'reference-ui.ps1')
 . (Join-Path $script:AppRoot 'results-ui.ps1')
+. (Join-Path $script:AppRoot 'project.ps1')
 
 function Pick-Files([string]$Filter, [bool]$Multi) {
     $dialog = New-Object Microsoft.Win32.OpenFileDialog
     $dialog.Filter = $Filter; $dialog.Multiselect = $Multi
     if ($dialog.ShowDialog($window)) { return @($dialog.FileNames) }; return @()
 }
-function Pick-Folder([string]$Initial) {
+function Pick-Folder([string]$Initial, [string]$Description = '') {
     $dialog = New-Object Windows.Forms.FolderBrowserDialog
-    $dialog.SelectedPath = $Initial
+    $dialog.SelectedPath = $Initial; $dialog.Description = $Description; $dialog.ShowNewFolderButton = $true
     try { if ($dialog.ShowDialog() -eq [Windows.Forms.DialogResult]::OK) { return $dialog.SelectedPath } } finally { $dialog.Dispose() }
     return $null
 }
 function Open-Folder([string]$Path) { if ($Path -and [IO.Directory]::Exists($Path)) { Start-Process explorer.exe -ArgumentList ('"' + $Path + '"') } }
 function Show-Notice([string]$Message, [string]$Title, [string]$Icon = 'Warning') { [void][Windows.MessageBox]::Show($window, $Message, $Title, 'OK', $Icon) }
+function Show-Question([string]$Message, [string]$Title, [string]$Buttons = 'YesNo') { return [string][Windows.MessageBox]::Show($window, $Message, $Title, $Buttons, 'Question') }
 function Set-Status([string]$Text, [string]$Tone = 'normal') {
     $controls.Status.Text = $Text
     $controls.Status.Foreground = switch ($Tone) { 'success' { '#2E7D55' } 'error' { '#B4372F' } 'busy' { '#2F5A97' } default { '#64728A' } }
@@ -103,7 +116,7 @@ function Update-SeedCount {
     $controls.SeedEmpty.Visibility = $(if ($script:Seeds.Count) { 'Collapsed' } else { 'Visible' })
     $controls.SeedToggleAll.Content = $(if ($script:Seeds.Count -and $used -eq $script:Seeds.Count) { '모두 해제' } else { '모두 사용' })
     foreach ($name in @('SeedToggleAll','RemoveSeeds','ClearSeeds')) { $controls[$name].IsEnabled = $script:Seeds.Count -gt 0 }
-    Update-RunSummary
+    Update-RunSummary; Request-AutoSave
 }
 function Update-KeywordSummary {
     foreach ($set in @(@{ checks = $script:KeywordChecks; summary = 'KeywordSummary'; clear = 'KeywordClear' }, @{ checks = $script:RefKeywordChecks; summary = 'RefKeywordSummary'; clear = 'RefKeywordClear' })) {
@@ -112,7 +125,7 @@ function Update-KeywordSummary {
         $controls[$set.summary].Text = $(if ($n) { '선택 ' + $n + '개' } else { '선택 없음' })
         $controls[$set.clear].Visibility = $(if ($n) { 'Visible' } else { 'Collapsed' })
     }
-    Update-RunSummary
+    Update-RunSummary; Request-AutoSave
 }
 # Plain-language preview of what the next run will do, including how many paid API calls to expect.
 function Update-RunSummary {
@@ -148,26 +161,34 @@ function Update-RunSummary {
 function Add-Seeds($Paths) {
     $errors = New-Object Collections.Generic.List[string]; $added = 0; $skipped = 0
     foreach ($path in @($Paths)) {
-        try { $seed = Get-Seed $path; if (-not @($script:Seeds | Where-Object { $_.id -eq $seed.id }).Count) { $script:Seeds.Add($seed); $added++ } else { $skipped++ } }
+        try {
+            $seed = Get-Seed $path
+            if (@($script:Seeds | Where-Object { $_.id -eq $seed.id }).Count) { $skipped++; continue }
+            $seed.path = Import-ProjectFile $path 'seeds'; $script:Seeds.Add($seed); $added++
+        }
         catch { $errors.Add([IO.Path]::GetFileName($path) + ': ' + $_.Exception.Message) }
     }
     Update-SeedCount
-    if ($added -or $skipped) { Set-Status ('씨드 {0}개 추가{1}' -f $added, $(if ($skipped) { ' · 이미 등록된 ' + $skipped + '개 건너뜀' } else { '' })) }
+    if ($added -or $skipped) { Set-Status ('씨드 {0}개 추가{1}{2}' -f $added, $(if ($skipped) { ' · 이미 등록된 ' + $skipped + '개 건너뜀' } else { '' }), $(if ($added -and $script:ProjectRoot) { ' · 프로젝트에 복사됨' } else { '' })) }
     if ($errors.Count) { Show-Notice ($errors -join "`n") '일부 파일을 읽지 못했습니다' }
 }
 function Remove-SelectedSeeds { foreach ($item in @($controls.SeedGrid.SelectedItems)) { [void]$script:Seeds.Remove($item) }; Update-SeedCount }
 function Set-AiPhoto([string]$Path) {
+    $Path = Import-ProjectFile $Path 'photos'
     $script:Photo = $Path
     $controls.PhotoPath.Text = $(if ($Path) { [IO.Path]::GetFileName($Path) } else { 'JPG/PNG · 1024px 이하로 줄여 분석에만 사용합니다' })
     $controls.PhotoPath.ToolTip = $(if ($Path) { $Path } else { $null })
     $controls.PhotoThumb.Source = $(if ($Path) { New-Thumbnail $Path 120 } else { $null })
     $controls.PhotoClear.Visibility = $(if ($Path) { 'Visible' } else { 'Collapsed' })
+    Request-AutoSave
 }
 function Set-SeedMask([string]$Path) {
+    $Path = Import-ProjectFile $Path 'masks'
     $script:Mask = $Path
     $controls.MaskPath.Text = $(if ($Path) { [IO.Path]::GetFileName($Path) } else { '선택 안 함' })
     $controls.MaskPath.ToolTip = $(if ($Path) { $Path } else { $null })
     $controls.MaskClear.Visibility = $(if ($Path) { 'Visible' } else { 'Collapsed' })
+    Request-AutoSave
 }
 $script:Seeds.Add_CollectionChanged({ Update-SeedCount })
 $controls.SeedGrid.AddHandler([Windows.Controls.Primitives.ToggleButton]::ClickEvent, [Windows.RoutedEventHandler]{ Update-SeedCount })
@@ -193,9 +214,9 @@ $controls.Variation.Add_ValueChanged({ $controls.VariationValue.Text = [int]$con
 $controls.Count.Add_TextChanged({ Test-CountBox $controls.Count })
 $controls.Count.Add_PreviewTextInput({ param($sender, $e) if ($e.Text -notmatch '^\d+$') { $e.Handled = $true } })
 $controls.UseAi.Add_Checked({ Update-RunSummary }); $controls.UseAi.Add_Unchecked({ Update-RunSummary })
-$controls.PhotoButton.Add_Click({ $files = @(Pick-Files 'Photo (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png' $false); if ($files.Count) { Set-AiPhoto $files[0] } })
+$controls.PhotoButton.Add_Click({ $files = @(Pick-Files 'Photo (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png' $false); if ($files.Count) { try { Set-AiPhoto $files[0] } catch { Show-Notice $_.Exception.Message '분석용 사진' } } })
 $controls.PhotoClear.Add_Click({ Set-AiPhoto '' })
-$controls.MaskButton.Add_Click({ $files = @(Pick-Files 'Mask preset (*.xmp)|*.xmp' $false); if ($files.Count) { Set-SeedMask $files[0] } })
+$controls.MaskButton.Add_Click({ $files = @(Pick-Files 'Mask preset (*.xmp)|*.xmp' $false); if ($files.Count) { try { Set-SeedMask $files[0] } catch { Show-Notice $_.Exception.Message '마스크 템플릿' } } })
 $controls.MaskClear.Add_Click({ Set-SeedMask '' })
 $controls.ChooseOutput.Add_Click({ $folder = Pick-Folder $controls.Output.Text; if ($folder) { $controls.Output.Text = $folder } })
 $controls.OpenOutput.Add_Click({ Open-Folder $script:LastFolder })
@@ -204,7 +225,7 @@ $controls.ApiKey.Add_PasswordChanged({ if (-not $script:SyncingKey -and $control
 $controls.RefApiKey.Add_PasswordChanged({ if (-not $script:SyncingKey -and $controls.ApiKey.Password -ne $controls.RefApiKey.Password) { $script:SyncingKey = $true; $controls.ApiKey.Password = $controls.RefApiKey.Password; $script:SyncingKey = $false } })
 
 function Set-Busy([bool]$Busy) {
-    foreach ($name in @('GeneratorForm','ReferenceForm')) { $controls[$name].IsEnabled = -not $Busy }
+    foreach ($name in @('GeneratorForm','ReferenceForm','ProjectPick')) { $controls[$name].IsEnabled = -not $Busy }
     $controls.Generate.IsEnabled = -not $Busy; $controls.Cancel.IsEnabled = $Busy
     $controls.Cancel.Visibility = $(if ($Busy) { 'Visible' } else { 'Collapsed' })
     $controls.Progress.Visibility = $(if ($Busy) { 'Visible' } else { 'Collapsed' }); $controls.Progress.IsIndeterminate = $true
@@ -289,33 +310,55 @@ function Start-Generation {
 $controls.Generate.Add_Click({ Start-Generation })
 $controls.Cancel.Add_Click({ Stop-TrackedJob })
 
-# Preferences: folders, models and sliders persist; the API key never does.
-function Get-SettingsPath { return Join-Path (Get-UsageDirectory) 'settings.json' }
-function Read-Settings { try { $path = Get-SettingsPath; if ([IO.File]::Exists($path)) { return ([IO.File]::ReadAllText($path, [Text.Encoding]::UTF8) | ConvertFrom-Json) } } catch { }; return $null }
-function Save-Settings {
+foreach ($name in @('Note','RefNote','Model','RefModel','Output','RefOutput','Count','RefCount')) { $controls[$name].Add_TextChanged({ Request-AutoSave }) }
+foreach ($name in @('Fidelity','Variation','RefFidelity','RefVariation')) { $controls[$name].Add_ValueChanged({ Request-AutoSave }) }
+foreach ($name in @('UseAi','VaryMasks','RefSearch','RefSubject','RefBackground')) { $controls[$name].Add_Checked({ Request-AutoSave }); $controls[$name].Add_Unchecked({ Request-AutoSave }) }
+foreach ($name in @('RefMode','RefSubjectGroup','RefBackgroundGroup')) { $controls[$name].Add_SelectionChanged({ Request-AutoSave }) }
+$script:References.Add_CollectionChanged({ Request-AutoSave })
+$controls.ApiKey.Add_PasswordChanged({ if ($controls.RememberKey.IsChecked) { Request-AutoSave } })
+
+function Update-KeyHint {
+    $text = $(if ($controls.RememberKey.IsChecked) { 'Windows 계정으로 암호화해 이 PC에만 저장 · 두 화면 공용' } else { '꺼 두면 키는 메모리에만 있고 앱을 닫을 때 지워집니다' })
+    $controls.KeyHint.Text = $text; $controls.RefKeyHint.Text = $text
+}
+function Set-RememberKey([bool]$On) {
+    if ($script:SyncingRemember) { return }
+    $script:SyncingRemember = $true
     try {
-        $bounds = $(if ($window.WindowState -eq 'Normal') { [Windows.Rect]::new(0, 0, $window.ActualWidth, $window.ActualHeight) } else { $window.RestoreBounds })
-        $settings = @{ version = 1; view = $(if ($script:CurrentView -eq 'results') { 'generator' } else { $script:CurrentView });
-            output = $controls.Output.Text; model = $controls.Model.Text.Trim(); count = $controls.Count.Text; fidelity = [int]$controls.Fidelity.Value; variation = [int]$controls.Variation.Value; useAi = [bool]$controls.UseAi.IsChecked;
-            refOutput = $controls.RefOutput.Text; refModel = $controls.RefModel.Text.Trim(); refMode = $controls.RefMode.SelectedItem.Tag; refCount = $controls.RefCount.Text; refSearch = [bool]$controls.RefSearch.IsChecked;
-            refFidelity = [int]$controls.RefFidelity.Value; refVariation = [int]$controls.RefVariation.Value;
-            window = @{ width = $(if ($bounds.IsEmpty) { 0 } else { [int]$bounds.Width }); height = $(if ($bounds.IsEmpty) { 0 } else { [int]$bounds.Height }); maximized = ($window.WindowState -eq 'Maximized') } }
-        [void][IO.Directory]::CreateDirectory((Get-UsageDirectory)); Write-AtomicJson (Get-SettingsPath) $settings
-    } catch { }
+        foreach ($name in @('RememberKey','RefRememberKey')) { if ([bool]$controls[$name].IsChecked -ne $On) { $controls[$name].IsChecked = $On } }
+        if (-not $script:Restoring) {
+            if ($On -and $controls.ApiKey.Password) { try { Save-ApiKey $controls.ApiKey.Password; Set-Status 'API 키를 암호화해 이 PC에 저장했습니다.' 'success' } catch { Set-Status ('API 키를 저장하지 못했습니다: ' + $_.Exception.Message) 'error' } }
+            elseif ($On) { Set-Status '키를 입력하면 이 PC에 암호화해 저장합니다.' }
+            elseif (Remove-ApiKey) { Set-Status '저장된 API 키를 삭제했습니다.' }
+        }
+    } finally { $script:SyncingRemember = $false }
+    Update-KeyHint
 }
-function Restore-Settings {
-    $s = Read-Settings; if (-not $s) { return 'generator' }
-    foreach ($pair in @(@('output','Output'), @('model','Model'), @('count','Count'), @('refOutput','RefOutput'), @('refModel','RefModel'), @('refCount','RefCount'))) { if (-not [string]::IsNullOrWhiteSpace($s.($pair[0]))) { $controls[$pair[1]].Text = [string]$s.($pair[0]) } }
-    foreach ($pair in @(@('fidelity','Fidelity'), @('variation','Variation'), @('refFidelity','RefFidelity'), @('refVariation','RefVariation'))) { if ($null -ne $s.($pair[0])) { $controls[$pair[1]].Value = [Math]::Max(0, [Math]::Min(100, [int]$s.($pair[0]))) } }
-    if ($null -ne $s.useAi) { $controls.UseAi.IsChecked = [bool]$s.useAi }
-    if ($null -ne $s.refSearch) { $controls.RefSearch.IsChecked = [bool]$s.refSearch }
-    foreach ($item in $controls.RefMode.Items) { if ($item.Tag -eq $s.refMode) { $controls.RefMode.SelectedItem = $item } }
-    $area = [Windows.SystemParameters]::WorkArea
-    if ($s.window -and [int]$s.window.width -ge $window.MinWidth -and [int]$s.window.height -ge $window.MinHeight) { $window.Width = [Math]::Min([int]$s.window.width, $area.Width); $window.Height = [Math]::Min([int]$s.window.height, $area.Height) }
-    if ($s.window.maximized) { $window.WindowState = 'Maximized' }
-    return $(if ($s.view -in @('generator','reference','dashboard')) { $s.view } else { 'generator' })
-}
+foreach ($name in @('RememberKey','RefRememberKey')) { $controls[$name].Add_Checked({ Set-RememberKey $true }); $controls[$name].Add_Unchecked({ Set-RememberKey $false }) }
+$controls.ProjectPick.Add_Click({
+    $folder = Pick-Folder $(if ($script:ProjectRoot) { $script:ProjectRoot } else { [Environment]::GetFolderPath('MyDocuments') }) '프로젝트로 쓸 폴더를 고르거나 새 폴더를 만드세요. 기존 Seed Lab 프로젝트 폴더를 고르면 그 작업을 엽니다.'
+    if ($folder) { try { Open-Project $folder $true } catch { Show-Notice $_.Exception.Message '프로젝트' } }
+})
+$controls.ProjectOpenFolder.Add_Click({ Open-Folder $script:ProjectRoot })
+# Last line of defense: report handler errors instead of closing the whole app.
+$window.Dispatcher.Add_UnhandledException({ param($sender, $e)
+    $e.Handled = $true
+    if ($script:LastUnhandled -and ([DateTime]::Now - $script:LastUnhandled).TotalSeconds -lt 2) { return }
+    $script:LastUnhandled = [DateTime]::Now; Show-Notice ('예상하지 못한 오류가 발생했습니다.' + "`n" + $e.Exception.Message) '오류' 'Error'
+})
+
+$script:StartProject = ''
 $script:StartView = Restore-Settings
+$script:Restoring = $true
+try { $savedKey = Read-ApiKey; if ($savedKey) { $controls.ApiKey.Password = $savedKey; Set-RememberKey $true } }
+catch { Set-Status '저장된 API 키를 읽지 못했습니다. 다른 Windows 계정이나 PC에서 저장된 키일 수 있으니 다시 입력하세요.' 'error' }
+finally { $script:Restoring = $false }
+Update-KeyHint
+if ($script:StartProject) {
+    if ([IO.File]::Exists((Join-Path $script:StartProject $script:ProjectFileName))) { try { Open-Project $script:StartProject } catch { Set-Status ('지난 프로젝트를 열지 못했습니다: ' + $_.Exception.Message) 'error' } }
+    else { Set-Status ('지난 프로젝트 폴더를 찾을 수 없습니다: ' + $script:StartProject) 'error' }
+}
+Update-ProjectCard
 
 $window.Add_PreviewKeyDown({ param($sender, $e)
     $ctrl = ([Windows.Input.Keyboard]::Modifiers -band [Windows.Input.ModifierKeys]::Control) -eq [Windows.Input.ModifierKeys]::Control
@@ -333,7 +376,7 @@ $window.Add_Closing({ param($sender, $e)
     if ($script:Job -and $script:Job.State -in @('Running','NotStarted')) {
         if ([Windows.MessageBox]::Show($window, '생성 작업이 진행 중입니다. 창을 닫으면 작업을 중지합니다. 그래도 닫을까요?', '작업 진행 중', 'YesNo', 'Warning') -ne 'Yes') { $e.Cancel = $true; return }
     }
-    Save-Settings
+    Save-AutoNow; Save-Settings
     $timer.Stop(); $usageTimer.Stop(); $controls.ApiKey.Clear(); $controls.RefApiKey.Clear(); Stop-TrackedJob -Force; if ($script:Job) { Remove-Job $script:Job -Force }
 })
 $window.Add_Loaded({ Update-SeedCount; Update-ReferenceCount; Update-KeywordSummary; Set-View $script:StartView })
