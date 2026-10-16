@@ -22,7 +22,7 @@ function Get-ReferenceMaskGroups($X) {
     return @($rows.ToArray())
 }
 function Test-ReferenceMaskTemplate($Request) {
-    if (-not ($Request.maskSubject -or $Request.maskBackground)) { return }
+    if ((Get-ReferenceMaskMode $Request) -ne 'template') { return }
     if (-not $Request.referenceMaskTemplate -or -not (Test-Path -LiteralPath $Request.referenceMaskTemplate -PathType Leaf)) { throw '인물·배경 마스킹을 사용하려면 Lightroom의 AI 마스크 XMP 템플릿을 선택하세요.' }
     if ((Get-FileHash -LiteralPath $Request.referenceMaskTemplate -Algorithm SHA256).Hash -ne $Request.referenceMaskHash) { throw '마스크 템플릿이 변경되었습니다. 다시 선택하세요.' }
     $x = Read-Xmp $Request.referenceMaskTemplate; $groups = @(Get-ReferenceMaskGroups $x)
@@ -46,12 +46,13 @@ function Export-ReferenceCandidate($Candidate, $Request, [string]$AppRoot, [stri
     $maskFields = 0; $maskProof = @()
     if ($Request.maskSubject -or $Request.maskBackground) {
         Test-ReferenceMaskTemplate $Request
-        $template = Read-Xmp $Request.referenceMaskTemplate $Request.referenceMaskHash; $groups = @(Get-ReferenceMaskGroups $template)
+        $automatic = (Get-ReferenceMaskMode $Request) -eq 'automatic'
+        if (-not $automatic) { $template = Read-Xmp $Request.referenceMaskTemplate $Request.referenceMaskHash; $groups = @(Get-ReferenceMaskGroups $template) }
         $block = $x.Doc.CreateElement('crs', 'MaskGroupBasedCorrections', $script:CrsNs); $seq = $x.Doc.CreateElement('rdf', 'Seq', $script:RdfNs)
         foreach ($kind in @('Subject','Background')) {
             if (-not $Request[('mask' + $kind)]) { continue }
-            $group = $groups[[int]$Request[($kind.ToLowerInvariant() + 'MaskIndex')]]
-            $copy = $x.Doc.ImportNode($group.Li, $true)
+            if ($automatic) { $copy = New-AdaptiveMaskGroup $x $kind $(if ($kind -eq 'Subject') { $Candidate.encodedSubject } else { $Candidate.encodedBackground }) }
+            else { $group = $groups[[int]$Request[($kind.ToLowerInvariant() + 'MaskIndex')]]; $copy = $x.Doc.ImportNode($group.Li, $true) }
             $node = $copy.SelectSingleNode('rdf:Description', $x.Ns); if (-not $node) { $node = $copy }
             $selectionBefore = $node.SelectSingleNode('crs:CorrectionMasks', $x.Ns).OuterXml
             $rangeBefore = [string]$node.SelectSingleNode('crs:CorrectionRangeMask', $x.Ns).OuterXml
@@ -167,6 +168,7 @@ Create APPROXIMATE Lightroom develop recipes from the supplied REFERENCE images 
     $core = @{ operation = 'reference_generate'; referenceIds = @($refs | ForEach-Object { $_.id }); referenceMode = $Request.referenceMode; recipes = @($recipeList.ToArray()); count = $Request.count; fidelity = $Request.fidelity; variation = $Request.variation; randomSeed = $Request.randomSeed; keywordIds = $Request.keywordIds }
     $result = Invoke-Engine $AppRoot $core
     $result.warnings = @($result.warnings) + @($repairWarnings.ToArray())
+    $Request.masks = Get-MaskInstructions $Request
     $Request.generationWarnings = @($result.warnings); $Request.repairs = @($repairs.ToArray())
     $folder = Join-Path $Request.output ('ReferenceLab_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '_' + [Guid]::NewGuid().ToString('N').Substring(0,6))
     [void][IO.Directory]::CreateDirectory($folder)
@@ -177,6 +179,7 @@ Create APPROXIMATE Lightroom develop recipes from the supplied REFERENCE images 
             Set-GenerationProgress $Request ('XMP 저장 · ' + $rows.Count + '/' + @($result.candidates).Count) $rows.Count @($result.candidates).Count
             $file = 'Reference_{0:000}.xmp' -f ($candidate.index + 1)
             $meta = Export-ReferenceCandidate $candidate $Request $AppRoot (Join-Path $folder $file)
+            $candidate | Add-Member -NotePropertyName maskInstructions -NotePropertyValue $Request.masks -Force
             $summary = ($candidate.values | ConvertTo-Json -Compress -Depth 8) + "`nRGB 커브: " + ($candidate.curves | ConvertTo-Json -Compress -Depth 8) + "`n인물 보정: " + ($candidate.subject | ConvertTo-Json -Compress) + "`n배경 보정: " + ($candidate.background | ConvertTo-Json -Compress)
             $rows.Add([pscustomobject]@{ Name = $meta.name; Seed = $candidate.seedName; Keyword = $candidate.keyword; Mode = '레퍼런스'; Changed = @($candidate.values.PSObject.Properties).Count; MaskChanges = $meta.maskFieldsChanged;
                 Reason = $candidate.reason + "`n해석 확신도: " + $candidate.confidence + "`n한계: " + $candidate.limitations; Changes = $summary; File = $file; Details = $candidate })
@@ -186,14 +189,14 @@ Create APPROXIMATE Lightroom develop recipes from the supplied REFERENCE images 
         $manifest = @{ version = '1.4.0'; status = 'completed'; runId = $Request.runId; createdAt = [DateTime]::UtcNow.ToString('o'); mode = 'reference'; referenceMode = $Request.referenceMode;
             model = $Request.model; requestedCount = $Request.count; generatedCount = $rows.Count; fidelity = $Request.fidelity; variation = $Request.variation; randomSeed = $Request.randomSeed; keywordIds = $Request.keywordIds;
             references = @($refs | ForEach-Object { @{ id = $_.id; filename = [IO.Path]::GetFileName($_.path) } }); hasTarget = [bool]$Request.referenceTarget;
-            masks = @{ subject = $Request.maskSubject; background = $Request.maskBackground; templateHash = $Request.referenceMaskHash; subjectIndex = $Request.subjectMaskIndex; backgroundIndex = $Request.backgroundMaskIndex };
+            masks = @{ source = (Get-ReferenceMaskMode $Request); selection = $Request.masks.selection; requiresLightroomComputation = $Request.masks.requiresLightroomComputation; subject = $Request.maskSubject; background = $Request.maskBackground; templateHash = $Request.referenceMaskHash; subjectIndex = $Request.subjectMaskIndex; backgroundIndex = $Request.backgroundMaskIndex };
             observations = @($observations.ToArray()); research = $research; recipes = @($recipeList.ToArray()); repairs = @($repairs.ToArray()); usage = $u; estimatedUSD = $cost; warnings = $result.warnings; diversity = $result.diversity; variants = @($rows.ToArray()) }
         Write-AtomicJson (Join-Path $folder 'manifest.json') $manifest
         $notes = @('레퍼런스 기반 추정 프리셋', '원래 프리셋·조명·카메라 설정의 정확한 복원은 아닙니다.', '', $research.text, '', '참고 출처:')
         $notes += @($research.sources | ForEach-Object { $_.title + "`n" + $_.url })
         $notes += @('', '생성 안내:') + @($result.warnings)
         foreach ($repair in @($repairs.ToArray())) { $notes += ($repair.recipeName + ' [' + ($repair.referenceIds -join ', ') + '] ' + $repair.field + ': ' + ($repair.before | ConvertTo-Json -Compress) + ' -> ' + ($repair.after | ConvertTo-Json -Compress) + ' (' + $repair.method + ')') }
-        $notes += @('', '인물·배경 마스크는 가져온 AI 템플릿을 사용합니다. 새 사진에 적용한 뒤 Lightroom에서 선택 영역 재계산과 경계 확인이 필요할 수 있습니다.')
+        $notes += @('', $(if ((Get-ReferenceMaskMode $Request) -eq 'automatic') { '인물·피사체는 Lightroom 자동 선택, 배경은 그 선택 영역의 반전으로 저장했습니다. 프리셋 적용 후 Lightroom이 영역을 계산하며 필요하면 마스크를 업데이트하세요.' } elseif ((Get-ReferenceMaskMode $Request) -eq 'template') { '선택한 템플릿의 마스크를 사용했습니다. Lightroom에서 선택 영역 업데이트와 경계 확인이 필요할 수 있습니다.' } else { '인물·배경 마스크를 추가하지 않았습니다.' }))
         [IO.File]::WriteAllText((Join-Path $folder 'analysis.txt'), ($notes -join "`r`n"), [Text.UTF8Encoding]::new($false))
         return @{ folder = $folder; rows = @($rows.ToArray()); inputTokens = $u.inputTokens; outputTokens = $u.outputTokens; cost = $cost; warnings = @($result.warnings) }
     } catch [OperationCanceledException] { throw } catch { throw ('레퍼런스 내보내기를 완료하지 못했습니다. 부분 결과 위치: ' + $folder + '. ' + $_.Exception.Message) }

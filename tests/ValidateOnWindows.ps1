@@ -87,6 +87,7 @@ try {
     if ([IO.File]::ReadAllText($ledgerPath).Contains('TEST_KEY_DO_NOT_SAVE')) { throw 'Reference key was persisted.' }
     . (Join-Path $PSScriptRoot 'windows-regressions.ps1')
     . (Join-Path $PSScriptRoot 'windows-reference-recovery.ps1')
+    . (Join-Path $PSScriptRoot 'windows-adaptive-masks.ps1')
     . (Join-Path $PSScriptRoot 'windows-mix.ps1')
     # Saved API key: DPAPI round trip, no plaintext on disk, removable.
     . (Join-Path $appRoot 'ui\project.ps1')

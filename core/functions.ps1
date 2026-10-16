@@ -53,7 +53,7 @@ function Set-Alt($X, [string]$Key, [string]$Value) {
     $lang.Value = 'x-default'; [void]$li.Attributes.Append($lang)
     $li.InnerText = $Value; [void]$alt.AppendChild($li); [void]$element.AppendChild($alt); [void]$X.Desc.AppendChild($element)
 }
-function Export-Candidate($Candidate, $Seed, [string]$Target, [string]$MaskTemplate, [bool]$VaryMasks, [string]$MaskHash = '') {
+function Export-Candidate($Candidate, $Seed, [string]$Target, [string]$MaskTemplate, [bool]$VaryMasks, [string]$MaskHash = '', [bool]$AddSubjectMask = $false, [bool]$AddBackgroundMask = $false) {
     $x = Read-Xmp $Seed.path $Seed.id
     foreach ($p in $Candidate.values.PSObject.Properties) { Set-Crs $x.Doc $x.Desc $p.Name ([double]$p.Value).ToString('0.##', $script:Invariant) }
     $maskChanges = 0; $maskSource = 'seed'
@@ -90,11 +90,14 @@ function Export-Candidate($Candidate, $Seed, [string]$Target, [string]$MaskTempl
             }
         }
     }
+    $adaptiveProof = @(Add-SeedAdaptiveMasks $x $Candidate $AddSubjectMask $AddBackgroundMask)
+    $maskChanges += $adaptiveProof.Count * 4
     $label = '{0} · {1} · {2:000}' -f $Candidate.seedName, $Candidate.keyword, ($Candidate.index + 1)
     Set-Alt $x 'Name' $label; Set-Alt $x 'Group' 'Seed Lab Generated'
     Set-Crs $x.Doc $x.Desc 'UUID' ([Guid]::NewGuid().ToString('N').ToUpperInvariant())
     Set-Crs $x.Doc $x.Desc 'PresetType' 'Normal'
     Save-VerifiedXmp $x $Target { param($check)
+    Test-SavedAdaptiveMasks $check $adaptiveProof
     foreach ($p in $Candidate.values.PSObject.Properties) {
         $actual = [double]::Parse($check.Desc.GetAttribute($p.Name, $script:CrsNs), $script:Invariant)
         if ([Math]::Abs($actual - [double]$p.Value) -gt 0.005) { throw 'XMP 저장 검증에 실패했습니다.' }
@@ -203,6 +206,7 @@ function Run-GenerationCore($Request, [string]$AppRoot) {
     $usage = @{ inputTokens = 0; outputTokens = 0; calls = 0 }
     if ($Request.useAi) { $usage = Invoke-AiPlans $Request $prepared; $core.aiPlans = $usage.plans }
     $core.operation = 'generate'; $result = Invoke-Engine $AppRoot $core
+    $Request.masks = Get-MaskInstructions $Request
     $runFolder = Join-Path $Request.output ('SeedLab_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '_' + [Guid]::NewGuid().ToString('N').Substring(0, 6))
     [void][IO.Directory]::CreateDirectory($runFolder)
     $rows = New-Object Collections.Generic.List[object]
@@ -212,7 +216,8 @@ function Run-GenerationCore($Request, [string]$AppRoot) {
             Set-GenerationProgress $Request ('XMP 저장 · ' + $rows.Count + '/' + @($result.candidates).Count) $rows.Count @($result.candidates).Count
             $seed = @($Request.seeds | Where-Object { $_.id -eq $candidate.seedId })[0]
             $file = 'Variant_{0:000}.xmp' -f ($candidate.index + 1)
-            $meta = Export-Candidate $candidate $seed (Join-Path $runFolder $file) $Request.maskTemplate $Request.varyMasks $Request.maskTemplateHash
+            $meta = Export-Candidate $candidate $seed (Join-Path $runFolder $file) $Request.maskTemplate ([bool]$Request.varyMasks) $Request.maskTemplateHash ([bool]$Request.addSubjectMask) ([bool]$Request.addBackgroundMask)
+            $candidate | Add-Member -NotePropertyName maskInstructions -NotePropertyValue $Request.masks -Force
             $changes = @($candidate.delta.PSObject.Properties | ForEach-Object { '{0}: {1:+0.##;-0.##;0}' -f $_.Name, [double]$_.Value }) -join '; '
             $rows.Add([pscustomobject]@{ Name = $meta.name; Seed = $candidate.seedName; Keyword = $candidate.keyword; Mode = $candidate.mode;
                 Changed = @($candidate.delta.PSObject.Properties).Count; MaskChanges = $meta.maskFieldsChanged; Reason = $candidate.reason; Changes = $changes; File = $file; Details = $candidate })
@@ -224,7 +229,7 @@ function Run-GenerationCore($Request, [string]$AppRoot) {
             generatedCount = $rows.Count; fidelity = $Request.fidelity; variation = $Request.variation; randomSeed = $Request.randomSeed;
             keywordIds = $Request.keywordIds; seeds = @($Request.seeds | ForEach-Object { @{ id = $_.id; name = $_.name } });
             usage = @{ inputTokens = $usage.inputTokens; outputTokens = $usage.outputTokens; calls = $usage.calls; estimatedUSD = $cost; priceDate = '2026-10-16'; cachedTokens = $usage.cachedTokens; reasoningTokens = $usage.reasoningTokens };
-            warnings = $result.warnings; diversity = $result.diversity; variants = @($rows.ToArray()) }
+            masks = $Request.masks; warnings = $result.warnings; diversity = $result.diversity; variants = @($rows.ToArray()) }
         Write-AtomicJson (Join-Path $runFolder 'manifest.json') $manifest
         return @{ folder = $runFolder; rows = @($rows.ToArray()); inputTokens = $usage.inputTokens; outputTokens = $usage.outputTokens; cost = $cost; warnings = @($result.warnings) }
     } catch [OperationCanceledException] { throw } catch {
@@ -257,6 +262,7 @@ function Run-Generation($Request, [string]$AppRoot) {
 }
 
 . (Join-Path $PSScriptRoot 'api.ps1')
+. (Join-Path $PSScriptRoot 'masks.ps1')
 . (Join-Path $PSScriptRoot 'reference.ps1')
 
 . (Join-Path $PSScriptRoot 'mix.ps1')

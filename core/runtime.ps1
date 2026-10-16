@@ -29,7 +29,7 @@ function Save-PartialManifest($Request, [string]$Status) {
         requestedCount = $Request.count; generatedCount = $Request.generatedCount; randomSeed = $Request.randomSeed;
         fidelity = $Request.fidelity; variation = $Request.variation; keywordIds = $Request.keywordIds;
         variants = @($Request.exportedRows.ToArray()); usage = $Request.usageSummary;
-        mix = $Request.mix; repairs = @($Request.repairs); warnings = @($Request.generationWarnings) }
+        mix = $Request.mix; masks = $Request.masks; repairs = @($Request.repairs); warnings = @($Request.generationWarnings) }
     Write-AtomicJson (Join-Path $Request.runFolder 'manifest.json') $manifest
 }
 
