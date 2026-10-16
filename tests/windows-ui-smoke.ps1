@@ -45,8 +45,10 @@ try {
     Click-Control 'GeneratorNav'
     if ((Find-Control 'SeedCount').Current.Name -ne ('{0}개 중 {0}개 사용' -f $fixtures.Count)) { throw ('Project seeds were not restored: ' + (Find-Control 'SeedCount').Current.Name) }
     $choices = Check-KeywordChoices 'GeneratorPage'
-    $styleChoice = @($choices | Where-Object { $_.Current.Name -eq '큐트 판타지' })[0]
-    $styleChoice.GetCurrentPattern([Windows.Automation.TogglePattern]::Pattern).Toggle()
+    foreach ($label in @('아이돌 화보', '데일리 스냅')) {
+        $styleChoice = @($choices | Where-Object { $_.Current.Name -eq $label })[0]
+        $styleChoice.GetCurrentPattern([Windows.Automation.TogglePattern]::Pattern).Toggle()
+    }
     $toggle = (Find-Control 'UseAi').GetCurrentPattern([Windows.Automation.TogglePattern]::Pattern)
     if ($toggle.Current.ToggleState -ne [Windows.Automation.ToggleState]::Off) { $toggle.Toggle() }
     if ($toggle.Current.ToggleState -ne [Windows.Automation.ToggleState]::Off) { throw 'Offline mode was not enabled.' }
@@ -63,7 +65,9 @@ try {
     if ($files.Count -ne 24) { throw 'UI did not export 24 XMP files.' }
     $manifestPath = @(Get-ChildItem -LiteralPath (Join-Path $temporary 'output') -Filter 'manifest.json' -Recurse)[0].FullName
     $manifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
-    if (@($manifest.variants | Where-Object { $_.Details.keywordId -ne 'cute_fantasy' }).Count) { throw 'Selected style keyword was not used for generation.' }
+    foreach ($id in @('idol_editorial', 'daily_snap')) {
+        if (@($manifest.variants | Where-Object { $_.Details.keywordId -eq $id }).Count -ne 12) { throw ('Selected style keyword was not used for generation: ' + $id) }
+    }
     Click-Control 'ReferenceNav'; $null = Find-Control 'RefAdd'
     $null = Check-KeywordChoices 'ReferencePage'
     Click-Control 'MixNav'; Click-Control 'MixFromSeeds'
@@ -84,7 +88,7 @@ try {
     if ($mixture.mode -ne 'mix' -or $mixture.mix.useAi -or $mixture.usage.calls -ne 0 -or @($mixture.mix.sources).Count -ne 12 -or $mixture.mix.sources[0].weight -ne 25) { throw 'UI mixture did not preserve source weights or local mode.' }
     Click-Control 'DashboardNav'
     if ((Find-Control 'RunKpi').Current.Name -ne '2') { throw 'Dashboard did not show both local generations.' }
-    Write-Host 'PASS: real EXE launch, project restore of 12 seeds, navigation, local generation through Start-Job, 24 seed XMPs and 1 mixed XMP, ratio slider, results and persistent dashboard.'
+    Write-Host 'PASS: real EXE launch, project restore of 12 seeds, navigation, local generation through Start-Job, 60 keywords in both screens, renamed and new style keywords in 24 seed XMPs and 1 mixed XMP, ratio slider, results and persistent dashboard.'
     Write-Host 'No external API was called. The test used isolated usage/output directories.'
 } finally {
     if ($windowElement) { $windowElement.GetCurrentPattern([Windows.Automation.WindowPattern]::Pattern).Close() }

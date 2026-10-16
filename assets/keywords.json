@@ -144,6 +144,78 @@
     }
   },
   {
+    "id": "natural",
+    "label": "자연스러운",
+    "category": "분위기",
+    "axes": {
+      "exposure": 0,
+      "contrast": 0,
+      "softness": 0,
+      "warmth": 0,
+      "magenta": 0,
+      "saturation": -0.1,
+      "shadowLift": 0,
+      "red": 0,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "relaxed",
+    "label": "편안한",
+    "category": "분위기",
+    "axes": {
+      "exposure": 0.05,
+      "contrast": -0.15,
+      "softness": 0.2,
+      "warmth": 0.1,
+      "magenta": 0,
+      "saturation": -0.15,
+      "shadowLift": 0.15,
+      "red": 0,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "fresh",
+    "label": "산뜻한",
+    "category": "분위기",
+    "axes": {
+      "exposure": 0.2,
+      "contrast": 0.05,
+      "softness": -0.05,
+      "warmth": -0.05,
+      "magenta": 0,
+      "saturation": 0.1,
+      "shadowLift": 0.05,
+      "red": 0,
+      "green": 0.1,
+      "blue": 0.05,
+      "grain": 0
+    }
+  },
+  {
+    "id": "cozy",
+    "label": "포근한",
+    "category": "분위기",
+    "axes": {
+      "exposure": 0.1,
+      "contrast": -0.2,
+      "softness": 0.35,
+      "warmth": 0.25,
+      "magenta": 0.05,
+      "saturation": -0.15,
+      "shadowLift": 0.2,
+      "red": 0.1,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
     "id": "soft",
     "label": "부드러운",
     "category": "톤",
@@ -288,6 +360,42 @@
     }
   },
   {
+    "id": "balanced",
+    "label": "균형 잡힌",
+    "category": "톤",
+    "axes": {
+      "exposure": 0,
+      "contrast": 0.05,
+      "softness": 0,
+      "warmth": 0,
+      "magenta": 0,
+      "saturation": 0,
+      "shadowLift": 0,
+      "red": 0,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "crisp",
+    "label": "선명한",
+    "category": "톤",
+    "axes": {
+      "exposure": 0.05,
+      "contrast": 0.25,
+      "softness": -0.3,
+      "warmth": 0,
+      "magenta": 0,
+      "saturation": 0.1,
+      "shadowLift": -0.1,
+      "red": 0,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
     "id": "baby_pink",
     "label": "베이비 핑크",
     "category": "따뜻한 색감",
@@ -396,6 +504,42 @@
     }
   },
   {
+    "id": "beige",
+    "label": "베이지",
+    "category": "따뜻한 색감",
+    "axes": {
+      "exposure": 0.1,
+      "contrast": -0.15,
+      "softness": 0.15,
+      "warmth": 0.2,
+      "magenta": 0,
+      "saturation": -0.3,
+      "shadowLift": 0.1,
+      "red": 0.1,
+      "green": 0.05,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "warm_brown",
+    "label": "웜 브라운",
+    "category": "따뜻한 색감",
+    "axes": {
+      "exposure": -0.1,
+      "contrast": 0.1,
+      "softness": 0.05,
+      "warmth": 0.3,
+      "magenta": 0,
+      "saturation": -0.25,
+      "shadowLift": 0.05,
+      "red": 0.2,
+      "green": 0.05,
+      "blue": -0.1,
+      "grain": 0
+    }
+  },
+  {
     "id": "sky_blue",
     "label": "하늘빛",
     "category": "차가운 색감",
@@ -500,6 +644,42 @@
       "red": 0,
       "green": 0.15,
       "blue": 0.45,
+      "grain": 0
+    }
+  },
+  {
+    "id": "cool_gray",
+    "label": "쿨 그레이",
+    "category": "차가운 색감",
+    "axes": {
+      "exposure": 0,
+      "contrast": 0.1,
+      "softness": 0,
+      "warmth": -0.15,
+      "magenta": 0,
+      "saturation": -0.35,
+      "shadowLift": 0.05,
+      "red": 0,
+      "green": 0,
+      "blue": 0.05,
+      "grain": 0
+    }
+  },
+  {
+    "id": "blue_gray",
+    "label": "블루 그레이",
+    "category": "차가운 색감",
+    "axes": {
+      "exposure": -0.05,
+      "contrast": 0.1,
+      "softness": 0.05,
+      "warmth": -0.3,
+      "magenta": 0,
+      "saturation": -0.3,
+      "shadowLift": 0.1,
+      "red": 0,
+      "green": 0.05,
+      "blue": 0.2,
       "grain": 0
     }
   },
@@ -648,8 +828,44 @@
     }
   },
   {
+    "id": "neutral_palette",
+    "label": "뉴트럴",
+    "category": "팔레트",
+    "axes": {
+      "exposure": 0,
+      "contrast": 0,
+      "softness": 0.05,
+      "warmth": 0,
+      "magenta": 0,
+      "saturation": -0.2,
+      "shadowLift": 0.05,
+      "red": 0,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "earth_tone",
+    "label": "어스 톤",
+    "category": "팔레트",
+    "axes": {
+      "exposure": 0,
+      "contrast": -0.05,
+      "softness": 0.1,
+      "warmth": 0.2,
+      "magenta": 0,
+      "saturation": -0.3,
+      "shadowLift": 0.1,
+      "red": 0.15,
+      "green": 0.15,
+      "blue": -0.1,
+      "grain": 0
+    }
+  },
+  {
     "id": "idol_editorial",
-    "label": "아이돌 화보 느낌",
+    "label": "아이돌 화보",
     "category": "스타일",
     "axes": {
       "exposure": 0.3,
@@ -788,6 +1004,78 @@
       "red": 0.35,
       "green": 0.1,
       "blue": 0.3,
+      "grain": 0
+    }
+  },
+  {
+    "id": "daily_snap",
+    "label": "데일리 스냅",
+    "category": "스타일",
+    "axes": {
+      "exposure": 0.1,
+      "contrast": 0.05,
+      "softness": 0,
+      "warmth": 0.05,
+      "magenta": 0,
+      "saturation": 0.05,
+      "shadowLift": 0.05,
+      "red": 0,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "portrait",
+    "label": "인물 사진",
+    "category": "스타일",
+    "axes": {
+      "exposure": 0.1,
+      "contrast": -0.05,
+      "softness": 0.2,
+      "warmth": 0.1,
+      "magenta": 0.05,
+      "saturation": -0.1,
+      "shadowLift": 0.1,
+      "red": 0.1,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "film",
+    "label": "필름 감성",
+    "category": "스타일",
+    "axes": {
+      "exposure": 0,
+      "contrast": -0.15,
+      "softness": 0.15,
+      "warmth": 0.1,
+      "magenta": 0.05,
+      "saturation": -0.25,
+      "shadowLift": 0.3,
+      "red": 0.1,
+      "green": 0.05,
+      "blue": -0.05,
+      "grain": 0.25
+    }
+  },
+  {
+    "id": "minimal",
+    "label": "미니멀",
+    "category": "스타일",
+    "axes": {
+      "exposure": 0.1,
+      "contrast": 0.15,
+      "softness": -0.05,
+      "warmth": 0,
+      "magenta": 0,
+      "saturation": -0.3,
+      "shadowLift": -0.05,
+      "red": 0,
+      "green": 0,
+      "blue": 0,
       "grain": 0
     }
   }

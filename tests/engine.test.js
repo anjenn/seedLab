@@ -4,8 +4,10 @@ const root=path.resolve(__dirname,'..');const E=require('../core/engine.js');
 let tests=0;function test(name,f){f();tests++;console.log('PASS '+name);}
 const seeds=Array.from({length:16},(_,i)=>({id:'seed-'+i,name:'씨드 '+i,values:{Exposure2012:0,Contrast2012:i-8,Highlights2012:-20,Shadows2012:12,Blacks2012:10,Whites2012:0,Texture:-5,Clarity2012:-3,Vibrance:12,Saturation:-4,Temperature:5600,Tint:8,HueAdjustmentRed:3,SaturationAdjustmentBlue:-20,GrainAmount:8,UnknownVendorSetting:123}}));
 function request(extra){return Object.assign({seeds,keywordIds:['dreamy','rose','cyan','black_contrast'],count:48,fidelity:85,variation:70,randomSeed:1223},extra);}
-test('44 unique keywords in six categories, synchronized with the UI catalog',()=>{
- assert.equal(E.keywords.length,44);assert.equal(new Set(E.keywords.map(x=>x.id)).size,44);
+test('60 unique keywords in six categories, synchronized with the UI catalog',()=>{
+ assert.equal(E.keywords.length,60);assert.equal(new Set(E.keywords.map(x=>x.id)).size,60);
+ assert.equal(new Set(E.keywords.map(x=>x.label)).size,60);
+ assert.equal(E.keywords.find(x=>x.id==='idol_editorial').label,'아이돌 화보');
  assert.deepEqual([...new Set(E.keywords.map(x=>x.category))],['분위기','톤','따뜻한 색감','차가운 색감','팔레트','스타일']);
  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root,'assets','keywords.json'),'utf8')),E.keywords);
  for(const keyword of E.keywords){
@@ -13,7 +15,9 @@ test('44 unique keywords in six categories, synchronized with the UI catalog',()
   assert.ok(Object.values(keyword.axes).every(x=>Number.isFinite(x)&&x>=-1&&x<=1));
   assert.equal(E.prepare(request({count:1,keywordIds:[keyword.id]})).assignments[0].keyword,keyword.label);
  }
- assert.equal(E.prepare(request({count:1,keywordIds:[]})).assignments[0].keywordId,'natural');
+ const defaultAssignment=E.prepare(request({count:1,keywordIds:[]})).assignments[0];
+ assert.equal(defaultAssignment.keywordId,'natural');
+ assert.deepEqual(E.prepare(request({count:1,keywordIds:['natural']})).assignments[0],defaultAssignment);
 });
 test('16 seeds fairly assigned to 48 candidates',()=>{const a=E.prepare(request()).assignments;for(const s of seeds)assert.equal(a.filter(x=>x.seedId===s.id).length,3);});
 test('up to 120 candidates, no exact duplicates',()=>{const r=E.generate(request({count:120,fidelity:60,variation:100}));assert.equal(r.candidates.length,120);assert.equal(new Set(r.candidates.map(x=>x.seedId+JSON.stringify(x.values))).size,120);});

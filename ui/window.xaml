@@ -551,7 +551,7 @@
         <StackPanel>
          <DockPanel><StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><TextBlock x:Name="KeywordSummary" Text="선택 없음" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,4,0"/><Button x:Name="KeywordClear" Content="모두 해제" Style="{StaticResource Link}" Visibility="Collapsed"/></StackPanel>
           <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="2" Style="{StaticResource StepText}"/></Border><TextBlock Text="이번에 탐색할 분위기" Style="{StaticResource Title}"/></StackPanel></DockPanel>
-         <TextBlock Text="44개 방향 중 원하는 것을 고르세요. 키워드는 후보별로 나눠 배정되며, 선택하지 않으면 자연스러운 변주를 만듭니다. 칩에 마우스를 올리면 보정 방향을 볼 수 있어요." Style="{StaticResource Muted}" Margin="0,8,0,14"/>
+         <TextBlock Text="60개 방향 중 원하는 것을 고르세요. 키워드는 후보별로 나눠 배정되며, 선택하지 않으면 자연스러운 변주를 만듭니다. 칩에 마우스를 올리면 보정 방향을 볼 수 있어요." Style="{StaticResource Muted}" Margin="0,8,0,14"/>
          <StackPanel x:Name="KeywordGroups"/>
         </StackPanel>
        </Border>

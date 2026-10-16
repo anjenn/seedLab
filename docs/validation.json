@@ -15,7 +15,7 @@
   ],
   "usageTests": "16 passed",
   "totalLogicTests": 70,
-  "nativeUi": "Real EXE UI Automation passed: original seed generation (24 XMPs), reference navigation/44 keywords, mix tab/import/ratio slider/local generation (1 XMP), results and two runs in dashboard",
+  "nativeUi": "Real EXE UI Automation passed: 60 keywords in both seed/reference screens, renamed idol_editorial and new daily_snap selections exported to 24 XMPs, mix tab/import/ratio slider/local generation (1 XMP), results and two runs in dashboard",
   "uiRedesign": "v1.4 WPF redesign rendered offscreen and inspected (dashboard, both creation screens, busy state, empty and filled results); preferences save/restore without API key, shared API key, seed select-all toggle, run summary call estimates and result detail chips checked by script. Drag and drop, keyboard shortcuts and EXIF-rotated thumbnails were not exercised by automation.",
   "projectPersistence": "Real app.ps1 run three times offscreen: new project copies current seeds and later additions without duplicates, photos copied, relative paths, local Start-Job generation into project outputs, restart restores seeds/use flags/keywords/notes/options/reference photos/target/last results/view; remembered API key is DPAPI-encrypted outside settings and project files, restored, and deleted when turned off. ValidateOnWindows adds DPAPI round trip and project import checks.",
   "referenceTests": "24 passed",
@@ -34,16 +34,16 @@
   ],
   "windowsPathCompatibility": "offline integration and real EXE UI smoke both passed from a path containing Korean characters and spaces",
   "keywordCatalog": {
-    "count": 44,
+    "count": 60,
     "categories": {
-      "분위기": 8,
-      "톤": 8,
-      "따뜻한 색감": 6,
-      "차가운 색감": 6,
-      "팔레트": 8,
-      "스타일": 8
+      "분위기": 12,
+      "톤": 10,
+      "따뜻한 색감": 8,
+      "차가운 색감": 8,
+      "팔레트": 10,
+      "스타일": 12
     },
-    "verification": "Exact requested labels/order, shared engine/UI data, both Windows screens, selected cute_fantasy style exported to 24 XMPs"
+    "verification": "Engine/UI catalogs match; 44 existing IDs and axes preserved, idol_editorial label renamed; 16 everyday additions; no-selection natural default unchanged; both Windows screens display all 60; selected idol_editorial and daily_snap exported to 12 XMPs each"
   },
   "referenceRecovery": "Windows PowerShell 5.1 / WSH passed: nonmonotonic, fractional and out-of-range curves; degenerate curve neutral fallback; finite slider clamping; audit in XMP/manifest/analysis and cancelled partial export; no additional API calls",
   "referenceInputPreflight": "Real System.Drawing decoding passed: valid PNG, hash mismatch, corrupt fifth reference and corrupt target rejected before HTTP, handles released; analyzed image snapshots reused for recipes",
