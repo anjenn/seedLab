@@ -75,7 +75,7 @@ function Refresh-Dashboard {
         $t = $data.totals
         $controls.TokenKpi.Text = Format-Count $t.totalTokens
         $controls.TokenKpi.ToolTip = '입력 ' + (Format-Count $t.inputTokens) + ' · 출력 ' + (Format-Count $t.outputTokens) + ' (추론 포함)'
-        $controls.TokenComparison.Text = $(if ($null -ne $data.changePercent) { '전기간 대비 ' + ([int]$data.changePercent).ToString('+0;-0;0') + '%' } elseif ($t.totalTokens -gt 0) { '확인된 응답의 입력 + 출력' } else { '아직 확인된 토큰이 없어요' })
+        $controls.TokenComparison.Text = $(if ($null -ne $data.changePercent) { '이전 기간 대비 ' + ([int]$data.changePercent).ToString('+0;-0;0') + '%' } elseif ($t.totalTokens -gt 0) { '확인된 응답의 입력 + 출력' } else { '아직 기록된 토큰이 없습니다' })
         $controls.CallKpi.Text = Format-Count $t.calls
         $controls.CallDetail.Text = '확인된 응답 ' + $t.knownCalls + '건 · 미확인 ' + $t.unknownCalls + '건'
         $controls.RunKpi.Text = Format-Count $t.runs

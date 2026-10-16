@@ -15,13 +15,20 @@ $controls.SeedGrid.ItemsSource = $script:Seeds
 $controls.Output.Text = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'SeedLabOutputs'
 $script:Photo = ''; $script:Mask = ''
 $keywords = Get-Content -LiteralPath (Join-Path $script:AppRoot 'assets\keywords.json') -Encoding UTF8 -Raw | ConvertFrom-Json
-$script:AxisNames = @{ exposure = '밝기'; contrast = '대비'; softness = '부드러움'; warmth = '따뜻함'; magenta = '마젠타'; saturation = '채도'; shadowLift = '암부'; red = '레드'; green = '그린'; blue = '블루'; grain = '그레인' }
+$script:AxisHints = @{
+    exposure = @('밝은 톤', '어두운 톤'); contrast = @('또렷한 대비', '부드러운 대비')
+    softness = @('부드러운 질감', '선명한 질감'); warmth = @('따뜻한 색감', '시원한 색감')
+    magenta = @('핑크빛', '그린빛'); saturation = @('풍부한 색감', '차분한 색감')
+    shadowLift = @('밝은 암부', '깊은 암부'); red = @('붉은 계열 강조', '붉은 계열 절제')
+    green = @('초록 계열 강조', '초록 계열 절제'); blue = @('푸른 계열 강조', '푸른 계열 절제')
+    grain = @('필름 입자 더하기', '필름 입자 줄이기')
+}
 
 function Get-KeywordHint($Keyword) {
     $parts = @($Keyword.axes.PSObject.Properties | Where-Object { [Math]::Abs([double]$_.Value) -ge 0.1 } | Sort-Object { -[Math]::Abs([double]$_.Value) } | Select-Object -First 4 |
-        ForEach-Object { $script:AxisNames[$_.Name] + $(if ([double]$_.Value -gt 0) { ' ↑' } else { ' ↓' }) })
-    if (-not $parts.Count) { return $Keyword.category + ' · 균형 잡힌 변화' }
-    return $Keyword.category + ' · ' + ($parts -join ' · ')
+        ForEach-Object { $script:AxisHints[$_.Name][[int]([double]$_.Value -lt 0)] })
+    if (-not $parts.Count) { return $Keyword.label + "`n기본 색감을 바탕으로 균형 있게 변주합니다." }
+    return $Keyword.label + "`n" + ($parts -join ' · ') + "`n씨드와 변주 설정에 따라 변화의 크기가 달라집니다."
 }
 function Add-KeywordChips($Panel, $List) {
     foreach ($category in @($keywords | Select-Object -ExpandProperty category -Unique)) {
@@ -137,7 +144,7 @@ function Update-RunSummary {
         $used = @($script:Seeds | Where-Object { $_.Use }).Count
         $picked = @($script:KeywordChecks | Where-Object { $_.IsChecked }).Count
         $count = 0; $validCount = [int]::TryParse($controls.Count.Text, [ref]$count) -and $count -ge 1 -and $count -le 120
-        if (-not $script:Seeds.Count) { $text = '씨드 XMP를 등록하면 생성할 수 있어요'; $warn = $true }
+        if (-not $script:Seeds.Count) { $text = '시작하려면 씨드 XMP를 추가하세요.'; $warn = $true }
         elseif (-not $used) { $text = '사용할 씨드를 하나 이상 체크하세요'; $warn = $true }
         elseif (-not $validCount) { $text = '생성 개수는 1–120 사이로 입력하세요'; $warn = $true }
         else {
@@ -146,15 +153,15 @@ function Update-RunSummary {
         }
     } elseif ($script:CurrentView -eq 'mix') {
         $used = @($script:MixSources | Where-Object { $_.weight -gt 0 }).Count; $count = 0
-        if ($used -lt 2) { $text = '비율이 0보다 큰 프리셋을 2개 이상 선택하세요'; $warn = $true }
+        if ($used -lt 2) { $text = '프리셋 2개 이상의 비율을 0보다 높게 설정하세요.'; $warn = $true }
         elseif (-not [int]::TryParse($controls.MixCount.Text, [ref]$count) -or $count -lt 1 -or $count -gt 24) { $text = '생성 개수는 1–24 사이로 입력하세요'; $warn = $true }
         else { $text = '프리셋 ' + $used + '개 혼합 · 후보 ' + $count + '개 · ' + $(if ($controls.MixUseAi.IsChecked) { 'AI 설계 약 ' + [Math]::Ceiling($count / 6) + '회' } else { '로컬 처리 (API 비용 없음)' }) }
     } elseif ($script:CurrentView -eq 'reference') {
         $photos = $script:References.Count; $mode = $controls.RefMode.SelectedItem.Tag
         $count = 0; $validCount = [int]::TryParse($controls.RefCount.Text, [ref]$count) -and $count -ge 1 -and $count -le 120
-        if (-not $photos) { $text = '레퍼런스 사진을 추가하면 생성할 수 있어요'; $warn = $true }
+        if (-not $photos) { $text = '시작하려면 참고할 사진을 추가하세요.'; $warn = $true }
         elseif (-not $validCount) { $text = '총 생성 개수는 1–120 사이로 입력하세요'; $warn = $true }
-        elseif ($mode -eq 'individual' -and $count -lt $photos) { $text = '사진별 모드는 총 생성 개수가 사진 수(' + $photos + ') 이상이어야 해요'; $warn = $true }
+        elseif ($mode -eq 'individual' -and $count -lt $photos) { $text = '사진별 모드는 총 생성 개수가 사진 수(' + $photos + ') 이상이어야 합니다.'; $warn = $true }
         else {
             $batches = [Math]::Ceiling($photos / 4); $search = $(if ($controls.RefSearch.IsChecked) { 1 } else { 0 })
             $calls = $batches + $search + $(if ($mode -eq 'individual') { $batches } else { 1 })
@@ -334,7 +341,7 @@ $script:References.Add_CollectionChanged({ Request-AutoSave })
 $controls.ApiKey.Add_PasswordChanged({ if ($controls.RememberKey.IsChecked) { Request-AutoSave } })
 
 function Update-KeyHint {
-    $tip = $(if ($controls.RememberKey.IsChecked) { 'Windows 계정으로 암호화해 이 PC에만 저장했습니다. 끄면 저장된 키를 지웁니다.' } else { '켜면 Windows 계정으로 암호화해 이 PC에만 저장합니다. 꺼 두면 키는 메모리에만 있고 앱을 닫을 때 지워집니다.' }) + ' 세 생성 화면이 같은 키를 씁니다.'
+    $tip = $(if ($controls.RememberKey.IsChecked) { 'API 키를 Windows 계정으로 암호화해 저장합니다. 이 옵션을 끄면 저장된 키를 삭제합니다.' } else { '켜면 API 키를 암호화해 저장하고 다음 실행 때 불러옵니다. 꺼 두면 입력한 키는 앱을 닫을 때 지워집니다.' }) + "`n모든 생성 화면에서 같은 API 키를 사용합니다."
     foreach ($name in @('RememberKey','RefRememberKey','MixRememberKey')) { $controls[$name].ToolTip = $tip }
 }
 function Set-RememberKey([bool]$On) {

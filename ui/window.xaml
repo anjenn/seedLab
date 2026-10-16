@@ -427,22 +427,22 @@
        <TextBlock x:Name="ProjectName" Text="프로젝트 없음" FontWeight="SemiBold" Foreground="White" Margin="0,6,0,2" TextTrimming="CharacterEllipsis"/>
        <TextBlock x:Name="ProjectState" Text="저장되지 않음" FontSize="11.5" Foreground="{StaticResource SideMutedBrush}" TextWrapping="Wrap" LineHeight="16"/>
        <StackPanel Orientation="Horizontal" Margin="0,9,0,0">
-        <Button x:Name="ProjectPick" Content="폴더 지정" Tag="&#xE8F4;" Style="{StaticResource Primary}" MinHeight="30" Padding="10,0" FontSize="12" Margin="0,0,6,0" ToolTip="프로젝트 폴더를 열거나 새로 만듭니다. 추가한 XMP·사진과 작업 상태가 그 폴더에 자동 저장됩니다."/>
+        <Button x:Name="ProjectPick" Content="폴더 지정" Tag="&#xE8F4;" Style="{StaticResource Primary}" MinHeight="30" Padding="10,0" FontSize="12" Margin="0,0,6,0" ToolTip="작업을 보관할 폴더를 선택하세요. 등록한 파일과 설정을 자동으로 저장하고, 다음 실행 때 이어서 작업할 수 있습니다."/>
         <Button x:Name="ProjectOpenFolder" Tag="&#xE838;" Style="{StaticResource SideButton}" MinHeight="30" Padding="8,0" Margin="0" ToolTip="탐색기에서 프로젝트 폴더 열기" AutomationProperties.Name="프로젝트 폴더 열기" Visibility="Collapsed"/>
        </StackPanel>
       </StackPanel>
      </Border>
      <TextBlock Text="만들기" Style="{StaticResource SideSection}"/>
-     <Button x:Name="GeneratorNav" Content="프리셋 생성" Tag="&#xE790;" Style="{StaticResource Nav}" ToolTip="씨드 XMP를 변주해 새 프리셋을 만듭니다 · Ctrl+1"/>
-     <Button x:Name="ReferenceNav" Content="레퍼런스로 만들기" Tag="&#xEB9F;" Style="{StaticResource Nav}" ToolTip="사진의 색감을 분석해 프리셋을 만듭니다 · Ctrl+2"/>
-     <Button x:Name="MixNav" Content="프리셋 믹스매치" Tag="&#xE8AB;" Style="{StaticResource Nav}" ToolTip="내 프리셋을 비율과 항목별로 섞습니다 · Ctrl+5"/>
+     <Button x:Name="GeneratorNav" Content="프리셋 생성" Tag="&#xE790;" Style="{StaticResource Nav}" ToolTip="내 프리셋을 바탕으로 새로운 보정 스타일을 만듭니다. (Ctrl+1)"/>
+     <Button x:Name="ReferenceNav" Content="레퍼런스로 만들기" Tag="&#xEB9F;" Style="{StaticResource Nav}" ToolTip="원하는 사진의 색감과 분위기를 분석해 프리셋을 만듭니다. (Ctrl+2)"/>
+     <Button x:Name="MixNav" Content="프리셋 믹스매치" Tag="&#xE8AB;" Style="{StaticResource Nav}" ToolTip="여러 프리셋의 톤과 색감을 원하는 비율로 조합합니다. (Ctrl+5)"/>
      <TextBlock Text="확인" Style="{StaticResource SideSection}"/>
-     <Button x:Name="ResultsNav" Content="생성 결과" Tag="&#xE8FD;" Style="{StaticResource Nav}" ToolTip="최근 생성한 후보 · Ctrl+3"/>
-     <Button x:Name="DashboardNav" Content="사용량 대시보드" Tag="&#xE9D2;" Style="{StaticResource Nav}" ToolTip="토큰·비용·작업 기록 · Ctrl+4"/>
+     <Button x:Name="ResultsNav" Content="생성 결과" Tag="&#xE8FD;" Style="{StaticResource Nav}" ToolTip="생성한 프리셋과 바뀐 보정값을 확인합니다. (Ctrl+3)"/>
+     <Button x:Name="DashboardNav" Content="사용량 대시보드" Tag="&#xE9D2;" Style="{StaticResource Nav}" ToolTip="AI 사용량, 예상 비용, 생성 기록을 확인합니다. (Ctrl+4)"/>
     </StackPanel>
     <StackPanel DockPanel.Dock="Bottom" Margin="8,0,0,0">
      <StackPanel Orientation="Horizontal" Background="Transparent" Cursor="Help" Margin="0,0,0,8" ToolTip="Ctrl+Enter  생성 시작&#x0a;Ctrl+1–5  화면 이동&#x0a;Ctrl+O  파일 추가&#x0a;F5  대시보드 새로고침"><TextBlock Text="&#xE765;" Style="{StaticResource Icon}" FontSize="13" Foreground="{StaticResource SideMutedBrush}" Margin="0,0,8,0"/><TextBlock Text="단축키" FontSize="12" Foreground="{StaticResource SideMutedBrush}"/></StackPanel>
-     <TextBlock Text="Desktop · v1.4" FontSize="11" Foreground="{StaticResource SideMutedBrush}" ToolTip="YOUR STYLE. MORE POSSIBILITIES.&#x0a;사용 기록은 이 PC에만 저장됩니다."/>
+     <TextBlock Text="Desktop · v1.4" FontSize="11" Foreground="{StaticResource SideMutedBrush}" ToolTip="Preset Seed Lab 1.4&#x0a;사용 기록은 이 PC에 저장됩니다."/>
     </StackPanel>
    </DockPanel>
   </Border>
@@ -461,14 +461,14 @@
     <ScrollViewer x:Name="DashboardPage" Style="{StaticResource PageScroll}" Visibility="Collapsed">
      <StackPanel Margin="0,0,8,10">
       <DockPanel Margin="0,0,0,16">
-       <WrapPanel DockPanel.Dock="Right"><Button x:Name="RefreshUsage" Content="새로고침" Tag="&#xE72C;" ToolTip="F5"/><Button x:Name="ExportUsage" Content="호출 CSV" Tag="&#xE896;"/><Button x:Name="ExportDaily" Content="일별 CSV" Tag="&#xE896;" Margin="0"/></WrapPanel>
+       <WrapPanel DockPanel.Dock="Right"><Button x:Name="RefreshUsage" Content="새로고침" Tag="&#xE72C;" ToolTip="사용 기록을 새로 불러옵니다. (F5)"/><Button x:Name="ExportUsage" Content="호출 CSV 저장" Tag="&#xE896;"/><Button x:Name="ExportDaily" Content="일별 CSV 저장" Tag="&#xE896;" Margin="0"/></WrapPanel>
        <StackPanel Orientation="Horizontal">
         <ComboBox x:Name="Period" Width="128" SelectedIndex="0"><ComboBoxItem Content="최근 7일" Tag="7"/><ComboBoxItem Content="최근 30일" Tag="30"/><ComboBoxItem Content="최근 90일" Tag="90"/><ComboBoxItem Content="전체 기간" Tag="all"/></ComboBox>
         <ComboBox x:Name="ModelFilter" Width="190" Margin="8,0,0,0" SelectedIndex="0"><ComboBoxItem Content="전체 모델" Tag="all"/></ComboBox>
        </StackPanel>
       </DockPanel>
       <UniformGrid Columns="4" Margin="0,0,-16,16">
-       <Border Style="{StaticResource Card}" Margin="0,0,16,0"><StackPanel><DockPanel><Border Style="{StaticResource IconChip}" DockPanel.Dock="Right"><TextBlock Text="&#xE945;" Style="{StaticResource IconChipGlyph}"/></Border><TextBlock Text="총 사용 토큰" Style="{StaticResource Muted}" FontWeight="SemiBold"/></DockPanel><TextBlock x:Name="TokenKpi" Text="0" Style="{StaticResource KpiValue}"/><TextBlock x:Name="TokenComparison" Text="사용 기록을 기다리고 있어요" Style="{StaticResource Muted}"/></StackPanel></Border>
+       <Border Style="{StaticResource Card}" Margin="0,0,16,0"><StackPanel><DockPanel><Border Style="{StaticResource IconChip}" DockPanel.Dock="Right"><TextBlock Text="&#xE945;" Style="{StaticResource IconChipGlyph}"/></Border><TextBlock Text="총 사용 토큰" Style="{StaticResource Muted}" FontWeight="SemiBold"/></DockPanel><TextBlock x:Name="TokenKpi" Text="0" Style="{StaticResource KpiValue}"/><TextBlock x:Name="TokenComparison" Text="아직 사용 기록이 없습니다" Style="{StaticResource Muted}"/></StackPanel></Border>
        <Border Style="{StaticResource Card}" Margin="0,0,16,0"><StackPanel><DockPanel><Border Style="{StaticResource IconChip}" DockPanel.Dock="Right"><TextBlock Text="&#xE8AB;" Style="{StaticResource IconChipGlyph}"/></Border><TextBlock Text="API 호출" Style="{StaticResource Muted}" FontWeight="SemiBold"/></DockPanel><TextBlock x:Name="CallKpi" Text="0" Style="{StaticResource KpiValue}"/><TextBlock x:Name="CallDetail" Text="확인된 응답 0건" Style="{StaticResource Muted}"/></StackPanel></Border>
        <Border Style="{StaticResource Card}" Margin="0,0,16,0"><StackPanel><DockPanel><Border Style="{StaticResource IconChip}" DockPanel.Dock="Right"><TextBlock Text="&#xE790;" Style="{StaticResource IconChipGlyph}"/></Border><TextBlock Text="프리셋 생성 작업" Style="{StaticResource Muted}" FontWeight="SemiBold"/></DockPanel><TextBlock x:Name="RunKpi" Text="0" Style="{StaticResource KpiValue}"/><TextBlock x:Name="RunDetail" Text="생성된 프리셋 0개" Style="{StaticResource Muted}"/></StackPanel></Border>
        <Border Style="{StaticResource Card}" Margin="0,0,16,0"><StackPanel><DockPanel><Border Style="{StaticResource IconChip}" DockPanel.Dock="Right"><TextBlock Text="&#xE8C7;" Style="{StaticResource IconChipGlyph}"/></Border><TextBlock Text="예상 API 비용 · USD" Style="{StaticResource Muted}" FontWeight="SemiBold"/></DockPanel><TextBlock x:Name="CostKpi" Text="$0.0000" Style="{StaticResource KpiValue}"/><TextBlock x:Name="CostDetail" Text="기록 시점의 요금표 기준" Style="{StaticResource Muted}"/></StackPanel></Border>
@@ -477,14 +477,14 @@
        <Border Style="{StaticResource Card}">
         <StackPanel>
          <DockPanel><ComboBox x:Name="TrendMetric" DockPanel.Dock="Right" Width="140" SelectedIndex="0" VerticalAlignment="Top"><ComboBoxItem Content="토큰 사용량" Tag="tokens"/><ComboBoxItem Content="API 호출 수" Tag="calls"/><ComboBoxItem Content="생성 작업 수" Tag="runs"/></ComboBox>
-          <StackPanel><TextBlock Text="이용 추세" Style="{StaticResource Title}" HorizontalAlignment="Left"/><TextBlock x:Name="TrendRange" Text="일별 합계" Style="{StaticResource Muted}" Margin="0,3,0,0"/></StackPanel></DockPanel>
+          <StackPanel><TextBlock Text="사용 추이" Style="{StaticResource Title}" HorizontalAlignment="Left"/><TextBlock x:Name="TrendRange" Text="일별 합계" Style="{StaticResource Muted}" Margin="0,3,0,0"/></StackPanel></DockPanel>
          <Canvas x:Name="TrendCanvas" Height="196" Margin="0,16,0,0" ClipToBounds="True"/>
          <StackPanel x:Name="TrendLegend" Orientation="Horizontal" Margin="42,6,0,0"><Border Width="9" Height="9" Background="{StaticResource ChartInputBrush}" CornerRadius="2" Margin="0,0,6,0"/><TextBlock Text="입력" FontSize="11.5" Foreground="{StaticResource MutedBrush}" Margin="0,0,16,0"/><Border Width="9" Height="9" Background="{StaticResource AccentBrush}" CornerRadius="2" Margin="0,0,6,0"/><TextBlock Text="출력 (추론 포함)" FontSize="11.5" Foreground="{StaticResource MutedBrush}"/></StackPanel>
         </StackPanel>
        </Border>
        <Border Style="{StaticResource Card}" Grid.Column="2">
         <DockPanel>
-         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14"><StackPanel Orientation="Horizontal"><TextBlock Text="모델별 사용량" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="같은 기간의 토큰과 예상 비용"/></StackPanel></StackPanel>
+         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14"><StackPanel Orientation="Horizontal"><TextBlock Text="모델별 사용량" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="선택한 기간의 토큰 사용량과 예상 비용을 모델별로 보여 줍니다."/></StackPanel></StackPanel>
          <TextBlock x:Name="CacheDetail" DockPanel.Dock="Bottom" Text="캐시 입력 0 · 추론 0" Style="{StaticResource Muted}" Margin="0,10,0,0"/>
          <DataGrid x:Name="ModelUsage" IsReadOnly="True" MaxHeight="230" VerticalAlignment="Top"><DataGrid.Columns><DataGridTextColumn Header="모델" Binding="{Binding Model}" Width="*" ElementStyle="{StaticResource TrimCell}"/><DataGridTextColumn Header="토큰" Binding="{Binding Tokens}" Width="82" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/><DataGridTextColumn Header="USD" Binding="{Binding Cost}" Width="82" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/></DataGrid.Columns></DataGrid>
         </DockPanel>
@@ -495,7 +495,7 @@
       </Border>
       <Border Style="{StaticResource Card}">
        <StackPanel>
-        <DockPanel><TextBlock x:Name="HistoryHint" DockPanel.Dock="Right" Text="선택 기간의 최근 200건" Style="{StaticResource Muted}" VerticalAlignment="Center"/><StackPanel Orientation="Horizontal"><TextBlock Text="사용 기록" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="앱에서 실행한 요청을 기록합니다. 비용은 청구서와 별개인 추정치이며, 기록은 이 PC에 보관됩니다."/></StackPanel></DockPanel>
+        <DockPanel><TextBlock x:Name="HistoryHint" DockPanel.Dock="Right" Text="선택 기간의 최근 200건" Style="{StaticResource Muted}" VerticalAlignment="Center"/><StackPanel Orientation="Horizontal"><TextBlock Text="사용 기록" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="이 앱의 AI 요청과 생성 작업을 기록합니다. 표시되는 비용은 사용 기록을 바탕으로 계산한 예상 금액입니다."/></StackPanel></DockPanel>
         <TabControl Margin="0,8,0,0">
          <TabItem Header="API 호출"><DataGrid x:Name="UsageCalls" IsReadOnly="True" Height="268"><DataGrid.Columns>
           <DataGridTextColumn Header="시간" Binding="{Binding Time}" Width="150"/><DataGridTextColumn Header="모델" Binding="{Binding Model}" Width="*" ElementStyle="{StaticResource TrimCell}"/><DataGridTextColumn Header="단계" Binding="{Binding PhaseText}" Width="86"/>
@@ -503,7 +503,7 @@
           <DataGridTextColumn Header="합계" Binding="{Binding TotalText}" Width="80" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/><DataGridTextColumn Header="USD" Binding="{Binding CostText}" Width="80" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/>
           <DataGridTemplateColumn Header="상태" Width="136" CellTemplate="{StaticResource StatusPill}" SortMemberPath="Status"/>
          </DataGrid.Columns></DataGrid></TabItem>
-         <TabItem Header="생성 작업"><DataGrid x:Name="UsageRuns" IsReadOnly="True" Height="268" ToolTip="더블클릭하면 결과 폴더를 엽니다"><DataGrid.Columns>
+         <TabItem Header="생성 작업"><DataGrid x:Name="UsageRuns" IsReadOnly="True" Height="268" ToolTip="작업을 더블클릭하면 결과 폴더를 엽니다."><DataGrid.Columns>
           <DataGridTextColumn Header="시간" Binding="{Binding Time}" Width="150"/><DataGridTextColumn Header="방식" Binding="{Binding Mode}" Width="84"/><DataGridTextColumn Header="모델" Binding="{Binding Model}" Width="*" ElementStyle="{StaticResource TrimCell}"/>
           <DataGridTextColumn Header="요청" Binding="{Binding Requested}" Width="70" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/><DataGridTextColumn Header="생성" Binding="{Binding Generated}" Width="70" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/>
           <DataGridTemplateColumn Header="상태" Width="150" CellTemplate="{StaticResource StatusPill}" SortMemberPath="Status"/>
@@ -520,19 +520,19 @@
       <Border x:Name="SeedCard" Style="{StaticResource Card}" AllowDrop="True">
        <DockPanel>
         <StackPanel DockPanel.Dock="Top">
-         <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="1" Style="{StaticResource StepText}"/></Border><TextBlock Text="씨드 라이브러리" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="내 스타일의 기준이 되는 Lightroom XMP를 등록하세요. 파일이나 폴더를 끌어다 놓아도 됩니다."/></StackPanel>
+         <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="1" Style="{StaticResource StepText}"/></Border><TextBlock Text="씨드 프리셋" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="새 프리셋의 바탕이 될 Lightroom XMP를 추가하세요. 파일이나 폴더를 이곳에 끌어다 놓아도 됩니다."/></StackPanel>
          <Border Style="{StaticResource CardGap}"/>
-         <WrapPanel Margin="0,0,0,12"><Button x:Name="AddFiles" Content="XMP 추가" Tag="&#xE710;" ToolTip="Lightroom에서 내보낸 프리셋 XMP · Ctrl+O"/><Button x:Name="AddFolder" Content="폴더 추가" Tag="&#xE8B7;" Margin="0" ToolTip="하위 폴더의 XMP까지 모두 읽습니다"/></WrapPanel>
+         <WrapPanel Margin="0,0,0,12"><Button x:Name="AddFiles" Content="XMP 추가" Tag="&#xE710;" ToolTip="Lightroom에서 내보낸 XMP 프리셋을 추가합니다. (Ctrl+O)"/><Button x:Name="AddFolder" Content="폴더 추가" Tag="&#xE8B7;" Margin="0" ToolTip="선택한 폴더와 하위 폴더의 XMP를 함께 추가합니다."/></WrapPanel>
         </StackPanel>
         <DockPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
-         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button x:Name="SeedToggleAll" Content="모두 해제" Style="{StaticResource Link}"/><Button x:Name="RemoveSeeds" Content="선택 삭제" Style="{StaticResource Link}" ToolTip="선택한 행을 목록에서 뺍니다 · Delete"/><Button x:Name="ClearSeeds" Content="비우기" Style="{StaticResource Link}"/></StackPanel>
+         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button x:Name="SeedToggleAll" Content="모두 해제" Style="{StaticResource Link}"/><Button x:Name="RemoveSeeds" Content="선택 삭제" Style="{StaticResource Link}" ToolTip="선택한 프리셋을 목록에서 제외합니다. 원본 파일은 그대로 유지됩니다. (Delete)"/><Button x:Name="ClearSeeds" Content="비우기" ToolTip="등록한 씨드를 목록에서 모두 제외합니다. 원본 파일은 그대로 유지됩니다." Style="{StaticResource Link}"/></StackPanel>
          <TextBlock x:Name="SeedCount" Text="등록된 씨드 없음" Style="{StaticResource Muted}" VerticalAlignment="Center"/>
         </DockPanel>
         <Grid>
          <DataGrid x:Name="SeedGrid" SelectionMode="Extended" CanUserSortColumns="False"><DataGrid.Columns>
           <DataGridTemplateColumn Header="사용" Width="52"><DataGridTemplateColumn.CellTemplate><DataTemplate><CheckBox IsChecked="{Binding Use, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0" HorizontalAlignment="Center" Focusable="False"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
           <DataGridTextColumn Header="프리셋" Binding="{Binding name}" IsReadOnly="True" Width="*" ElementStyle="{StaticResource TrimCell}"/>
-          <DataGridTemplateColumn Header="마스크" Width="66"><DataGridTemplateColumn.CellTemplate><DataTemplate><Border Style="{StaticResource Pill}" Padding="7,1" Visibility="{Binding Masks, Converter={StaticResource BoolVis}}" ToolTip="인물·배경 등 로컬 마스크가 포함된 씨드"><TextBlock Text="있음" FontSize="11.5" Foreground="{StaticResource Text2Brush}"/></Border></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+          <DataGridTemplateColumn Header="마스크" Width="66"><DataGridTemplateColumn.CellTemplate><DataTemplate><Border Style="{StaticResource Pill}" Padding="7,1" Visibility="{Binding Masks, Converter={StaticResource BoolVis}}" ToolTip="인물이나 배경 등 특정 영역에 적용하는 마스크가 포함되어 있습니다."><TextBlock Text="있음" FontSize="11.5" Foreground="{StaticResource Text2Brush}"/></Border></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
          </DataGrid.Columns></DataGrid>
          <StackPanel x:Name="SeedEmpty" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,36,20,0" IsHitTestVisible="False">
           <Border Style="{StaticResource EmptyIcon}"><TextBlock Text="&#xE896;" Style="{StaticResource Icon}" FontSize="22" Foreground="{StaticResource AccentBrush}"/></Border>
@@ -546,26 +546,26 @@
         <Border Style="{StaticResource StackCard}">
          <StackPanel>
           <DockPanel><StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><TextBlock x:Name="KeywordSummary" Text="선택 없음" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,4,0"/><Button x:Name="KeywordClear" Content="모두 해제" Style="{StaticResource Link}" Visibility="Collapsed"/></StackPanel>
-           <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="2" Style="{StaticResource StepText}"/></Border><TextBlock Text="이번에 탐색할 분위기" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="원하는 방향을 고르세요. 키워드는 후보별로 나눠 배정되며, 선택하지 않으면 자연스러운 변주를 만듭니다. 칩에 마우스를 올리면 보정 방향을 볼 수 있어요."/></StackPanel></DockPanel>
+           <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="2" Style="{StaticResource StepText}"/></Border><TextBlock Text="탐색할 분위기" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="60개 키워드 중 원하는 분위기를 고르세요. 선택한 키워드는 후보마다 나눠 적용합니다. 아무것도 고르지 않으면 자연스러운 방향으로 변주합니다."/></StackPanel></DockPanel>
           <Border Style="{StaticResource CardGap}"/>
           <StackPanel x:Name="KeywordGroups"/>
          </StackPanel>
         </Border>
         <Border Style="{StaticResource StackCard}">
          <StackPanel>
-          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="3" Style="{StaticResource StepText}"/></Border><TextBlock Text="변주 설정" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="충실도는 일치율이 아닌 제어값입니다. 100에서는 색감·화이트밸런스를 고정하며 밝기·질감은 변할 수 있습니다. 서로 너무 비슷한 후보는 제외됩니다."/></StackPanel>
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="3" Style="{StaticResource StepText}"/></Border><TextBlock Text="변주 설정" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="충실도로 원래 색감을 얼마나 유지할지, 변주 폭으로 변화의 크기를 정하세요. 서로 너무 비슷한 후보는 저장에서 제외될 수 있습니다."/></StackPanel>
           <Border Style="{StaticResource CardGap}"/>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
            <StackPanel>
             <DockPanel><Border DockPanel.Dock="Right" Style="{StaticResource ValuePill}"><TextBlock x:Name="FidelityValue" Text="85" Style="{StaticResource ValueText}"/></Border><TextBlock Text="씨드 충실도" Style="{StaticResource FieldTitle}"/></DockPanel>
-            <Slider x:Name="Fidelity" Minimum="0" Maximum="100" Value="85" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,16" ToolTip="0 자유롭게 ↔ 100 원본 유지"/>
+            <Slider x:Name="Fidelity" Minimum="0" Maximum="100" Value="85" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,16" ToolTip="높일수록 씨드의 색감을 더 많이 유지합니다. 100에서는 색감과 화이트밸런스를 고정하며, 밝기와 질감은 변할 수 있습니다."/>
             <DockPanel><Border DockPanel.Dock="Right" Style="{StaticResource ValuePill}"><TextBlock x:Name="VariationValue" Text="70" Style="{StaticResource ValueText}"/></Border><TextBlock Text="변주 폭" Style="{StaticResource FieldTitle}"/></DockPanel>
-            <Slider x:Name="Variation" Minimum="0" Maximum="100" Value="70" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,0" ToolTip="0 미세하게 ↔ 100 과감하게"/>
+            <Slider x:Name="Variation" Minimum="0" Maximum="100" Value="70" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,0" ToolTip="높일수록 보정값의 변화가 커집니다. 0이면 씨드의 보정값을 유지합니다."/>
            </StackPanel>
            <StackPanel Grid.Column="2">
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,12"><TextBlock Text="인물·배경 마스크 · 선택 사항" Style="{StaticResource FieldTitle}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="인물/배경 마스크가 담긴 XMP를 템플릿으로 쓰면 모든 후보에 마스크를 넣습니다."/></StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12"><TextBlock Text="인물·배경 마스크 · 선택 사항" Style="{StaticResource FieldTitle}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="Lightroom에서 만든 인물·배경 마스크가 담긴 XMP를 선택하세요. 해당 마스크를 생성할 프리셋에 함께 넣습니다."/></StackPanel>
             <DockPanel><Button x:Name="MaskClear" DockPanel.Dock="Right" Tag="&#xE711;" Margin="8,0,0,0" Padding="10,0" ToolTip="템플릿 해제" AutomationProperties.Name="마스크 템플릿 해제" Visibility="Collapsed"/><Button x:Name="MaskButton" DockPanel.Dock="Left" Content="템플릿 선택" Tag="&#xE8E5;"/><TextBlock x:Name="MaskPath" Text="선택 안 함" Style="{StaticResource Muted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/></DockPanel>
-            <CheckBox x:Name="VaryMasks" Content="기존 인물·배경 마스크 보정도 변주" Margin="0,16,0,4" ToolTip="선택 영역은 씨드나 템플릿에서 가져오며 새로 만들지 않습니다."/>
+            <CheckBox x:Name="VaryMasks" Content="기존 인물·배경 마스크 보정도 변주" Margin="0,16,0,4" ToolTip="씨드나 템플릿에 있는 인물·배경 마스크의 보정값도 함께 바꿉니다. 선택 영역은 기존 마스크를 사용합니다."/>
            </StackPanel>
           </Grid>
          </StackPanel>
@@ -573,29 +573,29 @@
         <Border Style="{StaticResource StackCard}">
          <StackPanel>
           <DockPanel><CheckBox x:Name="UseAi" DockPanel.Dock="Right" Content="AI 사용" Style="{StaticResource Switch}" IsChecked="True" Margin="0" VerticalAlignment="Center"/>
-           <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="4" Style="{StaticResource StepText}"/></Border><TextBlock Text="AI 디렉션" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="AI가 키워드와 씨드를 함께 해석해 후보의 변화 방향을 설계합니다. 끄면 API 비용 없이 로컬 규칙으로 변주합니다."/></StackPanel></DockPanel>
+           <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="4" Style="{StaticResource StepText}"/></Border><TextBlock Text="AI 보정 제안" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="AI가 씨드와 키워드를 참고해 보정 방향을 제안합니다. AI를 끄면 이 PC에서 변주하며 API 비용이 들지 않습니다."/></StackPanel></DockPanel>
           <Border Style="{StaticResource CardGap}"/>
           <StackPanel x:Name="AiFields" IsEnabled="{Binding IsChecked, ElementName=UseAi}">
            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="200"/></Grid.ColumnDefinitions>
             <StackPanel><TextBlock Text="OpenAI API 키" Style="{StaticResource Label}"/><PasswordBox x:Name="ApiKey"/></StackPanel>
             <StackPanel Grid.Column="2"><TextBlock Text="모델" Style="{StaticResource Label}"/><TextBox x:Name="Model" Text="gpt-6-luna"/></StackPanel>
            </Grid>
-           <DockPanel Margin="0,8,0,16"><CheckBox x:Name="RememberKey" DockPanel.Dock="Left" Content="이 PC에 키 저장" FontSize="12" Margin="0,0,14,0" ToolTip="Windows 계정으로 암호화해 이 PC에만 저장합니다. 끄면 저장된 키를 지웁니다."/></DockPanel>
+           <DockPanel Margin="0,8,0,16"><CheckBox x:Name="RememberKey" DockPanel.Dock="Left" Content="이 PC에 API 키 저장" FontSize="12" Margin="0,0,14,0" ToolTip="API 키를 Windows 계정으로 암호화해 저장합니다. 이 옵션을 끄면 저장된 키를 삭제합니다."/></DockPanel>
            <TextBlock Text="분석용 사진 · 선택 사항" Style="{StaticResource Label}"/>
            <DockPanel Margin="0,0,0,16">
             <Border Style="{StaticResource Thumb}"><Grid><TextBlock Text="&#xEB9F;" Style="{StaticResource Icon}" FontSize="18" Foreground="{StaticResource FaintBrush}"/><Image x:Name="PhotoThumb" Stretch="UniformToFill"><Image.Clip><RectangleGeometry Rect="0,0,44,44" RadiusX="8" RadiusY="8"/></Image.Clip></Image></Grid></Border>
             <Button x:Name="PhotoClear" DockPanel.Dock="Right" Tag="&#xE711;" Padding="10,0" Margin="8,0,0,0" ToolTip="사진 해제" AutomationProperties.Name="분석용 사진 해제" Visibility="Collapsed"/>
-            <Button x:Name="PhotoButton" DockPanel.Dock="Right" Content="사진 선택" Margin="8,0,0,0" ToolTip="JPG/PNG · 1024px 이하로 줄여 분석에만 사용합니다"/>
+            <Button x:Name="PhotoButton" DockPanel.Dock="Right" Content="사진 선택" Margin="8,0,0,0" ToolTip="보정 방향을 참고할 JPG나 PNG를 선택하세요. 긴 변이 1024px 이하인 사본을 AI에 전송합니다."/>
             <TextBlock x:Name="PhotoPath" Text="선택 안 함" Style="{StaticResource Muted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
            </DockPanel>
-           <TextBlock Text="추가 방향" Style="{StaticResource Label}"/>
+           <TextBlock Text="원하는 보정" Style="{StaticResource Label}"/>
            <TextBox x:Name="Note" Height="88" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top" Padding="10,8" Tag="예: 피부는 자연스럽게, 배경의 핑크는 유지"/>
           </StackPanel>
          </StackPanel>
         </Border>
         <Border Style="{StaticResource Card}">
          <StackPanel>
-          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="5" Style="{StaticResource StepText}"/></Border><TextBlock Text="저장 폴더" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="실행마다 이 폴더 아래에 새 하위 폴더를 만들어 XMP와 manifest.json을 저장합니다."/></StackPanel>
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="5" Style="{StaticResource StepText}"/></Border><TextBlock Text="저장 폴더" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="생성할 때마다 이 위치에 새 폴더를 만들고, XMP와 생성 기록을 함께 저장합니다."/></StackPanel>
           <Border Style="{StaticResource CardGap}"/>
           <DockPanel><Button x:Name="ChooseOutput" DockPanel.Dock="Right" Content="변경" Tag="&#xE8B7;" Margin="8,0,0,0"/><TextBox x:Name="Output"/></DockPanel>
          </StackPanel>
@@ -611,11 +611,11 @@
       <Border x:Name="RefCard" Style="{StaticResource Card}" AllowDrop="True">
        <DockPanel>
         <StackPanel DockPanel.Dock="Top">
-         <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="1" Style="{StaticResource StepText}"/></Border><TextBlock Text="레퍼런스 사진" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="닮고 싶은 색감의 JPG·PNG를 1~24장 고르세요. 끌어다 놓아도 됩니다."/></StackPanel>
+         <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="1" Style="{StaticResource StepText}"/></Border><TextBlock Text="레퍼런스 사진" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="참고할 색감의 JPG나 PNG를 1~24장 추가하세요. 사진이나 폴더를 이곳에 끌어다 놓아도 됩니다."/></StackPanel>
          <Border Style="{StaticResource CardGap}"/>
-         <WrapPanel Margin="0,0,0,12"><Button x:Name="RefAdd" Content="사진 추가" Tag="&#xE710;" ToolTip="여러 장이면 공통 스타일을 더 안정적으로 찾습니다 · Ctrl+O"/><Button x:Name="RefRemove" Content="선택 삭제" Tag="&#xE74D;" ToolTip="선택한 사진을 뺍니다 · Delete"/><Button x:Name="RefClear" Content="비우기" Margin="0"/></WrapPanel>
+         <WrapPanel Margin="0,0,0,12"><Button x:Name="RefAdd" Content="사진 추가" Tag="&#xE710;" ToolTip="색감과 분위기를 참고할 사진을 추가합니다. (Ctrl+O)"/><Button x:Name="RefRemove" Content="선택 삭제" Tag="&#xE74D;" ToolTip="선택한 사진을 목록에서 제외합니다. 원본 파일은 그대로 유지됩니다. (Delete)"/><Button x:Name="RefClear" Content="비우기" Margin="0"/></WrapPanel>
         </StackPanel>
-        <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,0"><TextBlock x:Name="RefPhotoCount" Text="0장 선택 · 최대 24장" Style="{StaticResource Muted}" FontWeight="SemiBold" ToolTip="사진은 1024px 이하의 분석용 사본으로 전송됩니다."/></StackPanel>
+        <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,0"><TextBlock x:Name="RefPhotoCount" Text="0장 선택 · 최대 24장" Style="{StaticResource Muted}" FontWeight="SemiBold" ToolTip="긴 변이 1024px 이하인 분석용 사본을 AI에 전송합니다."/></StackPanel>
         <Grid>
          <Border CornerRadius="10" Background="{StaticResource SubtleBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1">
           <ListBox x:Name="ReferenceList" SelectionMode="Extended" BorderThickness="0" Background="Transparent" Padding="8,8,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -644,22 +644,22 @@
        <StackPanel Margin="0,0,8,0">
         <Border Style="{StaticResource StackCard}">
          <StackPanel>
-          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="2" Style="{StaticResource StepText}"/></Border><TextBlock Text="스타일 추정" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="사진의 색조·대비·커브·질감을 해석해 XMP 보정값을 만듭니다."/></StackPanel>
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="2" Style="{StaticResource StepText}"/></Border><TextBlock Text="스타일 추정" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="사진의 색감, 명암, 질감을 분석해 보정값을 제안합니다. 조명과 소재의 영향도 포함되므로 Lightroom에서 실제 사진에 적용하며 조절하세요."/></StackPanel>
           <Border Style="{StaticResource CardGap}"/>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="200"/></Grid.ColumnDefinitions>
            <StackPanel><TextBlock Text="OpenAI API 키" Style="{StaticResource Label}"/><PasswordBox x:Name="RefApiKey"/></StackPanel>
            <StackPanel Grid.Column="2"><TextBlock Text="모델 · 이미지 입력 지원" Style="{StaticResource Label}"/><TextBox x:Name="RefModel" Text="gpt-6-luna"/></StackPanel>
           </Grid>
-          <DockPanel Margin="0,8,0,16"><CheckBox x:Name="RefRememberKey" DockPanel.Dock="Left" Content="이 PC에 키 저장" FontSize="12" Margin="0,0,14,0" ToolTip="Windows 계정으로 암호화해 이 PC에만 저장합니다. 끄면 저장된 키를 지웁니다."/></DockPanel>
-          <StackPanel><TextBlock Text="추출 방식" Style="{StaticResource Label}"/><ComboBox x:Name="RefMode" SelectedIndex="0"><ComboBoxItem Content="여러 장의 공통 스타일" Tag="common"/><ComboBoxItem Content="사진별 개별 스타일" Tag="individual"/></ComboBox></StackPanel>
+          <DockPanel Margin="0,8,0,16"><CheckBox x:Name="RefRememberKey" DockPanel.Dock="Left" Content="이 PC에 API 키 저장" FontSize="12" Margin="0,0,14,0" ToolTip="API 키를 Windows 계정으로 암호화해 저장합니다. 이 옵션을 끄면 저장된 키를 삭제합니다."/></DockPanel>
+          <StackPanel><TextBlock Text="스타일 분석 방식" Style="{StaticResource Label}"/><ComboBox x:Name="RefMode" SelectedIndex="0"><ComboBoxItem Content="사진들의 공통 스타일" Tag="common"/><ComboBoxItem Content="사진마다 다른 스타일" Tag="individual"/></ComboBox></StackPanel>
           <Border Background="{StaticResource SubtleBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="10" Padding="14,12" Margin="0,16,0,0">
-           <StackPanel><CheckBox x:Name="RefSearch" Content="웹에서 보정 방법 검색 · 출처 기록" Style="{StaticResource Switch}" IsChecked="True" Margin="0" FontWeight="SemiBold" ToolTip="사진 분석 → 보정 자료 검색 → 수치 추정 순서로 진행합니다. 검색은 API 호출 1회와 검색 요금이 추가되며 대시보드에 함께 기록됩니다."/></StackPanel>
+           <StackPanel><CheckBox x:Name="RefSearch" Content="보정 자료 검색" Style="{StaticResource Switch}" IsChecked="True" Margin="0" FontWeight="SemiBold" ToolTip="사진 분석 결과에 맞는 보정 자료를 검색하고 출처를 기록합니다. AI 요청 1회와 검색 비용이 추가될 수 있습니다."/></StackPanel>
           </Border>
           <TextBlock Text="적용할 원본 사진 · 선택 사항" Style="{StaticResource Label}" Margin="0,16,0,6"/>
           <DockPanel>
            <Border Style="{StaticResource Thumb}"><Grid><TextBlock Text="&#xEB9F;" Style="{StaticResource Icon}" FontSize="18" Foreground="{StaticResource FaintBrush}"/><Image x:Name="RefTargetThumb" Stretch="UniformToFill"><Image.Clip><RectangleGeometry Rect="0,0,44,44" RadiusX="8" RadiusY="8"/></Image.Clip></Image></Grid></Border>
            <Button x:Name="RefTargetClear" DockPanel.Dock="Right" Tag="&#xE711;" Padding="10,0" Margin="8,0,0,0" ToolTip="원본 사진 해제" AutomationProperties.Name="원본 사진 해제" Visibility="Collapsed"/>
-           <Button x:Name="RefTargetButton" DockPanel.Dock="Right" Content="사진 선택" Margin="8,0,0,0" ToolTip="보정 전 JPG/PNG를 넣으면 그 사진에 맞춰 보정값을 추정합니다."/>
+           <Button x:Name="RefTargetButton" DockPanel.Dock="Right" Content="사진 선택" Margin="8,0,0,0" ToolTip="프리셋을 적용할 보정 전 사진을 선택하세요. 이 사진을 함께 분석해 필요한 보정값을 추정합니다."/>
            <TextBlock x:Name="RefTargetPath" Text="선택 안 함" Style="{StaticResource Muted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
           </DockPanel>
          </StackPanel>
@@ -667,30 +667,30 @@
         <Border Style="{StaticResource StackCard}">
          <StackPanel>
           <DockPanel><StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><Button x:Name="RefMaskButton" Content="AI 마스크 템플릿" Tag="&#xE8E5;"/><Button x:Name="RefMaskClear" Content="해제" Margin="0" Visibility="Collapsed"/></StackPanel>
-           <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="3" Style="{StaticResource StepText}"/></Border><TextBlock Text="인물·배경 마스킹" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="선택 영역은 Lightroom 템플릿에서 가져오고, AI가 영역별 보정값을 만듭니다. 전체 보정만 원하면 두 항목을 모두 끄세요.&#x0a;인물·배경의 노출, 하이라이트, 색온도, 채도, 텍스처 등을 각각 설계합니다. 적용 후 Lightroom에서 AI 마스크를 재계산할 수 있습니다."/></StackPanel></DockPanel>
+           <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="3" Style="{StaticResource StepText}"/></Border><TextBlock Text="인물·배경 보정" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="인물과 배경의 보정값을 따로 제안합니다. Lightroom에서 만든 마스크 템플릿이 필요하며, 사진에 적용한 뒤 마스크를 업데이트해야 할 수 있습니다. 전체 보정만 만들려면 두 항목을 모두 끄세요."/></StackPanel></DockPanel>
           <Border Style="{StaticResource CardGap}"/>
           <Grid Margin="0,0,0,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
            <StackPanel><CheckBox x:Name="RefSubject" Content="인물 보정" IsChecked="True" Margin="0,0,0,8" FontWeight="SemiBold"/><ComboBox x:Name="RefSubjectGroup" DisplayMemberPath="Label" ToolTip="인물에 사용할 템플릿 마스크"/></StackPanel>
            <StackPanel Grid.Column="2"><CheckBox x:Name="RefBackground" Content="배경 보정" IsChecked="True" Margin="0,0,0,8" FontWeight="SemiBold"/><ComboBox x:Name="RefBackgroundGroup" DisplayMemberPath="Label" ToolTip="배경에 사용할 템플릿 마스크"/></StackPanel>
           </Grid>
           <Border x:Name="RefMaskInfoBox" Style="{StaticResource Callout}">
-           <DockPanel><Border x:Name="RefMaskBar" Style="{StaticResource CalloutBar}"/><TextBlock x:Name="RefMaskIcon" Text="&#xE946;" Style="{StaticResource Icon}" Foreground="{StaticResource WarnBrush}" Margin="0,1,10,0" VerticalAlignment="Top"/><TextBlock x:Name="RefMaskInfo" Text="템플릿 필요 · Select Subject와 Select Background를 저장한 XMP를 선택하세요." Foreground="{StaticResource Text2Brush}" FontSize="12" TextWrapping="Wrap"/></DockPanel>
+           <DockPanel><Border x:Name="RefMaskBar" Style="{StaticResource CalloutBar}"/><TextBlock x:Name="RefMaskIcon" Text="&#xE946;" Style="{StaticResource Icon}" Foreground="{StaticResource WarnBrush}" Margin="0,1,10,0" VerticalAlignment="Top"/><TextBlock x:Name="RefMaskInfo" Text="인물·배경 마스크가 담긴 Lightroom XMP를 선택하세요." Foreground="{StaticResource Text2Brush}" FontSize="12" TextWrapping="Wrap"/></DockPanel>
           </Border>
          </StackPanel>
         </Border>
         <Border Style="{StaticResource StackCard}">
          <StackPanel>
-          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="4" Style="{StaticResource StepText}"/></Border><TextBlock Text="변주 설정" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="각 스타일의 첫 후보는 추정 기본값입니다. 유사 후보는 제외되므로 실제 저장 개수는 줄어들 수 있습니다."/></StackPanel>
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="4" Style="{StaticResource StepText}"/></Border><TextBlock Text="변주 설정" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="각 스타일의 첫 후보는 분석한 기본 보정값을 사용합니다. 나머지는 아래 설정에 따라 변주하며, 너무 비슷한 후보는 제외될 수 있습니다."/></StackPanel>
           <Border Style="{StaticResource CardGap}"/>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
            <StackPanel>
             <DockPanel><Border DockPanel.Dock="Right" Style="{StaticResource ValuePill}"><TextBlock x:Name="RefFidelityValue" Text="85" Style="{StaticResource ValueText}"/></Border><TextBlock Text="레퍼런스 충실도" Style="{StaticResource FieldTitle}"/></DockPanel>
-            <Slider x:Name="RefFidelity" Minimum="0" Maximum="100" Value="85" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,16"/>
-            <DockPanel><Border DockPanel.Dock="Right" Style="{StaticResource ValuePill}"><TextBlock x:Name="RefVariationValue" Text="60" Style="{StaticResource ValueText}"/></Border><TextBlock Text="나머지 후보의 변주 폭" Style="{StaticResource FieldTitle}"/></DockPanel>
-            <Slider x:Name="RefVariation" Minimum="0" Maximum="100" Value="60" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,0"/>
+            <Slider x:Name="RefFidelity" ToolTip="높일수록 분석한 스타일의 색감을 더 많이 유지합니다. 밝기와 질감은 변할 수 있습니다." Minimum="0" Maximum="100" Value="85" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,16"/>
+            <DockPanel><Border DockPanel.Dock="Right" Style="{StaticResource ValuePill}"><TextBlock x:Name="RefVariationValue" Text="60" Style="{StaticResource ValueText}"/></Border><TextBlock Text="변주 폭" Style="{StaticResource FieldTitle}"/></DockPanel>
+            <Slider x:Name="RefVariation" ToolTip="기본 후보 외에 만드는 변주의 크기입니다. 0이면 분석한 기본 보정값을 유지합니다." Minimum="0" Maximum="100" Value="60" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,0"/>
            </StackPanel>
            <StackPanel Grid.Column="2">
-            <TextBlock Text="추가 방향" Style="{StaticResource Label}"/>
+            <TextBlock Text="원하는 보정" Style="{StaticResource Label}"/>
             <TextBox x:Name="RefNote" Height="88" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top" Padding="10,8" Tag="예: 피부톤은 따뜻하게, 하늘은 덜 파랗게"/>
            </StackPanel>
           </Grid>
@@ -699,14 +699,14 @@
         <Border Style="{StaticResource StackCard}">
          <StackPanel>
           <DockPanel><StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><TextBlock x:Name="RefKeywordSummary" Text="선택 없음" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,4,0"/><Button x:Name="RefKeywordClear" Content="모두 해제" Style="{StaticResource Link}" Visibility="Collapsed"/></StackPanel>
-           <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="5" Style="{StaticResource StepText}"/></Border><TextBlock Text="함께 탐색할 분위기" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="선택하지 않으면 자연스러운 변주를 만듭니다."/></StackPanel></DockPanel>
+           <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="5" Style="{StaticResource StepText}"/></Border><TextBlock Text="함께 탐색할 분위기" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="분석한 스타일에 더하고 싶은 분위기를 고르세요. 선택하지 않으면 기본 스타일을 바탕으로 자연스럽게 변주합니다."/></StackPanel></DockPanel>
           <Border Style="{StaticResource CardGap}"/>
           <StackPanel x:Name="RefKeywordGroups"/>
          </StackPanel>
         </Border>
         <Border Style="{StaticResource Card}">
          <StackPanel>
-          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="6" Style="{StaticResource StepText}"/></Border><TextBlock Text="저장 폴더" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="사진에서 조명·소재·보정을 완전히 분리할 수는 없습니다. 결과는 원본 프리셋 복원이 아닌, 비슷한 스타일을 재현하는 시작점입니다."/></StackPanel>
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="6" Style="{StaticResource StepText}"/></Border><TextBlock Text="저장 폴더" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="생성할 때마다 이 위치에 새 폴더를 만들고, XMP와 분석·생성 기록을 함께 저장합니다."/></StackPanel>
           <Border Style="{StaticResource CardGap}"/>
           <DockPanel><Button x:Name="RefChooseOutput" DockPanel.Dock="Right" Content="변경" Tag="&#xE8B7;" Margin="8,0,0,0"/><TextBox x:Name="RefOutput"/></DockPanel>
          </StackPanel>
@@ -722,17 +722,17 @@
       <Border x:Name="MixCard" Style="{StaticResource Card}" AllowDrop="True">
        <DockPanel>
         <StackPanel DockPanel.Dock="Top">
-         <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="1" Style="{StaticResource StepText}"/></Border><TextBlock Text="섞을 프리셋과 비율" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="내 XMP 2–12개를 등록하고 비율을 정하세요. 합계는 자동으로 100%로 환산하며, 0인 프리셋은 제외합니다."/></StackPanel>
+         <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="1" Style="{StaticResource StepText}"/></Border><TextBlock Text="섞을 프리셋" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="섞을 XMP를 2~12개 추가하고 비율을 조절하세요. 입력한 비율은 합계가 100%가 되도록 환산하며, 0인 프리셋은 제외합니다."/></StackPanel>
          <Border Style="{StaticResource CardGap}"/>
-         <WrapPanel Margin="0,0,0,4"><Button x:Name="MixAdd" Content="XMP 추가" Tag="&#xE710;" Margin="0,0,8,8"/><Button x:Name="MixFolder" Content="폴더 추가" Tag="&#xE8B7;" Margin="0,0,8,8"/><Button x:Name="MixFromSeeds" Content="현재 씨드 가져오기" Margin="0,0,8,8"/></WrapPanel>
+         <WrapPanel Margin="0,0,0,4"><Button x:Name="MixAdd" Content="XMP 추가" Tag="&#xE710;" Margin="0,0,8,8"/><Button x:Name="MixFolder" Content="폴더 추가" Tag="&#xE8B7;" Margin="0,0,8,8"/><Button x:Name="MixFromSeeds" Content="씨드에서 가져오기" ToolTip="씨드 목록에서 사용하도록 체크한 프리셋을 가져옵니다." Margin="0,0,8,8"/></WrapPanel>
         </StackPanel>
         <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
-         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><Button x:Name="MixEqual" Content="같은 비율로" Style="{StaticResource Link}"/><Button x:Name="MixRemove" Content="선택 삭제" Style="{StaticResource Link}" ToolTip="선택한 행을 목록에서 뺍니다"/></StackPanel>
-         <TextBlock x:Name="MixSummary" Text="XMP를 추가하거나 현재 씨드를 가져오세요." Style="{StaticResource Muted}" MaxHeight="36" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><Button x:Name="MixEqual" Content="비율 균등하게" ToolTip="등록한 모든 프리셋을 같은 비율로 설정합니다." Style="{StaticResource Link}"/><Button x:Name="MixRemove" Content="선택 삭제" Style="{StaticResource Link}" ToolTip="선택한 프리셋을 혼합 목록에서 제외합니다. (Delete)"/></StackPanel>
+         <TextBlock x:Name="MixSummary" Text="섞을 프리셋을 2개 이상 추가하세요." Style="{StaticResource Muted}" MaxHeight="36" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
         </StackPanel>
         <DataGrid x:Name="MixGrid" SelectionMode="Extended" CanUserSortColumns="False"><DataGrid.Columns>
          <DataGridTextColumn Header="프리셋" Binding="{Binding name}" IsReadOnly="True" Width="*" ElementStyle="{StaticResource TrimCell}"/>
-         <DataGridTemplateColumn Header="혼합 비율" Width="150"><DataGridTemplateColumn.CellTemplate><DataTemplate><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="30"/></Grid.ColumnDefinitions><Slider x:Name="RatioSlider" Value="{Binding weight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="0" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,0,8,0" AutomationProperties.Name="혼합 비율"/><TextBlock Grid.Column="1" Text="{Binding Value, ElementName=RatioSlider, StringFormat={}{0:0}}" VerticalAlignment="Center" HorizontalAlignment="Right"/></Grid></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+         <DataGridTemplateColumn Header="혼합 비율" Width="150"><DataGridTemplateColumn.CellTemplate><DataTemplate><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="30"/></Grid.ColumnDefinitions><Slider x:Name="RatioSlider" ToolTip="다른 프리셋과 비교한 혼합 비율입니다. 0이면 이 프리셋을 제외합니다." Value="{Binding weight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Minimum="0" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,0,8,0" AutomationProperties.Name="혼합 비율"/><TextBlock Grid.Column="1" Text="{Binding Value, ElementName=RatioSlider, StringFormat={}{0:0}}" VerticalAlignment="Center" HorizontalAlignment="Right"/></Grid></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
         </DataGrid.Columns></DataGrid>
        </DockPanel>
       </Border>
@@ -740,19 +740,19 @@
        <StackPanel Margin="0,0,8,0">
         <Border Style="{StaticResource StackCard}">
          <StackPanel>
-          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="2" Style="{StaticResource StepText}"/></Border><TextBlock Text="항목별 믹스매치" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="비율대로 섞거나, 원하는 항목만 한 프리셋에서 가져오세요."/></StackPanel>
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="2" Style="{StaticResource StepText}"/></Border><TextBlock Text="항목별 믹스매치" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="항목마다 정한 비율로 섞거나, 특정 프리셋의 값을 그대로 가져올 수 있습니다."/></StackPanel>
           <Border Style="{StaticResource CardGap}"/>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
            <StackPanel Margin="0,0,0,14"><TextBlock Text="톤 · 노출과 명암" Style="{StaticResource Label}"/><ComboBox x:Name="MixTone" DisplayMemberPath="label" SelectedValuePath="id"/></StackPanel>
            <StackPanel Grid.Column="2" Margin="0,0,0,14"><TextBlock Text="색감 · HSL, 채도, 토닝" Style="{StaticResource Label}"/><ComboBox x:Name="MixColor" DisplayMemberPath="label" SelectedValuePath="id"/></StackPanel>
            <StackPanel Grid.Row="1"><TextBlock Text="질감 · 텍스처, 클래리티, 그레인" Style="{StaticResource Label}"/><ComboBox x:Name="MixTexture" DisplayMemberPath="label" SelectedValuePath="id"/></StackPanel>
-           <StackPanel Grid.Row="1" Grid.Column="2"><TextBlock Text="커브 · RGB와 각 색상 채널" Style="{StaticResource Label}"/><ComboBox x:Name="MixCurves" DisplayMemberPath="label" SelectedValuePath="id"/></StackPanel>
+           <StackPanel Grid.Row="1" Grid.Column="2"><TextBlock Text="커브 · RGB와 각 색상 채널" Style="{StaticResource Label}"/><ComboBox x:Name="MixCurves" ToolTip="여러 커브를 섞을 때는 5개 밝기 지점으로 보간합니다. 실제 효과는 Lightroom에서 확인하세요." DisplayMemberPath="label" SelectedValuePath="id"/></StackPanel>
           </Grid>
          </StackPanel>
         </Border>
         <Border Style="{StaticResource StackCard}">
          <StackPanel>
-          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="3" Style="{StaticResource StepText}"/></Border><TextBlock Text="기준과 조합 탐색" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="화이트밸런스·프로필·마스크 등은 기준 프리셋에서 유지합니다. 커브 혼합은 5개 밝기 지점으로 근사하므로 실제 조화는 Lightroom에서 확인하세요."/></StackPanel>
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="3" Style="{StaticResource StepText}"/></Border><TextBlock Text="조합 설정" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="섞는 항목 외의 화이트밸런스, 프로필, 마스크 등은 기준 프리셋에서 가져옵니다. 조합 탐색 폭을 높이면 비율을 조금씩 달리한 후보를 만듭니다."/></StackPanel>
           <Border Style="{StaticResource CardGap}"/>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
            <StackPanel>
@@ -760,7 +760,7 @@
            </StackPanel>
            <StackPanel Grid.Column="2">
             <DockPanel><Border DockPanel.Dock="Right" Style="{StaticResource ValuePill}"><TextBlock x:Name="MixVariationValue" Text="40" Style="{StaticResource ValueText}"/></Border><TextBlock Text="조합 탐색 폭" Style="{StaticResource FieldTitle}"/></DockPanel>
-            <Slider x:Name="MixVariation" Minimum="0" Maximum="100" Value="40" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,0" ToolTip="로컬 모드의 첫 결과는 지정 비율 그대로입니다. 추가 결과와 AI 설계는 이 범위 안에서 항목별 비율을 조절합니다. 0이면 지정 비율을 유지합니다."/>
+            <Slider x:Name="MixVariation" Minimum="0" Maximum="100" Value="40" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,0" ToolTip="0이면 지정한 비율을 유지합니다. 값을 높이면 추가 후보나 AI 추천에서 항목별 비율을 더 다양하게 조절합니다. AI를 끈 경우 첫 결과는 항상 지정 비율을 사용합니다."/>
            </StackPanel>
           </Grid>
          </StackPanel>
@@ -768,14 +768,14 @@
         <Border Style="{StaticResource StackCard}">
          <StackPanel>
           <DockPanel><CheckBox x:Name="MixUseAi" DockPanel.Dock="Right" Content="AI 사용" Style="{StaticResource Switch}" IsChecked="False" Margin="0" VerticalAlignment="Center"/>
-           <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="4" Style="{StaticResource StepText}"/></Border><TextBlock Text="AI로 자연스럽게 섞기 · 선택" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="끄면 로컬에서만 처리하며 API 비용이 없습니다. 켜면 AI가 보정값을 보고 항목별 비율을 제안합니다. 직접 지정한 항목은 유지하며 사진을 렌더링하거나 전송하지 않습니다."/></StackPanel></DockPanel>
+           <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="4" Style="{StaticResource StepText}"/></Border><TextBlock Text="AI 조합 추천" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="AI가 프리셋의 보정값과 요청사항을 보고 혼합 비율을 추천합니다. 항목별로 직접 지정한 프리셋은 유지합니다. AI를 끄면 API 비용 없이 이 PC에서 섞습니다."/></StackPanel></DockPanel>
           <Border Style="{StaticResource CardGap}"/>
           <StackPanel IsEnabled="{Binding IsChecked, ElementName=MixUseAi}">
            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="200"/></Grid.ColumnDefinitions>
             <StackPanel><TextBlock Text="OpenAI API 키" Style="{StaticResource Label}"/><PasswordBox x:Name="MixApiKey"/></StackPanel>
             <StackPanel Grid.Column="2"><TextBlock Text="모델" Style="{StaticResource Label}"/><TextBox x:Name="MixModel" Text="gpt-6-luna"/></StackPanel>
            </Grid>
-           <DockPanel Margin="0,8,0,16"><CheckBox x:Name="MixRememberKey" DockPanel.Dock="Left" Content="이 PC에 키 저장" FontSize="12" Margin="0,0,14,0" ToolTip="Windows 계정으로 암호화해 이 PC에만 저장합니다. 끄면 저장된 키를 지웁니다."/></DockPanel>
+           <DockPanel Margin="0,8,0,16"><CheckBox x:Name="MixRememberKey" DockPanel.Dock="Left" Content="이 PC에 API 키 저장" FontSize="12" Margin="0,0,14,0" ToolTip="API 키를 Windows 계정으로 암호화해 저장합니다. 이 옵션을 끄면 저장된 키를 삭제합니다."/></DockPanel>
            <TextBlock Text="원하는 조합 · 선택 사항" Style="{StaticResource Label}"/>
            <TextBox x:Name="MixNote" Height="88" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top" Padding="10,8" Tag="예: 첫 프리셋의 따뜻함을 중심으로, 두 번째 프리셋의 부드러운 명암을 더해 주세요."/>
           </StackPanel>
@@ -783,7 +783,7 @@
         </Border>
         <Border Style="{StaticResource Card}">
          <StackPanel>
-          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="5" Style="{StaticResource StepText}"/></Border><TextBlock Text="저장 폴더" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="실행마다 이 폴더 아래에 새 하위 폴더를 만들어 XMP와 manifest.json을 저장합니다."/></StackPanel>
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="5" Style="{StaticResource StepText}"/></Border><TextBlock Text="저장 폴더" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="생성할 때마다 이 위치에 새 폴더를 만들고, XMP와 생성 기록을 함께 저장합니다."/></StackPanel>
           <Border Style="{StaticResource CardGap}"/>
           <DockPanel><Button x:Name="MixChooseOutput" DockPanel.Dock="Right" Content="변경" Tag="&#xE8B7;" Margin="8,0,0,0"/><TextBox x:Name="MixOutput"/></DockPanel>
          </StackPanel>
@@ -798,8 +798,8 @@
      <Border x:Name="ResultsEmpty" Style="{StaticResource Card}">
       <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="420">
        <Border Style="{StaticResource EmptyIcon}" Width="64" Height="64" CornerRadius="32"><TextBlock Text="&#xE8FD;" Style="{StaticResource Icon}" FontSize="26" Foreground="{StaticResource AccentBrush}"/></Border>
-       <TextBlock Text="아직 생성한 프리셋이 없어요" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,16,0,6"/>
-       <TextBlock Text="씨드·레퍼런스 사진·믹스매치로 후보를 만들면 이곳에서 후보별 보정값과 생성 이유를 확인할 수 있습니다." Style="{StaticResource Muted}" TextAlignment="Center"/>
+       <TextBlock Text="아직 생성한 프리셋이 없습니다" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,16,0,6"/>
+       <TextBlock Text="프리셋을 만들면 이곳에서 결과와 보정값을 확인할 수 있습니다." Style="{StaticResource Muted}" TextAlignment="Center"/>
        <Button x:Name="ResultsGoGenerate" Content="프리셋 생성으로 이동" Style="{StaticResource Primary}" HorizontalAlignment="Center" Margin="0,18,0,0"/>
       </StackPanel>
      </Border>
@@ -817,7 +817,7 @@
       <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="400"/></Grid.ColumnDefinitions>
        <Border Style="{StaticResource Card}">
         <DockPanel>
-         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14"><StackPanel Orientation="Horizontal"><TextBlock Text="생성된 후보" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="행을 선택하면 오른쪽에 상세가 표시됩니다. 더블클릭하면 파일 위치를 엽니다."/></StackPanel></StackPanel>
+         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14"><StackPanel Orientation="Horizontal"><TextBlock Text="생성된 후보" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="프리셋을 선택하면 오른쪽에서 보정값과 생성 이유를 확인할 수 있습니다. 더블클릭하면 파일 위치를 엽니다."/></StackPanel></StackPanel>
          <DataGrid x:Name="Results" IsReadOnly="True" SelectionMode="Single"><DataGrid.Columns>
           <DataGridTextColumn Header="#" Binding="{Binding No}" Width="48" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/>
           <DataGridTextColumn Header="기준 스타일" Binding="{Binding Seed}" Width="*" ElementStyle="{StaticResource TrimCell}"/>
@@ -863,10 +863,10 @@
      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
       <Button x:Name="Cancel" Content="중지" Tag="&#xE71A;" Style="{StaticResource Danger}" IsEnabled="False" Visibility="Collapsed"/>
       <Button x:Name="OpenOutput" Content="결과 폴더" Tag="&#xE838;" MinHeight="40" IsEnabled="False" Visibility="Collapsed"/>
-      <StackPanel x:Name="CountGroup" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0" Visibility="Collapsed"><TextBlock Text="생성 개수" Style="{StaticResource FieldTitle}" Margin="0,0,8,0"/><TextBox x:Name="Count" Text="24" Width="64" MinHeight="40" HorizontalContentAlignment="Center" ToolTip="1–120개 · 씨드마다 비슷한 수로 나눕니다"/></StackPanel>
-      <StackPanel x:Name="RefCountGroup" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0" Visibility="Collapsed"><TextBlock Text="생성 개수" Style="{StaticResource FieldTitle}" Margin="0,0,8,0"/><TextBox x:Name="RefCount" Text="12" Width="64" MinHeight="40" HorizontalContentAlignment="Center" ToolTip="1–120개 · 사진별 스타일은 사진 수 이상이어야 합니다"/></StackPanel>
-      <StackPanel x:Name="MixCountGroup" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0" Visibility="Collapsed"><TextBlock Text="생성 개수" Style="{StaticResource FieldTitle}" Margin="0,0,8,0"/><TextBox x:Name="MixCount" Text="1" Width="64" MinHeight="40" HorizontalContentAlignment="Center" ToolTip="1–24개 · 같은 결과는 제외합니다"/></StackPanel>
-      <Button x:Name="Generate" Content="프리셋 생성" Tag="&#xE768;" Style="{StaticResource Primary}" Margin="0" ToolTip="Ctrl+Enter"/>
+      <StackPanel x:Name="CountGroup" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0" Visibility="Collapsed"><TextBlock Text="생성 개수" Style="{StaticResource FieldTitle}" Margin="0,0,8,0"/><TextBox x:Name="Count" Text="24" Width="64" MinHeight="40" HorizontalContentAlignment="Center" ToolTip="1~120개를 입력하세요. 선택한 씨드에 비슷한 수로 나누어 생성합니다."/></StackPanel>
+      <StackPanel x:Name="RefCountGroup" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0" Visibility="Collapsed"><TextBlock Text="생성 개수" Style="{StaticResource FieldTitle}" Margin="0,0,8,0"/><TextBox x:Name="RefCount" Text="12" Width="64" MinHeight="40" HorizontalContentAlignment="Center" ToolTip="1~120개를 입력하세요. 사진별 스타일을 선택했다면 사진 수 이상의 개수가 필요합니다."/></StackPanel>
+      <StackPanel x:Name="MixCountGroup" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0" Visibility="Collapsed"><TextBlock Text="생성 개수" Style="{StaticResource FieldTitle}" Margin="0,0,8,0"/><TextBox x:Name="MixCount" Text="1" Width="64" MinHeight="40" HorizontalContentAlignment="Center" ToolTip="1~24개를 입력하세요. 같은 결과가 반복되면 실제 생성 개수는 줄어들 수 있습니다."/></StackPanel>
+      <Button x:Name="Generate" Content="프리셋 생성" Tag="&#xE768;" Style="{StaticResource Primary}" Margin="0" ToolTip="현재 설정으로 프리셋을 만듭니다. (Ctrl+Enter)"/>
      </StackPanel>
      <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
       <TextBlock x:Name="RunSummary" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Visibility="Collapsed"/>

@@ -58,9 +58,9 @@ function Update-MaskState {
     $controls.RefSubjectGroup.IsEnabled = $hasTemplate -and [bool]$controls.RefSubject.IsChecked
     $controls.RefBackgroundGroup.IsEnabled = $hasTemplate -and [bool]$controls.RefBackground.IsChecked
     $controls.RefMaskClear.Visibility = $(if ($hasTemplate) { 'Visible' } else { 'Collapsed' })
-    if (-not ($controls.RefSubject.IsChecked -or $controls.RefBackground.IsChecked)) { $text = '전체 보정만 만듭니다. 마스크 템플릿이 필요하지 않습니다.'; $ok = $true }
-    elseif ($hasTemplate) { $text = [IO.Path]::GetFileName($script:ReferenceMask) + ' · ' + @($controls.RefSubjectGroup.ItemsSource).Count + '개 그룹. 인물·배경 매핑이 맞는지 확인하세요.'; $ok = $true }
-    else { $text = '템플릿 필요 · Select Subject와 Select Background를 저장한 XMP를 선택하거나, 전체 보정만 원하면 두 항목을 끄세요.'; $ok = $false }
+    if (-not ($controls.RefSubject.IsChecked -or $controls.RefBackground.IsChecked)) { $text = '사진 전체에 적용할 보정만 만듭니다.'; $ok = $true }
+    elseif ($hasTemplate) { $text = [IO.Path]::GetFileName($script:ReferenceMask) + ' · ' + @($controls.RefSubjectGroup.ItemsSource).Count + '개 마스크 · 인물과 배경에 사용할 마스크를 확인하세요.'; $ok = $true }
+    else { $text = '인물·배경 마스크가 담긴 Lightroom XMP를 선택하세요. 전체 보정만 만들려면 인물 보정과 배경 보정을 모두 끄세요.'; $ok = $false }
     $controls.RefMaskInfo.Text = $text
     $tone = Get-Brush $(if ($ok) { 'AccentBrush' } else { 'WarnBrush' })
     $controls.RefMaskBar.Background = $tone; $controls.RefMaskIcon.Foreground = $tone
