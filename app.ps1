@@ -239,7 +239,7 @@ foreach ($name in @('ApiKey','RefApiKey','MixApiKey')) { $controls[$name].Add_Pa
 
 
 function Set-Busy([bool]$Busy) {
-    foreach ($name in @('GeneratorForm','ReferenceForm','MixForm','ProjectPick')) { $controls[$name].IsEnabled = -not $Busy }
+    foreach ($name in @('GeneratorForm','ReferenceForm','MixForm','CountGroup','RefCountGroup','MixCountGroup','ProjectPick')) { $controls[$name].IsEnabled = -not $Busy }
     $controls.Generate.IsEnabled = -not $Busy; $controls.Cancel.IsEnabled = $Busy
     $controls.Cancel.Visibility = $(if ($Busy) { 'Visible' } else { 'Collapsed' })
     $controls.Progress.Visibility = $(if ($Busy) { 'Visible' } else { 'Collapsed' }); $controls.Progress.IsIndeterminate = $true

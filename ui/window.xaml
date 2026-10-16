@@ -557,7 +557,6 @@
           <Border Style="{StaticResource CardGap}"/>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
            <StackPanel>
-            <DockPanel Margin="0,0,0,16"><TextBox x:Name="Count" DockPanel.Dock="Right" Text="24" Width="78" HorizontalContentAlignment="Center" ToolTip="1–120개 · 씨드마다 비슷한 수로 나눕니다"/><TextBlock Text="생성 개수 · 1–120" Style="{StaticResource FieldTitle}"/></DockPanel>
             <DockPanel><Border DockPanel.Dock="Right" Style="{StaticResource ValuePill}"><TextBlock x:Name="FidelityValue" Text="85" Style="{StaticResource ValueText}"/></Border><TextBlock Text="씨드 충실도" Style="{StaticResource FieldTitle}"/></DockPanel>
             <Slider x:Name="Fidelity" Minimum="0" Maximum="100" Value="85" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,16" ToolTip="0 자유롭게 ↔ 100 원본 유지"/>
             <DockPanel><Border DockPanel.Dock="Right" Style="{StaticResource ValuePill}"><TextBlock x:Name="VariationValue" Text="70" Style="{StaticResource ValueText}"/></Border><TextBlock Text="변주 폭" Style="{StaticResource FieldTitle}"/></DockPanel>
@@ -652,10 +651,7 @@
            <StackPanel Grid.Column="2"><TextBlock Text="모델 · 이미지 입력 지원" Style="{StaticResource Label}"/><TextBox x:Name="RefModel" Text="gpt-6-luna"/></StackPanel>
           </Grid>
           <DockPanel Margin="0,8,0,16"><CheckBox x:Name="RefRememberKey" DockPanel.Dock="Left" Content="이 PC에 키 저장" FontSize="12" Margin="0,0,14,0" ToolTip="Windows 계정으로 암호화해 이 PC에만 저장합니다. 끄면 저장된 키를 지웁니다."/></DockPanel>
-          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="200"/></Grid.ColumnDefinitions>
-           <StackPanel><TextBlock Text="추출 방식" Style="{StaticResource Label}"/><ComboBox x:Name="RefMode" SelectedIndex="0"><ComboBoxItem Content="여러 장의 공통 스타일" Tag="common"/><ComboBoxItem Content="사진별 개별 스타일" Tag="individual"/></ComboBox></StackPanel>
-           <StackPanel Grid.Column="2"><TextBlock Text="총 생성 개수 · 1–120" Style="{StaticResource Label}"/><TextBox x:Name="RefCount" Text="12" HorizontalContentAlignment="Center"/></StackPanel>
-          </Grid>
+          <StackPanel><TextBlock Text="추출 방식" Style="{StaticResource Label}"/><ComboBox x:Name="RefMode" SelectedIndex="0"><ComboBoxItem Content="여러 장의 공통 스타일" Tag="common"/><ComboBoxItem Content="사진별 개별 스타일" Tag="individual"/></ComboBox></StackPanel>
           <Border Background="{StaticResource SubtleBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="10" Padding="14,12" Margin="0,16,0,0">
            <StackPanel><CheckBox x:Name="RefSearch" Content="웹에서 보정 방법 검색 · 출처 기록" Style="{StaticResource Switch}" IsChecked="True" Margin="0" FontWeight="SemiBold" ToolTip="사진 분석 → 보정 자료 검색 → 수치 추정 순서로 진행합니다. 검색은 API 호출 1회와 검색 요금이 추가되며 대시보드에 함께 기록됩니다."/></StackPanel>
           </Border>
@@ -760,8 +756,7 @@
           <Border Style="{StaticResource CardGap}"/>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
            <StackPanel>
-            <TextBlock Text="기준 프리셋" Style="{StaticResource Label}"/><ComboBox x:Name="MixBase" DisplayMemberPath="name" SelectedValuePath="id" Margin="0,0,0,16"/>
-            <DockPanel><TextBox x:Name="MixCount" DockPanel.Dock="Right" Text="1" Width="78" HorizontalContentAlignment="Center" ToolTip="1–24개 · 같은 결과는 제외합니다"/><TextBlock Text="생성 개수 · 1–24" Style="{StaticResource FieldTitle}"/></DockPanel>
+            <TextBlock Text="기준 프리셋" Style="{StaticResource Label}"/><ComboBox x:Name="MixBase" DisplayMemberPath="name" SelectedValuePath="id"/>
            </StackPanel>
            <StackPanel Grid.Column="2">
             <DockPanel><Border DockPanel.Dock="Right" Style="{StaticResource ValuePill}"><TextBlock x:Name="MixVariationValue" Text="40" Style="{StaticResource ValueText}"/></Border><TextBlock Text="조합 탐색 폭" Style="{StaticResource FieldTitle}"/></DockPanel>
@@ -868,6 +863,9 @@
      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
       <Button x:Name="Cancel" Content="중지" Tag="&#xE71A;" Style="{StaticResource Danger}" IsEnabled="False" Visibility="Collapsed"/>
       <Button x:Name="OpenOutput" Content="결과 폴더" Tag="&#xE838;" MinHeight="40" IsEnabled="False" Visibility="Collapsed"/>
+      <StackPanel x:Name="CountGroup" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0" Visibility="Collapsed"><TextBlock Text="생성 개수" Style="{StaticResource FieldTitle}" Margin="0,0,8,0"/><TextBox x:Name="Count" Text="24" Width="64" MinHeight="40" HorizontalContentAlignment="Center" ToolTip="1–120개 · 씨드마다 비슷한 수로 나눕니다"/></StackPanel>
+      <StackPanel x:Name="RefCountGroup" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0" Visibility="Collapsed"><TextBlock Text="생성 개수" Style="{StaticResource FieldTitle}" Margin="0,0,8,0"/><TextBox x:Name="RefCount" Text="12" Width="64" MinHeight="40" HorizontalContentAlignment="Center" ToolTip="1–120개 · 사진별 스타일은 사진 수 이상이어야 합니다"/></StackPanel>
+      <StackPanel x:Name="MixCountGroup" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0" Visibility="Collapsed"><TextBlock Text="생성 개수" Style="{StaticResource FieldTitle}" Margin="0,0,8,0"/><TextBox x:Name="MixCount" Text="1" Width="64" MinHeight="40" HorizontalContentAlignment="Center" ToolTip="1–24개 · 같은 결과는 제외합니다"/></StackPanel>
       <Button x:Name="Generate" Content="프리셋 생성" Tag="&#xE768;" Style="{StaticResource Primary}" Margin="0" ToolTip="Ctrl+Enter"/>
      </StackPanel>
      <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">

@@ -15,6 +15,7 @@ function Set-View([string]$View) {
     $controls.PageTitle.Text = $title; $controls.PageTitle.ToolTip = $subtitle
     # The primary action only appears where a run can be configured.
     $controls.Generate.Visibility = $(if ($View -in @('generator','reference','mix')) { 'Visible' } else { 'Collapsed' })
+    foreach ($pair in @(@('generator','CountGroup'), @('reference','RefCountGroup'), @('mix','MixCountGroup'))) { $controls[$pair[1]].Visibility = $(if ($View -eq $pair[0]) { 'Visible' } else { 'Collapsed' }) }
     $controls.Generate.Content = $(if ($View -eq 'mix') { '믹스매치 생성' } elseif ($View -eq 'reference') { '레퍼런스 프리셋 생성' } else { '프리셋 생성' })
     $controls.OpenOutput.Visibility = $(if ($script:LastFolder -and $View -ne 'results') { 'Visible' } else { 'Collapsed' })
     Update-RunSummary
