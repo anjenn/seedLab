@@ -28,7 +28,7 @@
   "diversity": "normalized slider-space separation within the same seed; not a rendered-image or perceptual similarity score",
   "commands": [
     "npm test",
-    "powershell -NoProfile -ExecutionPolicy Bypass -File ValidateOnWindows.ps1",
+    "powershell -NoProfile -ExecutionPolicy Bypass -File tests/ValidateOnWindows.ps1",
     "powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-ui-smoke.ps1",
     "powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-mix-ui.ps1"
   ],

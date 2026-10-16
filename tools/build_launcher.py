@@ -6,7 +6,7 @@ import struct, subprocess, pathlib, tempfile
 root=pathlib.Path(__file__).resolve().parents[1]
 with tempfile.TemporaryDirectory() as td:
     o=pathlib.Path(td)/'launcher.o'
-    subprocess.run(['gcc','-c',str(root/'src/launcher.c'),'-o',str(o),'-Os','-ffreestanding','-fpie','-mno-red-zone','-fno-stack-protector','-fno-asynchronous-unwind-tables','-fno-unwind-tables','-fno-ident'],check=True)
+    subprocess.run(['gcc','-c',str(root/'tools/launcher.c'),'-o',str(o),'-Os','-ffreestanding','-fpie','-mno-red-zone','-fno-stack-protector','-fno-asynchronous-unwind-tables','-fno-unwind-tables','-fno-ident'],check=True)
     exe=root/'PresetSeedLab.exe'
     subprocess.run(['ld','-mi386pep','--subsystem','windows','--entry','entry','--image-base','0x140000000','--disable-auto-import','-o',str(exe),str(o)],check=True)
 b=bytearray(exe.read_bytes()); pe=struct.unpack_from('<I',b,0x3c)[0]

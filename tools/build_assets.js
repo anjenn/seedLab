@@ -1,6 +1,6 @@
 const fs=require('node:fs');const path=require('node:path');const crypto=require('node:crypto');
-const root=path.resolve(__dirname,'..'),E=require('../engine.js');
-fs.writeFileSync(path.join(root,'keywords.json'),JSON.stringify(E.keywords,null,2));
+const root=path.resolve(__dirname,'..'),E=require('../core/engine.js');
+fs.writeFileSync(path.join(root,'assets','keywords.json'),JSON.stringify(E.keywords,null,2));
 if(process.argv.includes('--keywords-only')){console.log(`${E.keywords.length} keywords written`);process.exit(0);}
 const names=['Soft Rose','Cool Teal','Warm Cream','Deep Film','Pastel Blue','Natural Peach','Muted Sage','Bright Lavender','Crisp Gold','Matte Brown','Quiet Cyan','Dreamy Pink'];
 for(let i=0;i<12;i++){

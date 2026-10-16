@@ -35,7 +35,7 @@ function Test-ReferenceMaskTemplate($Request) {
     if ($Request.maskSubject -and $Request.maskBackground -and $Request.subjectMaskIndex -eq $Request.backgroundMaskIndex) { throw '인물과 배경에는 서로 다른 마스크 그룹을 지정하세요.' }
 }
 function Export-ReferenceCandidate($Candidate, $Request, [string]$AppRoot, [string]$Target) {
-    $x = Read-Xmp (Join-Path $AppRoot 'reference-base.xmp')
+    $x = Read-Xmp (Join-Path $AppRoot 'assets\reference-base.xmp')
     foreach ($p in $Candidate.values.PSObject.Properties) { Set-Crs $x.Doc $x.Desc $p.Name ([double]$p.Value).ToString('0.####', $script:Invariant) }
     foreach ($p in $Candidate.curves.PSObject.Properties) {
         $element = $x.Doc.CreateElement('crs', $p.Name, $script:CrsNs); $seq = $x.Doc.CreateElement('rdf', 'Seq', $script:RdfNs)
@@ -95,7 +95,7 @@ function Run-ReferenceGenerationCore($Request, [string]$AppRoot) {
     if ($Request.referenceMode -notin @('common','individual')) { throw '레퍼런스 생성 방식을 선택하세요.' }
     if ($Request.referenceMode -eq 'individual' -and $Request.count -lt $refs.Count) { throw '사진별 모드에서는 생성 개수를 레퍼런스 수 이상으로 설정하세요.' }
     Test-ReferenceMaskTemplate $Request
-    $null = Read-Xmp (Join-Path $AppRoot 'reference-base.xmp')
+    $null = Read-Xmp (Join-Path $AppRoot 'assets\reference-base.xmp')
     # Validate and snapshot every input before the first paid call. The same pixels
     # are used for observations and recipes even if a source changes during HTTP.
     $photoData = @{}

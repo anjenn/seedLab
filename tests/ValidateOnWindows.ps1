@@ -2,23 +2,25 @@
 $previousUsageDir = $env:SEEDLAB_TEST_USAGE_DIR
 $temporary = Join-Path ([IO.Path]::GetTempPath()) ('SeedLab-Validation-' + [Guid]::NewGuid().ToString('N'))
 $env:SEEDLAB_TEST_USAGE_DIR = Join-Path $temporary 'usage'
+$appRoot = Split-Path $PSScriptRoot -Parent
 try {
-    foreach ($name in @('app.ps1', 'functions.ps1', 'tracking.ps1', 'dashboard.ps1', 'api.ps1', 'reference.ps1', 'reference-ui.ps1', 'results-ui.ps1', 'project.ps1', 'runtime.ps1', 'mix.ps1', 'mix-ui.ps1', 'tests/windows-mix.ps1', 'tests/windows-regressions.ps1', 'tests/windows-reference-recovery.ps1', 'ValidateOnWindows.ps1')) {
+    # Every PowerShell file in the app, core, ui and tests must parse.
+    foreach ($file in @(Get-Item -LiteralPath (Join-Path $appRoot 'app.ps1')) + @(Get-ChildItem -LiteralPath (Join-Path $appRoot 'core'), (Join-Path $appRoot 'ui'), $PSScriptRoot -Filter '*.ps1')) {
         $tokens = $null; $parseErrors = $null
-        $null = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot $name), [ref]$tokens, [ref]$parseErrors)
-        if (@($parseErrors).Count) { throw ($name + ': ' + ($parseErrors.Message -join '; ')) }
+        $null = [Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$parseErrors)
+        if (@($parseErrors).Count) { throw ($file.Name + ': ' + ($parseErrors.Message -join '; ')) }
     }
-    . (Join-Path $PSScriptRoot 'functions.ps1')
+    . (Join-Path $appRoot 'core\functions.ps1')
     Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase
-    [xml]$ui = [IO.File]::ReadAllText((Join-Path $PSScriptRoot 'ui.xaml'), [Text.Encoding]::UTF8)
+    [xml]$ui = [IO.File]::ReadAllText((Join-Path $appRoot 'ui\window.xaml'), [Text.Encoding]::UTF8)
     $view = [Windows.Markup.XamlReader]::Load([Xml.XmlNodeReader]::new($ui))
     foreach ($name in @('ReferencePage','RefSubjectGroup','RefBackgroundGroup','UsageCalls','GeneratorForm','ReferenceForm','ReferenceList','ResultsBody','Progress','RunSummary','ProjectCard','ProjectPick','RememberKey','RefRememberKey','MixPage','MixForm','MixGrid','MixUseAi','MixBase')) { if (-not $view.FindName($name)) { throw ('Missing WPF control ' + $name) } }
     $view.Close()
-    $seeds = @(Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot 'tests\fixtures\seeds') -Filter '*.xmp' | ForEach-Object { Get-Seed $_.FullName })
+    $seeds = @(Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot 'fixtures\seeds') -Filter '*.xmp' | ForEach-Object { Get-Seed $_.FullName })
     if ($seeds.Count -ne 12) { throw 'Missing test seed fixtures.' }
     $request = @{ seeds = $seeds; count = 24; fidelity = 85; variation = 70; keywordIds = @('dreamy', 'rose', 'cyan');
         useAi = $false; output = $temporary; randomSeed = 23; maskTemplate = ''; varyMasks = $false }
-    $result = Run-Generation $request $PSScriptRoot
+    $result = Run-Generation $request $appRoot
     if (@($result.rows).Count -ne 24) { throw 'Wrong generated count.' }
     $ids = @{}
     foreach ($row in $result.rows) {
@@ -38,13 +40,13 @@ try {
     $e.cachedTokens = 2000; $e.reasoningTokens = 1000
     $e.estimatedUSD = Get-UsageCost 'gpt-6-luna' @{ input_tokens = 8000; output_tokens = 4000; input_tokens_details = @{ cached_tokens = 2000 } } 'default'
     Write-UsageEvent $e; Write-UsageEvent $e
-    $dashboard = Get-UsageDashboard $PSScriptRoot 7 'all'
+    $dashboard = Get-UsageDashboard $appRoot 7 'all'
     if ($dashboard.totals.calls -ne 1 -or $dashboard.totals.totalTokens -ne 12000 -or $dashboard.totals.runs -ne 1) { throw 'Usage deduplication / aggregation failed.' }
     $ledgerPath = Join-Path (Get-UsageDirectory) 'usage-events.jsonl'
     if ([IO.File]::ReadAllText($ledgerPath).Contains('DO_NOT_RECORD_THIS')) { throw 'Credential allowlist failed.' }
     # Test-only synthetic mask data exercises preservation, not Lightroom compatibility.
-    $fixture = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'tests/reference-fixtures.json') -Encoding UTF8 -Raw | ConvertFrom-Json
-    $template = Read-Xmp (Join-Path $PSScriptRoot 'reference-base.xmp')
+    $fixture = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'fixtures\reference-fixtures.json') -Encoding UTF8 -Raw | ConvertFrom-Json
+    $template = Read-Xmp (Join-Path $appRoot 'assets\reference-base.xmp')
     $block = $template.Doc.CreateElement('crs', 'MaskGroupBasedCorrections', $script:CrsNs); $seq = $template.Doc.CreateElement('rdf', 'Seq', $script:RdfNs)
     foreach ($kind in @('Subject','Background')) {
         $li = $template.Doc.CreateElement('rdf', 'li', $script:RdfNs); $node = $template.Doc.CreateElement('rdf', 'Description', $script:RdfNs)
@@ -70,7 +72,7 @@ try {
         references = @(@{ id = 'R001'; path = 'TEST_ONLY_1.jpg' }, @{ id = 'R002'; path = 'TEST_ONLY_2.jpg' }); referenceMode = 'common'; referenceSearch = $true; referenceTarget = '';
         referenceMaskTemplate = $maskPath; referenceMaskHash = (Get-FileHash -LiteralPath $maskPath -Algorithm SHA256).Hash; maskSubject = $true; maskBackground = $true;
         subjectMaskIndex = 0; backgroundMaskIndex = 1; fidelity = 85; variation = 70; randomSeed = 12; keywordIds = @('dreamy','rose'); output = $temporary; note = '' }
-    $refResult = Run-Generation $referenceRequest $PSScriptRoot
+    $refResult = Run-Generation $referenceRequest $appRoot
     if ($script:MockResponseIndex -ne 3 -or @($refResult.rows).Count -ne 4) { throw 'Reference pipeline call/output count mismatch.' }
     $first = Read-Xmp (Join-Path $refResult.folder $refResult.rows[0].File); $groups = @(Get-ReferenceMaskGroups $first)
     if ($groups.Count -ne 2) { throw 'Reference masks were not exported.' }
@@ -78,16 +80,16 @@ try {
     if ([Math]::Abs([double](Get-CrsValue $first $groups[0].Node 'LocalTemperature') - 0.12) -gt 0.0001) { throw 'Subject XMP scaling failed.' }
     if ([Math]::Abs([double](Get-CrsValue $first $groups[1].Node 'LocalTemperature') + 0.2) -gt 0.0001) { throw 'Background XMP scaling failed.' }
     if ([double](Get-CrsValue $first $groups[0].Node 'LocalLuminanceNoise') -ne 0) { throw 'Inherited correction was not neutralized.' }
-    $dashboard = Get-UsageDashboard $PSScriptRoot 7 'all'
+    $dashboard = Get-UsageDashboard $appRoot 7 'all'
     if ($dashboard.totals.calls -ne 4 -or $dashboard.totals.totalTokens -ne 16500 -or $dashboard.totals.webSearchCalls -ne 1 -or $dashboard.totals.referenceRuns -ne 1) { throw 'Reference token/search accounting mismatch.' }
     $manifest = Get-Content -LiteralPath (Join-Path $refResult.folder 'manifest.json') -Raw -Encoding UTF8
     if ($manifest -match 'apiKey|TEST_KEY_DO_NOT_SAVE|data:image') { throw 'Unexpected credentials/image data in manifest.' }
     if ([IO.File]::ReadAllText($ledgerPath).Contains('TEST_KEY_DO_NOT_SAVE')) { throw 'Reference key was persisted.' }
-    . (Join-Path $PSScriptRoot 'tests/windows-regressions.ps1')
-    . (Join-Path $PSScriptRoot 'tests/windows-reference-recovery.ps1')
-    . (Join-Path $PSScriptRoot 'tests/windows-mix.ps1')
+    . (Join-Path $PSScriptRoot 'windows-regressions.ps1')
+    . (Join-Path $PSScriptRoot 'windows-reference-recovery.ps1')
+    . (Join-Path $PSScriptRoot 'windows-mix.ps1')
     # Saved API key: DPAPI round trip, no plaintext on disk, removable.
-    . (Join-Path $PSScriptRoot 'project.ps1')
+    . (Join-Path $appRoot 'ui\project.ps1')
     Save-ApiKey 'sk-TEST_ROUNDTRIP_DO_NOT_STORE'
     if ((Read-ApiKey) -ne 'sk-TEST_ROUNDTRIP_DO_NOT_STORE' -or [IO.File]::ReadAllText((Get-ApiKeyPath)).Contains('TEST_ROUNDTRIP')) { throw 'API key protection failed.' }
     if (-not (Remove-ApiKey) -or $null -ne (Read-ApiKey)) { throw 'Saved API key was not removed.' }

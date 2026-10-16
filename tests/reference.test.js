@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const R=require('../reference.js'),U=require('../usage.js'),root=path.resolve(__dirname,'..');
+const R=require('../core/reference.js'),U=require('../core/usage.js'),root=path.resolve(__dirname,'..','core');
 let count=0;function test(name,fn){fn();count++;console.log('PASS '+name)}
 const copy=x=>JSON.parse(JSON.stringify(x));
 function recipe(id='R001'){
@@ -70,7 +70,7 @@ if(process.argv.includes('--fixtures')){
  const obs=['R001','R002'].map(referenceId=>({referenceId,style:'핑크 필름',palette:'로즈',tone:'부드러운',lighting:'조명 영향 있음',subject:'인물은 밝음',background:'배경은 차가움',confidence:'medium',limitations:'추정값'}));
  const response=(id,output)=>({id,model:'gpt-6-luna',status:'completed',service_tier:'default',usage:{input_tokens:1000,output_tokens:500,input_tokens_details:{cached_tokens:0},output_tokens_details:{reasoning_tokens:100}},output});
  const message=obj=>({type:'message',content:[{type:'output_text',text:JSON.stringify(obj),annotations:[]}]});
- fs.writeFileSync(path.join(__dirname,'reference-fixtures.json'),JSON.stringify({recipes:p.recipes,referenceIds:['R001','R002'],responses:[response('test-analysis',[message({observations:obs})]),response('test-search',[{type:'web_search_call',action:{type:'search',sources:[{url:'https://helpx.adobe.com/lightroom/desktop/edit-photos/masking.html',title:'Lightroom masks'}]}},{type:'message',content:[{type:'output_text',text:'색감은 HSL과 커브, 인물과 배경은 별도 마스크로 조절합니다.',annotations:[]}]}]),response('test-recipe',[message({recipes:p.recipes})])]},null,2));
+ fs.writeFileSync(path.join(__dirname,'fixtures','reference-fixtures.json'),JSON.stringify({recipes:p.recipes,referenceIds:['R001','R002'],responses:[response('test-analysis',[message({observations:obs})]),response('test-search',[{type:'web_search_call',action:{type:'search',sources:[{url:'https://helpx.adobe.com/lightroom/desktop/edit-photos/masking.html',title:'Lightroom masks'}]}},{type:'message',content:[{type:'output_text',text:'색감은 HSL과 커브, 인물과 배경은 별도 마스크로 조절합니다.',annotations:[]}]}]),response('test-recipe',[message({recipes:p.recipes})])]},null,2));
 }
 test('base-only recipes validate controls, and shortfall is explicit',()=>{
  assert.throws(()=>R.generate(req({count:1,fidelity:NaN})),/sliders/);

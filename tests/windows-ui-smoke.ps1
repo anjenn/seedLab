@@ -13,7 +13,7 @@ function Find-Control([string]$Id) {
 }
 function Click-Control([string]$Id) { (Find-Control $Id).GetCurrentPattern([Windows.Automation.InvokePattern]::Pattern).Invoke() }
 function Check-KeywordChoices([string]$PageId) {
-    $catalog = Get-Content -LiteralPath (Join-Path $AppRoot 'keywords.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+    $catalog = Get-Content -LiteralPath (Join-Path $AppRoot 'assets\keywords.json') -Raw -Encoding UTF8 | ConvertFrom-Json
     $condition = [Windows.Automation.PropertyCondition]::new([Windows.Automation.AutomationElement]::ControlTypeProperty, [Windows.Automation.ControlType]::CheckBox)
     $checkboxes = (Find-Control $PageId).FindAll([Windows.Automation.TreeScope]::Descendants, $condition)
     $names = @($checkboxes | ForEach-Object { $_.Current.Name })

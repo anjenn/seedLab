@@ -1,5 +1,6 @@
 ﻿$ErrorActionPreference = 'Stop'
-$script:TrackingAppRoot = $PSScriptRoot
+# Same app-root convention as the UI: core files live in <app root>\core.
+$script:TrackingAppRoot = Split-Path $PSScriptRoot -Parent
 
 function Get-UsageDirectory {
     if ($env:SEEDLAB_TEST_USAGE_DIR) { return $env:SEEDLAB_TEST_USAGE_DIR }

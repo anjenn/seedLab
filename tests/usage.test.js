@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const U=require('../usage.js');let passed=0;
+const U=require('../core/usage.js');let passed=0;
 function test(name,fn){fn();passed++;console.log('PASS '+name);}
 function event(id,date='2026-10-14',extra={}){return Object.assign({eventId:id,kind:'api',runId:'run-'+id,timestampUtc:date+'T03:00:00Z',localDate:date,localTime:date+' 12:00:00',model:'gpt-6-luna',status:'completed',usageKnown:true,inputTokens:8000,outputTokens:4000,cachedTokens:2000,reasoningTokens:1500,estimatedUSD:.00262},extra);}
 function sum(events,extra={}){return U.summarize(Object.assign({events,today:'2026-10-14',days:7,model:'all'},extra));}
@@ -22,7 +22,7 @@ test('Standard model costs, cache reads / writes and reasoning subsets',()=>{
  assert.equal(cost('unknown',{input_tokens:10,output_tokens:10}),null);assert.equal(cost('gpt-6-luna',{input_tokens:10,output_tokens:10},'unpriced-tier'),null);
  assert.ok(Math.abs(cost('gpt-6-luna',{input_tokens:273000,output_tokens:1000})-.05535)<1e-12);
 });
-test('WSH compatibility uses the actual shared aggregation and cost code',()=>{const root=path.resolve(__dirname,'..'),box=vm.createContext({});vm.runInContext('JSON=undefined;Object.keys=undefined;Array.prototype.indexOf=undefined;',box);vm.runInContext(fs.readFileSync(path.join(root,'json_compat.js'),'utf8'),box);vm.runInContext(fs.readFileSync(path.join(root,'usage.js'),'utf8'),box);const req={events:[event('a'),event('b')],today:'2026-10-14',days:30};box.input=JSON.stringify(req);assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(UsageEngine.summarize(JSON.parse(input)))',box)),U.summarize(req));});
+test('WSH compatibility uses the actual shared aggregation and cost code',()=>{const root=path.resolve(__dirname,'..'),box=vm.createContext({});vm.runInContext('JSON=undefined;Object.keys=undefined;Array.prototype.indexOf=undefined;',box);vm.runInContext(fs.readFileSync(path.join(root,'core','json_compat.js'),'utf8'),box);vm.runInContext(fs.readFileSync(path.join(root,'core','usage.js'),'utf8'),box);const req={events:[event('a'),event('b')],today:'2026-10-14',days:30};box.input=JSON.stringify(req);assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(UsageEngine.summarize(JSON.parse(input)))',box)),U.summarize(req));});
 test('late pending and older priced events cannot erase confirmed usage',()=>{
  const e=event('a','2026-10-14',{updatedAtUtc:'2026-10-14T04:00:00Z'});
  const r=sum([e,{...e,status:'pending',usageKnown:false,estimatedUSD:null},{...e,updatedAtUtc:'2026-10-14T03:00:00Z',inputTokens:1}]);

@@ -1,13 +1,13 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');const path=require('node:path');const vm=require('node:vm');
-const root=path.resolve(__dirname,'..');const E=require('../engine.js');
+const root=path.resolve(__dirname,'..');const E=require('../core/engine.js');
 let tests=0;function test(name,f){f();tests++;console.log('PASS '+name);}
 const seeds=Array.from({length:16},(_,i)=>({id:'seed-'+i,name:'씨드 '+i,values:{Exposure2012:0,Contrast2012:i-8,Highlights2012:-20,Shadows2012:12,Blacks2012:10,Whites2012:0,Texture:-5,Clarity2012:-3,Vibrance:12,Saturation:-4,Temperature:5600,Tint:8,HueAdjustmentRed:3,SaturationAdjustmentBlue:-20,GrainAmount:8,UnknownVendorSetting:123}}));
 function request(extra){return Object.assign({seeds,keywordIds:['dreamy','rose','cyan','black_contrast'],count:48,fidelity:85,variation:70,randomSeed:1223},extra);}
 test('44 unique keywords in six categories, synchronized with the UI catalog',()=>{
  assert.equal(E.keywords.length,44);assert.equal(new Set(E.keywords.map(x=>x.id)).size,44);
  assert.deepEqual([...new Set(E.keywords.map(x=>x.category))],['분위기','톤','따뜻한 색감','차가운 색감','팔레트','스타일']);
- assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root,'keywords.json'),'utf8')),E.keywords);
+ assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root,'assets','keywords.json'),'utf8')),E.keywords);
  for(const keyword of E.keywords){
   assert.deepEqual(Object.keys(keyword.axes),E.axes);
   assert.ok(Object.values(keyword.axes).every(x=>Number.isFinite(x)&&x>=-1&&x<=1));
@@ -39,8 +39,8 @@ test('AI axes clamped, malformed and duplicate indexes rejected',()=>{
 test('same random seed reproduces values; new seed varies them',()=>{assert.deepEqual(E.generate(request()),E.generate(request()));assert.notDeepEqual(E.generate(request()),E.generate(request({randomSeed:1230})));});
 test('WSH JSON codec and actual engine run without modern built-ins',()=>{
  const box=vm.createContext({});vm.runInContext('JSON=undefined; Array.prototype.indexOf=undefined;',box);
- vm.runInContext(fs.readFileSync(path.join(root,'json_compat.js'),'utf8'),box);
- vm.runInContext(fs.readFileSync(path.join(root,'engine.js'),'utf8'),box);
+ vm.runInContext(fs.readFileSync(path.join(root,'core','json_compat.js'),'utf8'),box);
+ vm.runInContext(fs.readFileSync(path.join(root,'core','engine.js'),'utf8'),box);
  const text=JSON.stringify(request());box.input=text;
  const actual=vm.runInContext('JSON.stringify(SeedEngine.generate(JSON.parse(input)))',box);
  assert.deepEqual(JSON.parse(actual),E.generate(request()));

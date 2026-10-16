@@ -108,7 +108,7 @@ function Invoke-Engine([string]$AppRoot, $Core) {
     $inputPath = Join-Path $tmp 'input.json'; $outputPath = Join-Path $tmp 'output.json'
     try {
         [IO.File]::WriteAllText($inputPath, ($Core | ConvertTo-Json -Depth 30 -Compress), ([Text.UTF8Encoding]::new($false)))
-        $runner = Join-Path $AppRoot 'runner.js'
+        $runner = Join-Path $AppRoot 'core\runner.js'
         $errorPath = Join-Path $tmp 'stderr.txt'
         $process = Start-Process -FilePath (Join-Path $env:WINDIR 'System32\cscript.exe') -ArgumentList @('//nologo', '//E:JScript', ('"' + $runner + '"'), ('"' + $inputPath + '"'), ('"' + $outputPath + '"')) -WindowStyle Hidden -Wait -PassThru -RedirectStandardError $errorPath
         if (-not (Test-Path -LiteralPath $outputPath)) {

@@ -1,18 +1,18 @@
 ﻿try {
 Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase, System.Windows.Forms, System.Drawing
-. (Join-Path $PSScriptRoot 'functions.ps1')
+. (Join-Path $PSScriptRoot 'core\functions.ps1')
 $script:AppRoot = $PSScriptRoot
 $script:Seeds = New-Object 'Collections.ObjectModel.ObservableCollection[object]'
 $script:Job = $null; $script:LastFolder = $null; $script:ActiveRequest = $null; $script:Dashboard = $null; $script:DashboardBusy = $false
 $script:KeywordChecks = [Collections.Generic.List[object]]::new(); $script:CurrentView = ''; $script:SyncingKey = $false
-[xml]$xaml = [IO.File]::ReadAllText((Join-Path $script:AppRoot 'ui.xaml'), [Text.Encoding]::UTF8)
+[xml]$xaml = [IO.File]::ReadAllText((Join-Path $script:AppRoot 'ui\window.xaml'), [Text.Encoding]::UTF8)
 $window = [Windows.Markup.XamlReader]::Load(([Xml.XmlNodeReader]::new($xaml)))
 $controls = @{}
 foreach ($element in $xaml.SelectNodes('//*')) { $name = $element.GetAttribute('Name', 'http://schemas.microsoft.com/winfx/2006/xaml'); if ($name) { $controls[$name] = $window.FindName($name) } }
 $controls.SeedGrid.ItemsSource = $script:Seeds
 $controls.Output.Text = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'SeedLabOutputs'
 $script:Photo = ''; $script:Mask = ''
-$keywords = Get-Content -LiteralPath (Join-Path $script:AppRoot 'keywords.json') -Encoding UTF8 -Raw | ConvertFrom-Json
+$keywords = Get-Content -LiteralPath (Join-Path $script:AppRoot 'assets\keywords.json') -Encoding UTF8 -Raw | ConvertFrom-Json
 $script:AxisNames = @{ exposure = '밝기'; contrast = '대비'; softness = '부드러움'; warmth = '따뜻함'; magenta = '마젠타'; saturation = '채도'; shadowLift = '암부'; red = '레드'; green = '그린'; blue = '블루'; grain = '그레인' }
 
 function Get-KeywordHint($Keyword) {
@@ -47,11 +47,11 @@ function Save-AutoNow {
     }
 }
 Add-KeywordChips $controls.KeywordGroups $script:KeywordChecks
-. (Join-Path $script:AppRoot 'dashboard.ps1')
-. (Join-Path $script:AppRoot 'reference-ui.ps1')
-. (Join-Path $script:AppRoot 'results-ui.ps1')
-. (Join-Path $script:AppRoot 'project.ps1')
-. (Join-Path $script:AppRoot 'mix-ui.ps1')
+. (Join-Path $script:AppRoot 'ui\dashboard.ps1')
+. (Join-Path $script:AppRoot 'ui\reference-ui.ps1')
+. (Join-Path $script:AppRoot 'ui\results-ui.ps1')
+. (Join-Path $script:AppRoot 'ui\project.ps1')
+. (Join-Path $script:AppRoot 'ui\mix-ui.ps1')
 
 function Pick-Files([string]$Filter, [bool]$Multi) {
     $dialog = New-Object Microsoft.Win32.OpenFileDialog
@@ -317,7 +317,7 @@ function Start-Generation {
         Record-RunStart $request; $script:ActiveRequest = $request
         Set-Busy $true; $script:JobStarted = [DateTime]::Now
         Set-Status $(if ($request.generationMode -eq 'mix') { '프리셋 조합을 만들고 있습니다…' } elseif ($request.generationMode -eq 'reference') { '레퍼런스 분석·검색·보정값 추정 중… 사용량 대시보드에서 진행된 호출을 확인할 수 있어요.' } elseif ($request.useAi) { 'AI가 방향을 설계하고 있습니다…' } else { '씨드 기반 변주를 생성하고 있습니다…' }) 'busy'
-        $script:Job = Start-Job -ScriptBlock { param($root, $req); try { . (Join-Path $root 'functions.ps1'); @{ success = $true; result = (Run-Generation $req $root) } } catch { @{ success = $false; error = $_.Exception.Message; cancelled = ($_.Exception -is [OperationCanceledException]); folder = $req.runFolder; rows = $(if ($req.exportedRows) { @($req.exportedRows.ToArray()) } else { @() }) } } } -ArgumentList $script:AppRoot, $request
+        $script:Job = Start-Job -ScriptBlock { param($root, $req); try { . (Join-Path $root 'core\functions.ps1'); @{ success = $true; result = (Run-Generation $req $root) } } catch { @{ success = $false; error = $_.Exception.Message; cancelled = ($_.Exception -is [OperationCanceledException]); folder = $req.runFolder; rows = $(if ($req.exportedRows) { @($req.exportedRows.ToArray()) } else { @() }) } } } -ArgumentList $script:AppRoot, $request
         $timer.Start()
     } catch { Set-Busy $false; if ($script:ActiveRequest -and -not $script:Job) { Record-RunFinish $script:ActiveRequest 'failed'; $script:ActiveRequest = $null; Refresh-Dashboard }; Show-Notice $_.Exception.Message '확인' }
 }

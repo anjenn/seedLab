@@ -41,7 +41,7 @@ AI 설계는 후보 6개당 최대 한 호출(`ceil(개수/6)`)이며 대시보�
 - **단축키:** Ctrl+Enter 생성, Ctrl+1–5 화면 이동, Ctrl+O 파일 추가, 대시보드에서 F5 새로고침.
 - **대시보드:** 숫자 열을 오른쪽 정렬하고 상태를 색상 배지로 표시합니다. 생성 작업 기록을 더블클릭하면 해당 결과 폴더를 엽니다.
 
-첫 실행은 사용량 대시보드 대신 **프리셋 생성** 화면에서 시작합니다. 결과 화면 로직은 새 파일 `results-ui.ps1`, 설정·키·프로젝트 저장은 `project.ps1`에 있습니다. 처리하지 못한 화면 오류는 앱을 닫지 않고 오류 창으로 알립니다.
+첫 실행은 사용량 대시보드 대신 **프리셋 생성** 화면에서 시작합니다. 결과 화면 로직은 `ui/results-ui.ps1`, 설정·키·프로젝트 저장은 `ui/project.ps1`에 있습니다. 처리하지 못한 화면 오류는 앱을 닫지 않고 오류 창으로 알립니다.
 
 ## v1.3 변경 사항 · 2026-10-16
 
@@ -53,11 +53,11 @@ AI 설계는 후보 6개당 최대 한 호출(`ceil(개수/6)`)이며 대시보�
 - **부분 결과 복구:** 파일마다 manifest와 작업 이력을 갱신합니다. 오류나 중지 후에도 저장된 파일 수·후보 정보·폴더 경로가 남고 결과 화면에서 확인할 수 있습니다. 실패/중지 manifest의 `status`는 `failed`/`cancelled`입니다. 실행 중 강제 종료가 발생하면 마지막 체크포인트가 `exporting`으로 남을 수 있습니다.
 - **사용량 최적화:** 씨드·레퍼런스 API 기록을 공통 경로로 통합했습니다. 늦게 도착한 대기 상태가 확인된 토큰을 지우지 않습니다. JSONL은 줄 단위로 읽고, 파일·날짜·필터가 같으면 집계 캐시를 재사용합니다. 캐시 쓰기·추론의 행별 값과 합계에 같은 상한을 적용합니다. 일별 CSV에도 캐시 쓰기와 비용 미확인 건수를 포함합니다.
 
-기존 `%LOCALAPPDATA%\PresetSeedLab\usage-events.jsonl`을 그대로 읽으며 별도 이관은 필요하지 않습니다. 현재 프로젝트에서 `PresetSeedLab.exe`를 실행하세요. 새 런타임 파일 `runtime.ps1`을 비롯한 동봉 파일이 필요합니다.
+기존 `%LOCALAPPDATA%\PresetSeedLab\usage-events.jsonl`을 그대로 읽으며 별도 이관은 필요하지 않습니다. 현재 프로젝트에서 `PresetSeedLab.exe`를 실행하세요. `app.ps1`과 `ui`, `core`, `assets` 폴더를 비롯한 동봉 파일이 필요합니다.
 
 ## 실행
 
-1. 프로젝트 폴더의 **PresetSeedLab.exe**를 실행합니다. 작업을 저장하려면 사이드바의 **프로젝트 → 폴더 지정**으로 작업 폴더를 먼저 정하세요. EXE 옆의 스크립트·XMP·JSON·화면 파일과 하위 폴더를 함께 보관하세요. 레퍼런스 모드는 아래의 v1.2 안내를 따르세요.
+1. 프로젝트 폴더의 **PresetSeedLab.exe**를 실행합니다. 작업을 저장하려면 사이드바의 **프로젝트 → 폴더 지정**으로 작업 폴더를 먼저 정하세요. EXE와 같은 폴더의 `app.ps1`과 `ui`, `core`, `assets` 폴더를 함께 보관하세요. 레퍼런스 모드는 아래의 v1.2 안내를 따르세요.
 2. Lightroom 데스크톱에서 내 프리셋을 XMP로 내보낸 뒤 **XMP 추가** 또는 **폴더 추가**로 등록하거나 씨드 카드에 끌어다 놓습니다. 10개 이상을 등록할 수 있고 폴더는 하위 폴더까지 읽습니다. 동일 내용은 중복 등록하지 않습니다.
 3. 사용할 씨드와 원하는 키워드를 체크합니다. 키워드는 후보별로 배정되며, 서로 반대인 키워드를 하나의 후보에 동시에 강제하지 않습니다.
 4. 기본값은 후보 24개, 충실도 85, 변주 폭 70입니다. 씨드마다 비슷한 수의 후보를 배정합니다. 생성 개수가 선택 씨드 수보다 적으면 일부 씨드만 사용합니다. 선택 순서 편향을 줄이기 위해 생성마다 씨드 순서를 섞습니다.
@@ -110,9 +110,19 @@ EXE는 함께 제공된 읽을 수 있는 PowerShell 앱을 실행하는 작은 
 
 ## 소스와 재현
 
-`app.ps1`·`ui.xaml`: 화면. `results-ui.ps1`: 결과 화면. `project.ps1`: 설정·API 키·프로젝트 저장. `functions.ps1`: XMP·API·내보내기. `engine.js`: 변주 엔진. `runner.js`와 `json_compat.js`: Windows Script Host 연결. `mix.js`: 로컬 혼합·AI 비율 계약. `mix.ps1`: XMP 혼합 출력·AI 설계 연결. `mix-ui.ps1`: 믹스매치 화면. `src/launcher.c`: 런처. `src/build_launcher.py`: GNU 도구로 Windows 런처 빌드. `src/build_assets.js`: 키워드·테스트용 XMP 생성. `tests/engine.test.js`: Node에서 실제 엔진 테스트.
+`PresetSeedLab.exe`는 같은 폴더의 `app.ps1`을 실행하는 런처입니다. 나머지 파일은 역할별 폴더에 있습니다.
 
-전체 로직 테스트: `npm test` (개발용 Node 필요, 앱 실행에는 불필요). Windows 통합 검사는 `ValidateOnWindows.cmd`. 실제 EXE와 화면 조작 검사는 `powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-ui-smoke.ps1`로 실행합니다. 화면 검사는 테스트용 씨드와 로컬 모드만 사용하고 테스트 이력과 결과는 임시 폴더에 격리합니다.
+| 위치 | 내용 |
+| --- | --- |
+| `app.ps1` | 앱 진입점: 창 로드, 화면 간 연결, 백그라운드 생성 작업 실행 |
+| `ui/` | WPF 화면. `window.xaml`(레이아웃·스타일), `dashboard.ps1`(화면 전환·사용량 대시보드), `reference-ui.ps1`, `results-ui.ps1`, `mix-ui.ps1`, `project.ps1`(설정·API 키·프로젝트 저장) |
+| `core/` | 생성 엔진. `functions.ps1`(XMP·내보내기·생성 흐름), `api.ps1`(OpenAI 호출·사용량 선기록), `reference.ps1`, `mix.ps1`, `tracking.ps1`(사용 기록), `runtime.ps1`(진행·취소·원자적 저장), Windows Script Host 엔진 `runner.js`·`json_compat.js`·`engine.js`(씨드 변주)·`reference.js`·`mix.js`·`usage.js` |
+| `assets/` | `keywords.json`(키워드 44개), `reference-base.xmp`(레퍼런스용 중립 프리셋 골격) |
+| `tests/` | Node 로직 테스트(`*.test.js`), Windows 통합 검사(`ValidateOnWindows.ps1`·`.cmd`, `windows-*.ps1`), `fixtures/`(테스트용 가상 씨드 XMP 12개·가상 API 응답) |
+| `tools/` | `build_assets.js`(엔진 기준 키워드·테스트 XMP 재생성), `build_launcher.py`·`launcher.c`(GNU 도구로 런처 빌드) |
+| `docs/` | `validation.json`(검증 기록) |
+
+전체 로직 테스트: `npm test` (개발용 Node 필요, 앱 실행에는 불필요). Windows 통합 검사는 `tests\ValidateOnWindows.cmd` 또는 `npm run test:windows`. 실제 EXE와 화면 조작 검사는 `powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-ui-smoke.ps1`로 실행합니다. 화면 검사는 테스트용 씨드와 로컬 모드만 사용하고 테스트 이력과 결과는 임시 폴더에 격리합니다.
 
 공식 자료:
 
@@ -121,7 +131,7 @@ EXE는 함께 제공된 읽을 수 있는 PowerShell 앱을 실행하는 작은 
 - https://developers.openai.com/api/docs/pricing
 - https://developers.openai.com/api/docs/models/gpt-6-luna
 
-Windows에서 추가 확인하려면 `ValidateOnWindows.cmd`를 실행하세요. PowerShell 구문, WSH 실행, 24개 XMP 생성·UUID·커브 보존을 검사합니다. API 호출은 없습니다.
+Windows에서 추가 확인하려면 `tests\ValidateOnWindows.cmd`를 실행하세요. PowerShell 구문, WSH 실행, 24개 XMP 생성·UUID·커브 보존을 검사합니다. API 호출은 없습니다.
 
 
 ## v1.1 · 사용량 대시보드
@@ -176,11 +186,11 @@ AI는 인물·배경의 노출, 대비, 하이라이트·섀도·화이트·블�
 - 대시보드와 CSV에 사진 분석 / 보정 검색 / 보정 추정 단계를 기록하며 검색 횟수와 비용을 합산합니다. 실패한 후속 단계 때문에 앞서 사용한 토큰이 사라지지 않습니다.
 - 결과 폴더에는 XMP, 관찰·추정 수치·확신도·한계·사용량을 담은 `manifest.json`, 검색 요약·실제 API가 반환한 출처 URL을 담은 `analysis.txt`가 생성됩니다. 원본 사진과 API 키는 결과나 사용량 로그에 저장하지 않습니다. manifest에는 구분용 파일명만 남습니다.
 
-추가 소스: `reference.js`(JSON 계약·검증·변주·마스크 단위 변환), `reference.ps1`(분석 흐름·XMP 출력), `reference-ui.ps1`(화면 연결), `api.ps1`(사용량 선기록), `reference-base.xmp`(중립 프리셋 골격).
+추가 소스: `core/reference.js`(JSON 계약·검증·변주·마스크 단위 변환), `core/reference.ps1`(분석 흐름·XMP 출력), `ui/reference-ui.ps1`(화면 연결), `core/api.ps1`(사용량 선기록), `assets/reference-base.xmp`(중립 프리셋 골격).
 
 로컬 로직 검증: `node tests/engine.test.js`, `node tests/usage.test.js`, `node tests/reference.test.js`. 현재 총 70개입니다. 최대 24개 레퍼런스의 배정, AI 수치·커브 복구와 잘못된 구조 거절, 1,600개 채널 커브의 범위·순서·반복 보정 안정성, 로컬 마스크 단위, 기준 후보 보존, 중복 제거, 검색 요금·출처·이력, 레거시 JS 호환성을 검사합니다.
 
-`ValidateOnWindows.cmd`에는 WPF 로드, 테스트용 API 응답을 이용한 레퍼런스 전체 흐름, 인물·배경 XMP 출력·선택 영역 보존·사용량 기록 검사를 추가했습니다. 외부 API를 호출하지 않으며, 테스트 마스크는 임시 데이터입니다. v1.3에서는 이 Windows 통합 검사를 실행했고, 변경된 입력 거절·실패 시 과금 기록·응답 중 취소·저장 중 취소·부분 manifest·집계 캐시 회귀 검사도 추가했습니다. 실제 API와 Lightroom 마스크 재계산·스타일 재현 품질은 실기 확인이 필요합니다.
+`tests\ValidateOnWindows.cmd`에는 WPF 로드, 테스트용 API 응답을 이용한 레퍼런스 전체 흐름, 인물·배경 XMP 출력·선택 영역 보존·사용량 기록 검사를 추가했습니다. 외부 API를 호출하지 않으며, 테스트 마스크는 임시 데이터입니다. v1.3에서는 이 Windows 통합 검사를 실행했고, 변경된 입력 거절·실패 시 과금 기록·응답 중 취소·저장 중 취소·부분 manifest·집계 캐시 회귀 검사도 추가했습니다. 실제 API와 Lightroom 마스크 재계산·스타일 재현 품질은 실기 확인이 필요합니다.
 
 관련 문서:
 - https://developers.openai.com/api/docs/guides/images-vision
@@ -192,9 +202,10 @@ AI는 인물·배경의 노출, 대비, 하이라이트·섀도·화이트·블�
 ## 개발·검증 명령
 
 - `npm test`: 씨드 14개·사용량 16개·레퍼런스 24개·믹스매치 16개 로직 검사.
-- `ValidateOnWindows.cmd`: Windows PowerShell/WPF/WSH/XMP/가상 API/실패·취소, 커브·슬라이더 복구, 실제 사진 디코딩·사전 확인, 로컬/AI 믹스매치·사용량·마스크/프로필 보존 회귀 검사. 외부 API 호출 없음.
+- `tests\ValidateOnWindows.cmd` (`npm run test:windows`): Windows PowerShell/WPF/WSH/XMP/가상 API/실패·취소, 커브·슬라이더 복구, 실제 사진 디코딩·사전 확인, 로컬/AI 믹스매치·사용량·마스크/프로필 보존 회귀 검사. 외부 API 호출 없음.
 - `powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-ui-smoke.ps1`: 실제 EXE에서 테스트 프로젝트 복원·화면 탐색·로컬 변주 24개 및 믹스매치 1개 생성·혼합 비율 슬라이더·대시보드 확인. 실행 중 테스트 창이 표시됩니다.
 - `powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-mix-ui.ps1`: 실제 앱 화면 객체와 Start-Job으로 로컬 믹스매치, 공용 키, 결과 상세, 프로젝트 저장·재시작 복원을 검사합니다. 임시 프로젝트와 가짜 키만 사용합니다.
-- `python3 src/build_launcher.py`: GNU gcc/ld/nm을 사용한 x64 EXE 런처 빌드.
+- `node tools/build_assets.js` (`npm run build:assets`): 엔진의 키워드 정의로 `assets/keywords.json`과 테스트용 XMP를 다시 만듭니다.
+- `python3 tools/build_launcher.py` (`npm run build:launcher`): GNU gcc/ld/nm을 사용한 x64 EXE 런처 빌드.
 
 가격·모델 지원은 2026-10-16 공식 OpenAI 문서에서 다시 확인했습니다: [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna), [API 요금](https://developers.openai.com/api/docs/pricing). 실제 계정의 모델 접근 권한과 청구 금액은 API 제공자의 상태를 따릅니다.
