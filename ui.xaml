@@ -1,0 +1,741 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Seed Lab · Preset Studio" Width="1380" Height="940" MinWidth="1120" MinHeight="760" Background="#F4F6FA" Foreground="#1F2A3D" FontFamily="Segoe UI, Malgun Gothic" FontSize="13" WindowStartupLocation="CenterScreen" UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
+ <Window.Resources>
+  <!-- Design tokens. Code-behind colors in dashboard.ps1 / results-ui.ps1 use the same values. -->
+  <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="SubtleBrush" Color="#F7F9FC"/>
+  <SolidColorBrush x:Key="LineBrush" Color="#E3E8F0"/>
+  <SolidColorBrush x:Key="LineStrongBrush" Color="#CDD6E3"/>
+  <SolidColorBrush x:Key="TextBrush" Color="#1F2A3D"/>
+  <SolidColorBrush x:Key="Text2Brush" Color="#3E4C63"/>
+  <SolidColorBrush x:Key="MutedBrush" Color="#64728A"/>
+  <SolidColorBrush x:Key="FaintBrush" Color="#8C98AB"/>
+  <SolidColorBrush x:Key="AccentBrush" Color="#4F76B6"/>
+  <SolidColorBrush x:Key="AccentSoftBrush" Color="#EAF1FC"/>
+  <SolidColorBrush x:Key="AccentLineBrush" Color="#A9C1E6"/>
+  <SolidColorBrush x:Key="AccentTextBrush" Color="#2F5A97"/>
+  <SolidColorBrush x:Key="WarnSoftBrush" Color="#FFF6E5"/>
+  <SolidColorBrush x:Key="WarnLineBrush" Color="#EFD9A8"/>
+  <SolidColorBrush x:Key="WarnBrush" Color="#7F5A12"/>
+  <FontFamily x:Key="IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+  <BooleanToVisibilityConverter x:Key="BoolVis"/>
+
+  <!-- Buttons: one shell for every variant. Tag holds an optional icon glyph. -->
+  <ControlTemplate x:Key="ButtonShell" TargetType="Button">
+   <Grid>
+    <Border x:Name="Shell" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" SnapsToDevicePixels="True"/>
+    <Border x:Name="Hover" Background="#0B1F2A3D" CornerRadius="8" Opacity="0"/>
+    <Border x:Name="Ring" BorderBrush="{StaticResource AccentBrush}" BorderThickness="2" CornerRadius="9" Margin="-2" Opacity="0"/>
+    <StackPanel Orientation="Horizontal" Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center">
+     <TextBlock x:Name="Glyph" Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" FontFamily="{StaticResource IconFont}" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
+     <ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="False"/>
+    </StackPanel>
+   </Grid>
+   <ControlTemplate.Triggers>
+    <Trigger Property="Tag" Value="{x:Null}"><Setter TargetName="Glyph" Property="Visibility" Value="Collapsed"/></Trigger>
+    <Trigger Property="Content" Value="{x:Null}"><Setter TargetName="Glyph" Property="Margin" Value="0"/></Trigger>
+    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Hover" Property="Opacity" Value="1"/></Trigger>
+    <Trigger Property="IsPressed" Value="True"><Setter TargetName="Hover" Property="Opacity" Value="1"/><Setter TargetName="Hover" Property="Background" Value="#1A1F2A3D"/></Trigger>
+    <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Ring" Property="Opacity" Value="0.55"/></Trigger>
+    <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.42"/></Trigger>
+   </ControlTemplate.Triggers>
+  </ControlTemplate>
+  <Style TargetType="Button">
+   <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/><Setter Property="Foreground" Value="{StaticResource Text2Brush}"/>
+   <Setter Property="BorderBrush" Value="{StaticResource LineStrongBrush}"/><Setter Property="BorderThickness" Value="1"/>
+   <Setter Property="Padding" Value="14,0"/><Setter Property="MinHeight" Value="36"/><Setter Property="Margin" Value="0,0,8,0"/>
+   <Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="Cursor" Value="Hand"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+   <Setter Property="Template" Value="{StaticResource ButtonShell}"/>
+  </Style>
+  <Style x:Key="Primary" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+   <Setter Property="Background" Value="{StaticResource AccentBrush}"/><Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+   <Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Padding" Value="20,0"/><Setter Property="MinHeight" Value="40"/>
+  </Style>
+  <Style x:Key="Danger" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+   <Setter Property="Foreground" Value="#B4372F"/><Setter Property="BorderBrush" Value="#EBC3BF"/><Setter Property="MinHeight" Value="40"/>
+  </Style>
+  <Style x:Key="Nav" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+   <Setter Property="HorizontalContentAlignment" Value="Left"/><Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
+   <Setter Property="Foreground" Value="{StaticResource Text2Brush}"/><Setter Property="Margin" Value="0,2,0,0"/><Setter Property="Padding" Value="12,0"/><Setter Property="MinHeight" Value="40"/>
+  </Style>
+  <Style x:Key="Link" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+   <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/><Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+   <Setter Property="Padding" Value="7,0"/><Setter Property="MinHeight" Value="28"/><Setter Property="Margin" Value="0"/><Setter Property="FontSize" Value="12"/>
+  </Style>
+
+  <!-- Text inputs. TextBox.Tag is shown as a placeholder while the box is empty. -->
+  <Style TargetType="TextBox">
+   <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+   <Setter Property="BorderBrush" Value="{StaticResource LineStrongBrush}"/><Setter Property="BorderThickness" Value="1"/>
+   <Setter Property="Padding" Value="10,0"/><Setter Property="MinHeight" Value="36"/><Setter Property="VerticalContentAlignment" Value="Center"/>
+   <Setter Property="SelectionBrush" Value="{StaticResource AccentBrush}"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TextBox">
+    <Border x:Name="Shell" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" SnapsToDevicePixels="True">
+     <Grid Margin="{TemplateBinding Padding}">
+      <TextBlock x:Name="Hint" Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" Foreground="{StaticResource FaintBrush}" Margin="3,0,0,0" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" TextWrapping="Wrap" IsHitTestVisible="False" Visibility="Collapsed"/>
+      <ScrollViewer x:Name="PART_ContentHost" Focusable="False" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+     </Grid>
+    </Border>
+    <ControlTemplate.Triggers>
+     <Trigger Property="Text" Value=""><Setter TargetName="Hint" Property="Visibility" Value="Visible"/></Trigger>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Shell" Property="BorderBrush" Value="#B5C1D2"/></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Shell" Property="BorderBrush" Value="{StaticResource AccentBrush}"/></Trigger>
+     <Trigger Property="IsReadOnly" Value="True"><Setter TargetName="Shell" Property="Background" Value="{StaticResource SubtleBrush}"/></Trigger>
+     <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.5"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style TargetType="PasswordBox">
+   <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+   <Setter Property="BorderBrush" Value="{StaticResource LineStrongBrush}"/><Setter Property="BorderThickness" Value="1"/>
+   <Setter Property="Padding" Value="10,0"/><Setter Property="MinHeight" Value="36"/><Setter Property="VerticalContentAlignment" Value="Center"/>
+   <Setter Property="SelectionBrush" Value="{StaticResource AccentBrush}"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="PasswordBox">
+    <Border x:Name="Shell" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" SnapsToDevicePixels="True">
+     <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" Focusable="False" VerticalAlignment="Center"/>
+    </Border>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Shell" Property="BorderBrush" Value="#B5C1D2"/></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Shell" Property="BorderBrush" Value="{StaticResource AccentBrush}"/></Trigger>
+     <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.5"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+
+  <!-- ComboBox -->
+  <Style TargetType="ComboBoxItem">
+   <Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="Padding" Value="10,7"/><Setter Property="Cursor" Value="Hand"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBoxItem">
+    <Border x:Name="Row" Background="Transparent" CornerRadius="6" Padding="{TemplateBinding Padding}"><ContentPresenter/></Border>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsHighlighted" Value="True"><Setter TargetName="Row" Property="Background" Value="#F1F5FB"/></Trigger>
+     <Trigger Property="IsSelected" Value="True"><Setter TargetName="Row" Property="Background" Value="{StaticResource AccentSoftBrush}"/><Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style TargetType="ComboBox">
+   <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+   <Setter Property="BorderBrush" Value="{StaticResource LineStrongBrush}"/><Setter Property="Padding" Value="12,0,32,0"/><Setter Property="MinHeight" Value="36"/>
+   <Setter Property="Cursor" Value="Hand"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/><Setter Property="MaxDropDownHeight" Value="320"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox">
+    <Grid>
+     <ToggleButton x:Name="Toggle" Focusable="False" ClickMode="Press" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+      <ToggleButton.Template><ControlTemplate TargetType="ToggleButton">
+       <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="8">
+        <TextBlock Text="&#xE70D;" FontFamily="{StaticResource IconFont}" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0" Foreground="{StaticResource MutedBrush}"/>
+       </Border>
+       <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="BorderBrush" Value="#B5C1D2"/></Trigger></ControlTemplate.Triggers>
+      </ControlTemplate></ToggleButton.Template>
+     </ToggleButton>
+     <ContentPresenter IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+     <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+      <Border Margin="0,4,10,10" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="{TemplateBinding MaxDropDownHeight}" Background="White" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="10" Padding="4">
+       <Border.Effect><DropShadowEffect BlurRadius="18" ShadowDepth="4" Direction="270" Opacity="0.14" Color="#1F2A3D"/></Border.Effect>
+       <ScrollViewer><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/></ScrollViewer>
+      </Border>
+     </Popup>
+    </Grid>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="Toggle" Property="BorderBrush" Value="{StaticResource AccentBrush}"/></Trigger>
+     <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.5"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+
+  <!-- Check boxes, switches and keyword chips -->
+  <Style TargetType="CheckBox">
+   <Setter Property="Foreground" Value="{StaticResource Text2Brush}"/><Setter Property="Margin" Value="0,4,12,4"/><Setter Property="Cursor" Value="Hand"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="CheckBox">
+    <Grid Background="Transparent"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+     <Border x:Name="Box" Width="18" Height="18" CornerRadius="5" Background="White" BorderBrush="{StaticResource LineStrongBrush}" BorderThickness="1.5" VerticalAlignment="Center">
+      <TextBlock x:Name="Mark" Text="&#xE73E;" FontFamily="{StaticResource IconFont}" FontSize="11" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+     </Border>
+     <ContentPresenter x:Name="Label" Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="False"/>
+    </Grid>
+    <ControlTemplate.Triggers>
+     <Trigger Property="Content" Value="{x:Null}"><Setter TargetName="Label" Property="Margin" Value="0"/></Trigger>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource AccentBrush}"/></Trigger>
+     <Trigger Property="IsChecked" Value="True"><Setter TargetName="Box" Property="Background" Value="{StaticResource AccentBrush}"/><Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource AccentBrush}"/><Setter TargetName="Mark" Property="Visibility" Value="Visible"/></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource AccentTextBrush}"/><Setter TargetName="Box" Property="BorderThickness" Value="2"/></Trigger>
+     <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.5"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="Switch" TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+   <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="CheckBox">
+    <Grid Background="Transparent"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+     <Border x:Name="Track" Width="38" Height="22" CornerRadius="11" Background="#C3CDDB" VerticalAlignment="Center">
+      <Ellipse x:Name="Knob" Width="16" Height="16" Fill="White" HorizontalAlignment="Left" Margin="3,0,0,0"/>
+     </Border>
+     <ContentPresenter Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="False"/>
+    </Grid>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsChecked" Value="True"><Setter TargetName="Track" Property="Background" Value="{StaticResource AccentBrush}"/><Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right"/><Setter TargetName="Knob" Property="Margin" Value="0,0,3,0"/></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Track" Property="BorderBrush" Value="{StaticResource AccentTextBrush}"/><Setter TargetName="Track" Property="BorderThickness" Value="2"/></Trigger>
+     <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.5"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="Chip" TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+   <Setter Property="Margin" Value="0,0,8,8"/><Setter Property="Foreground" Value="{StaticResource Text2Brush}"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="CheckBox">
+    <Border x:Name="ChipBody" CornerRadius="16" Background="{StaticResource SubtleBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" Padding="12,6">
+     <StackPanel Orientation="Horizontal">
+      <TextBlock x:Name="Mark" Text="&#xE73E;" FontFamily="{StaticResource IconFont}" FontSize="11" VerticalAlignment="Center" Margin="0,0,6,0" Visibility="Collapsed"/>
+      <ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="False"/>
+     </StackPanel>
+    </Border>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ChipBody" Property="BorderBrush" Value="{StaticResource AccentLineBrush}"/><Setter TargetName="ChipBody" Property="Background" Value="White"/></Trigger>
+     <Trigger Property="IsChecked" Value="True"><Setter TargetName="ChipBody" Property="Background" Value="{StaticResource AccentSoftBrush}"/><Setter TargetName="ChipBody" Property="BorderBrush" Value="{StaticResource AccentLineBrush}"/><Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/><Setter TargetName="Mark" Property="Visibility" Value="Visible"/></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ChipBody" Property="BorderBrush" Value="{StaticResource AccentBrush}"/></Trigger>
+     <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.5"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+
+  <!-- Slider -->
+  <Style x:Key="SliderRail" TargetType="RepeatButton">
+   <Setter Property="Focusable" Value="False"/><Setter Property="IsTabStop" Value="False"/><Setter Property="Background" Value="#E1E7F0"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RepeatButton"><Grid Background="Transparent"><Border Height="4" CornerRadius="2" Background="{TemplateBinding Background}" VerticalAlignment="Center"/></Grid></ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="SliderThumb" TargetType="Thumb">
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Thumb">
+    <Ellipse x:Name="Dot" Width="18" Height="18" Fill="White" Stroke="{StaticResource AccentBrush}" StrokeThickness="2"><Ellipse.Effect><DropShadowEffect BlurRadius="6" ShadowDepth="1" Direction="270" Opacity="0.2" Color="#1F2A3D"/></Ellipse.Effect></Ellipse>
+    <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Dot" Property="StrokeThickness" Value="3"/></Trigger><Trigger Property="IsDragging" Value="True"><Setter TargetName="Dot" Property="StrokeThickness" Value="4"/></Trigger></ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style TargetType="Slider">
+   <Setter Property="IsMoveToPointEnabled" Value="True"/><Setter Property="Cursor" Value="Hand"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Slider">
+    <Grid MinHeight="24" Background="Transparent">
+     <Track x:Name="PART_Track">
+      <Track.DecreaseRepeatButton><RepeatButton x:Name="Fill" Command="Slider.DecreaseLarge" Style="{StaticResource SliderRail}" Background="{StaticResource AccentBrush}"/></Track.DecreaseRepeatButton>
+      <Track.IncreaseRepeatButton><RepeatButton Command="Slider.IncreaseLarge" Style="{StaticResource SliderRail}"/></Track.IncreaseRepeatButton>
+      <Track.Thumb><Thumb Style="{StaticResource SliderThumb}"/></Track.Thumb>
+     </Track>
+    </Grid>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Fill" Property="Background" Value="{StaticResource AccentTextBrush}"/></Trigger>
+     <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.5"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+
+  <!-- Slim scroll bars -->
+  <Style x:Key="ScrollThumb" TargetType="Thumb">
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Thumb"><Border x:Name="Bar" CornerRadius="4" Background="#C9D2DF"/>
+    <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bar" Property="Background" Value="#A9B5C7"/></Trigger><Trigger Property="IsDragging" Value="True"><Setter TargetName="Bar" Property="Background" Value="#8E9BB0"/></Trigger></ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="ScrollPage" TargetType="RepeatButton">
+   <Setter Property="Focusable" Value="False"/><Setter Property="IsTabStop" Value="False"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style TargetType="ScrollBar">
+   <Setter Property="Width" Value="10"/><Setter Property="MinWidth" Value="10"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ScrollBar">
+    <Grid Background="Transparent"><Track x:Name="PART_Track" IsDirectionReversed="True" Margin="2,2">
+     <Track.DecreaseRepeatButton><RepeatButton Style="{StaticResource ScrollPage}" Command="ScrollBar.PageUpCommand"/></Track.DecreaseRepeatButton>
+     <Track.IncreaseRepeatButton><RepeatButton Style="{StaticResource ScrollPage}" Command="ScrollBar.PageDownCommand"/></Track.IncreaseRepeatButton>
+     <Track.Thumb><Thumb Style="{StaticResource ScrollThumb}"/></Track.Thumb>
+    </Track></Grid>
+   </ControlTemplate></Setter.Value></Setter>
+   <Style.Triggers><Trigger Property="Orientation" Value="Horizontal">
+    <Setter Property="Width" Value="Auto"/><Setter Property="MinWidth" Value="0"/><Setter Property="Height" Value="10"/><Setter Property="MinHeight" Value="10"/>
+    <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ScrollBar">
+     <Grid Background="Transparent"><Track x:Name="PART_Track" Margin="2,2">
+      <Track.DecreaseRepeatButton><RepeatButton Style="{StaticResource ScrollPage}" Command="ScrollBar.PageLeftCommand"/></Track.DecreaseRepeatButton>
+      <Track.IncreaseRepeatButton><RepeatButton Style="{StaticResource ScrollPage}" Command="ScrollBar.PageRightCommand"/></Track.IncreaseRepeatButton>
+      <Track.Thumb><Thumb Style="{StaticResource ScrollThumb}"/></Track.Thumb>
+     </Track></Grid>
+    </ControlTemplate></Setter.Value></Setter>
+   </Trigger></Style.Triggers>
+  </Style>
+
+  <!-- Tabs, tooltips, progress -->
+  <Style TargetType="TabControl">
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabControl">
+    <DockPanel><Border DockPanel.Dock="Top" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1"><TabPanel IsItemsHost="True" Margin="0,0,0,-1"/></Border><ContentPresenter ContentSource="SelectedContent" Margin="0,12,0,0"/></DockPanel>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style TargetType="TabItem">
+   <Setter Property="Foreground" Value="{StaticResource MutedBrush}"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Cursor" Value="Hand"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="TabItem">
+    <Border x:Name="Tab" Background="Transparent" BorderBrush="Transparent" BorderThickness="0,0,0,2" Padding="2,8,2,9" Margin="0,0,22,0"><ContentPresenter ContentSource="Header"/></Border>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsMouseOver" Value="True"><Setter Property="Foreground" Value="{StaticResource TextBrush}"/></Trigger>
+     <Trigger Property="IsSelected" Value="True"><Setter TargetName="Tab" Property="BorderBrush" Value="{StaticResource AccentBrush}"/><Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/></Trigger>
+     <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Tab" Property="Background" Value="{StaticResource AccentSoftBrush}"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style TargetType="ToolTip">
+   <Setter Property="Foreground" Value="White"/><Setter Property="FontSize" Value="12"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToolTip">
+    <Border Background="#253247" CornerRadius="6" Padding="10,6" MaxWidth="380" Margin="0,0,6,6"><Border.Effect><DropShadowEffect BlurRadius="10" ShadowDepth="2" Direction="270" Opacity="0.2"/></Border.Effect>
+     <ContentPresenter><ContentPresenter.Resources><Style TargetType="TextBlock"><Setter Property="TextWrapping" Value="Wrap"/></Style></ContentPresenter.Resources></ContentPresenter>
+    </Border>
+   </ControlTemplate></Setter.Value></Setter>
+   <Setter Property="HasDropShadow" Value="False"/>
+  </Style>
+  <Style TargetType="ProgressBar">
+   <Setter Property="Height" Value="4"/><Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ProgressBar">
+    <Grid ClipToBounds="True">
+     <Border x:Name="PART_Track" CornerRadius="2" Background="#E1E7F0"/>
+     <Border x:Name="PART_Indicator" CornerRadius="2" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left"/>
+     <Border x:Name="Glow" CornerRadius="2" Width="140" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left" Visibility="Collapsed"><Border.RenderTransform><TranslateTransform X="-140"/></Border.RenderTransform></Border>
+    </Grid>
+    <ControlTemplate.Triggers>
+     <Trigger Property="IsIndeterminate" Value="True">
+      <Setter TargetName="PART_Indicator" Property="Visibility" Value="Collapsed"/><Setter TargetName="Glow" Property="Visibility" Value="Visible"/>
+      <Trigger.EnterActions><BeginStoryboard x:Name="Sweep"><Storyboard RepeatBehavior="Forever"><DoubleAnimation Storyboard.TargetName="Glow" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" From="-140" To="1400" Duration="0:0:1.8"/></Storyboard></BeginStoryboard></Trigger.EnterActions>
+      <Trigger.ExitActions><StopStoryboard BeginStoryboardName="Sweep"/></Trigger.ExitActions>
+     </Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+
+  <!-- Layout building blocks -->
+  <Style x:Key="Card" TargetType="Border"><Setter Property="CornerRadius" Value="14"/><Setter Property="Background" Value="White"/><Setter Property="BorderBrush" Value="{StaticResource LineBrush}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Padding" Value="22,20"/></Style>
+  <Style x:Key="Title" TargetType="TextBlock"><Setter Property="FontSize" Value="16"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="VerticalAlignment" Value="Center"/></Style>
+  <Style x:Key="Muted" TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource MutedBrush}"/><Setter Property="FontSize" Value="12"/><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="LineHeight" Value="18"/></Style>
+  <Style x:Key="Label" TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource Text2Brush}"/><Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Margin" Value="0,0,0,6"/></Style>
+  <Style x:Key="Section" TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource MutedBrush}"/><Setter Property="FontSize" Value="11.5"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Margin" Value="0,4,0,8"/></Style>
+  <Style x:Key="Icon" TargetType="TextBlock"><Setter Property="FontFamily" Value="{StaticResource IconFont}"/><Setter Property="VerticalAlignment" Value="Center"/><Setter Property="HorizontalAlignment" Value="Center"/></Style>
+  <Style x:Key="Step" TargetType="Border"><Setter Property="Width" Value="24"/><Setter Property="Height" Value="24"/><Setter Property="CornerRadius" Value="12"/><Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/><Setter Property="Margin" Value="0,0,10,0"/><Setter Property="VerticalAlignment" Value="Center"/></Style>
+  <Style x:Key="StepText" TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/><Setter Property="FontWeight" Value="Bold"/><Setter Property="FontSize" Value="12"/><Setter Property="HorizontalAlignment" Value="Center"/><Setter Property="VerticalAlignment" Value="Center"/></Style>
+  <Style x:Key="ValuePill" TargetType="Border"><Setter Property="CornerRadius" Value="10"/><Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/><Setter Property="Padding" Value="9,1"/><Setter Property="MinWidth" Value="40"/></Style>
+  <Style x:Key="IconChip" TargetType="Border"><Setter Property="Width" Value="34"/><Setter Property="Height" Value="34"/><Setter Property="CornerRadius" Value="10"/><Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/><Setter Property="VerticalAlignment" Value="Top"/></Style>
+  <Style x:Key="Thumb" TargetType="Border"><Setter Property="Width" Value="44"/><Setter Property="Height" Value="44"/><Setter Property="CornerRadius" Value="8"/><Setter Property="Background" Value="#EEF2F7"/><Setter Property="Margin" Value="0,0,12,0"/></Style>
+
+  <!-- Data grids -->
+  <Style TargetType="DataGrid">
+   <Setter Property="Background" Value="White"/><Setter Property="Foreground" Value="{StaticResource Text2Brush}"/><Setter Property="BorderThickness" Value="0"/>
+   <Setter Property="GridLinesVisibility" Value="Horizontal"/><Setter Property="HorizontalGridLinesBrush" Value="#EEF2F7"/>
+   <Setter Property="RowHeight" Value="38"/><Setter Property="ColumnHeaderHeight" Value="36"/><Setter Property="CanUserAddRows" Value="False"/><Setter Property="CanUserDeleteRows" Value="False"/><Setter Property="CanUserResizeRows" Value="False"/>
+   <Setter Property="HeadersVisibility" Value="Column"/><Setter Property="AutoGenerateColumns" Value="False"/><Setter Property="SelectionUnit" Value="FullRow"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+  </Style>
+  <Style TargetType="DataGridRow">
+   <Setter Property="Background" Value="White"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+   <Style.Triggers>
+    <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#F6F9FD"/></Trigger>
+    <Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/></Trigger>
+   </Style.Triggers>
+  </Style>
+  <Style TargetType="DataGridCell">
+   <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="DataGridCell"><Border Background="{TemplateBinding Background}" Padding="10,0"><ContentPresenter VerticalAlignment="Center"/></Border></ControlTemplate></Setter.Value></Setter>
+   <Style.Triggers><Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="Transparent"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/></Trigger></Style.Triggers>
+  </Style>
+  <Style TargetType="DataGridColumnHeader">
+   <Setter Property="Background" Value="{StaticResource SubtleBrush}"/><Setter Property="Foreground" Value="{StaticResource MutedBrush}"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="FontSize" Value="12"/>
+   <Setter Property="Padding" Value="10,0"/><Setter Property="HorizontalContentAlignment" Value="Left"/><Setter Property="Cursor" Value="Hand"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="DataGridColumnHeader">
+    <Grid>
+     <Border Background="{TemplateBinding Background}" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,0,1" Padding="{TemplateBinding Padding}">
+      <DockPanel><TextBlock x:Name="Sort" DockPanel.Dock="Right" FontFamily="{StaticResource IconFont}" FontSize="9" Margin="4,0,0,0" VerticalAlignment="Center" Visibility="Collapsed"/>
+       <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/></DockPanel>
+     </Border>
+     <Thumb x:Name="PART_RightHeaderGripper" HorizontalAlignment="Right" Width="6" Cursor="SizeWE"><Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="Transparent"/></ControlTemplate></Thumb.Template></Thumb>
+    </Grid>
+    <ControlTemplate.Triggers>
+     <Trigger Property="SortDirection" Value="Ascending"><Setter TargetName="Sort" Property="Text" Value="&#xE70E;"/><Setter TargetName="Sort" Property="Visibility" Value="Visible"/></Trigger>
+     <Trigger Property="SortDirection" Value="Descending"><Setter TargetName="Sort" Property="Text" Value="&#xE70D;"/><Setter TargetName="Sort" Property="Visibility" Value="Visible"/></Trigger>
+    </ControlTemplate.Triggers>
+   </ControlTemplate></Setter.Value></Setter>
+  </Style>
+  <Style x:Key="NumHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}"><Setter Property="HorizontalContentAlignment" Value="Right"/></Style>
+  <Style x:Key="NumCell" TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Right"/></Style>
+  <Style x:Key="TrimCell" TargetType="TextBlock"><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/></Style>
+  <DataTemplate x:Key="StatusPill">
+   <Border x:Name="Pill" CornerRadius="10" Padding="9,2" Background="#EEF1F6" HorizontalAlignment="Left"><TextBlock x:Name="PillText" Text="{Binding Status}" FontSize="12" Foreground="{StaticResource Text2Brush}"/></Border>
+   <DataTemplate.Triggers>
+    <DataTrigger Binding="{Binding Status}" Value="완료"><Setter TargetName="Pill" Property="Background" Value="#E6F4EC"/><Setter TargetName="PillText" Property="Foreground" Value="#2E7D55"/></DataTrigger>
+    <DataTrigger Binding="{Binding Status}" Value="실패"><Setter TargetName="Pill" Property="Background" Value="#FDECEA"/><Setter TargetName="PillText" Property="Foreground" Value="#B4372F"/></DataTrigger>
+    <DataTrigger Binding="{Binding Status}" Value="실패 / 미확인"><Setter TargetName="Pill" Property="Background" Value="#FDECEA"/><Setter TargetName="PillText" Property="Foreground" Value="#B4372F"/></DataTrigger>
+    <DataTrigger Binding="{Binding Status}" Value="요청 거절"><Setter TargetName="Pill" Property="Background" Value="#FDECEA"/><Setter TargetName="PillText" Property="Foreground" Value="#B4372F"/></DataTrigger>
+    <DataTrigger Binding="{Binding Status}" Value="중지"><Setter TargetName="Pill" Property="Background" Value="#FFF4DE"/><Setter TargetName="PillText" Property="Foreground" Value="#7F5A12"/></DataTrigger>
+    <DataTrigger Binding="{Binding Status}" Value="응답 미완료"><Setter TargetName="Pill" Property="Background" Value="#FFF4DE"/><Setter TargetName="PillText" Property="Foreground" Value="#7F5A12"/></DataTrigger>
+   </DataTemplate.Triggers>
+  </DataTemplate>
+ </Window.Resources>
+
+ <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="224"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+  <!-- Sidebar -->
+  <Border Background="White" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,0,1,0" Padding="18,26,18,20">
+   <DockPanel LastChildFill="False">
+    <StackPanel DockPanel.Dock="Top">
+     <StackPanel Orientation="Horizontal" Margin="4,0,0,0">
+      <Border Width="38" Height="38" CornerRadius="11"><Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#6A8FD0" Offset="0"/><GradientStop Color="#3F64A6" Offset="1"/></LinearGradientBrush></Border.Background>
+       <TextBlock Text="S" Foreground="White" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+      <StackPanel Margin="11,0,0,0" VerticalAlignment="Center"><TextBlock Text="Seed Lab" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="PRESET STUDIO" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource FaintBrush}"/></StackPanel>
+     </StackPanel>
+     <TextBlock Text="만들기" Style="{StaticResource Section}" Margin="12,34,0,4"/>
+     <Button x:Name="GeneratorNav" Content="프리셋 생성" Tag="&#xE790;" Style="{StaticResource Nav}" ToolTip="씨드 XMP를 변주해 새 프리셋을 만듭니다 · Ctrl+1"/>
+     <Button x:Name="ReferenceNav" Content="레퍼런스로 만들기" Tag="&#xEB9F;" Style="{StaticResource Nav}" ToolTip="사진의 색감을 분석해 프리셋을 만듭니다 · Ctrl+2"/>
+     <TextBlock Text="확인" Style="{StaticResource Section}" Margin="12,20,0,4"/>
+     <Button x:Name="ResultsNav" Content="생성 결과" Tag="&#xE8FD;" Style="{StaticResource Nav}" ToolTip="최근 생성한 후보 · Ctrl+3"/>
+     <Button x:Name="DashboardNav" Content="사용량 대시보드" Tag="&#xE9D2;" Style="{StaticResource Nav}" ToolTip="토큰·비용·작업 기록 · Ctrl+4"/>
+    </StackPanel>
+    <StackPanel DockPanel.Dock="Bottom" Margin="8,0,0,0">
+     <Border Background="{StaticResource SubtleBrush}" CornerRadius="10" Padding="12,10" Margin="-8,0,0,14">
+      <StackPanel><TextBlock Text="단축키" FontSize="11.5" FontWeight="SemiBold" Foreground="{StaticResource Text2Brush}" Margin="0,0,0,4"/>
+       <TextBlock Text="Ctrl+Enter  생성 시작&#x0a;Ctrl+1–4  화면 이동&#x0a;Ctrl+O  파일 추가" FontSize="11.5" Foreground="{StaticResource MutedBrush}" LineHeight="18"/></StackPanel>
+     </Border>
+     <TextBlock Text="YOUR STYLE. MORE POSSIBILITIES." FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource FaintBrush}" TextWrapping="Wrap"/>
+     <TextBlock Text="Desktop · v1.4" FontSize="11" Foreground="{StaticResource FaintBrush}" Margin="0,6,0,0"/><TextBlock Text="사용 기록은 이 PC에만 저장됩니다" FontSize="11" Foreground="{StaticResource FaintBrush}" Margin="0,2,0,0"/>
+    </StackPanel>
+   </DockPanel>
+  </Border>
+
+  <Grid Grid.Column="1" Margin="30,24,30,20"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+   <!-- Page header -->
+   <DockPanel Margin="0,0,0,20">
+    <Border x:Name="StatePill" DockPanel.Dock="Right" CornerRadius="13" Background="#E8F4EE" Padding="11,5" VerticalAlignment="Top">
+     <StackPanel Orientation="Horizontal"><Ellipse x:Name="StateDot" Width="7" Height="7" Fill="#3C9A6A" VerticalAlignment="Center" Margin="0,0,7,0"/><TextBlock x:Name="StateText" Text="준비됨" Foreground="#2E7D55" FontSize="12" FontWeight="SemiBold"/></StackPanel>
+    </Border>
+    <StackPanel><TextBlock x:Name="PageTitle" Text="프리셋 생성" FontSize="26" FontWeight="SemiBold"/><TextBlock x:Name="PageSubtitle" Text="내 스타일을 유지하며 새로운 보정 방향을 탐색하세요." Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0"/></StackPanel>
+   </DockPanel>
+
+   <Grid Grid.Row="1">
+    <!-- Dashboard -->
+    <ScrollViewer x:Name="DashboardPage" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
+     <StackPanel Margin="0,0,6,10">
+      <DockPanel Margin="0,0,0,16">
+       <WrapPanel DockPanel.Dock="Right"><Button x:Name="RefreshUsage" Content="새로고침" Tag="&#xE72C;" ToolTip="F5"/><Button x:Name="ExportUsage" Content="호출 CSV" Tag="&#xE896;"/><Button x:Name="ExportDaily" Content="일별 CSV" Tag="&#xE896;" Margin="0"/></WrapPanel>
+       <StackPanel Orientation="Horizontal">
+        <ComboBox x:Name="Period" Width="128" SelectedIndex="0"><ComboBoxItem Content="최근 7일" Tag="7"/><ComboBoxItem Content="최근 30일" Tag="30"/><ComboBoxItem Content="최근 90일" Tag="90"/><ComboBoxItem Content="전체 기간" Tag="all"/></ComboBox>
+        <ComboBox x:Name="ModelFilter" Width="190" Margin="8,0,0,0" SelectedIndex="0"><ComboBoxItem Content="전체 모델" Tag="all"/></ComboBox>
+       </StackPanel>
+      </DockPanel>
+      <UniformGrid Columns="4" Margin="0,0,-14,16">
+       <Border Style="{StaticResource Card}" Margin="0,0,14,0"><StackPanel><DockPanel><Border Style="{StaticResource IconChip}" DockPanel.Dock="Right"><TextBlock Text="&#xE945;" Style="{StaticResource Icon}" Foreground="{StaticResource AccentTextBrush}" FontSize="15"/></Border><TextBlock Text="총 사용 토큰" Style="{StaticResource Muted}" FontWeight="SemiBold"/></DockPanel><TextBlock x:Name="TokenKpi" Text="0" FontSize="28" FontWeight="SemiBold" Margin="0,2,0,4"/><TextBlock x:Name="TokenComparison" Text="사용 기록을 기다리고 있어요" Style="{StaticResource Muted}"/></StackPanel></Border>
+       <Border Style="{StaticResource Card}" Margin="0,0,14,0"><StackPanel><DockPanel><Border Style="{StaticResource IconChip}" DockPanel.Dock="Right" Background="#EAF6F1"><TextBlock Text="&#xE8AB;" Style="{StaticResource Icon}" Foreground="#2E7D55" FontSize="15"/></Border><TextBlock Text="API 호출" Style="{StaticResource Muted}" FontWeight="SemiBold"/></DockPanel><TextBlock x:Name="CallKpi" Text="0" FontSize="28" FontWeight="SemiBold" Margin="0,2,0,4"/><TextBlock x:Name="CallDetail" Text="확인된 응답 0건" Style="{StaticResource Muted}"/></StackPanel></Border>
+       <Border Style="{StaticResource Card}" Margin="0,0,14,0"><StackPanel><DockPanel><Border Style="{StaticResource IconChip}" DockPanel.Dock="Right" Background="#F3EEFB"><TextBlock Text="&#xE790;" Style="{StaticResource Icon}" Foreground="#6A4FA8" FontSize="15"/></Border><TextBlock Text="프리셋 생성 작업" Style="{StaticResource Muted}" FontWeight="SemiBold"/></DockPanel><TextBlock x:Name="RunKpi" Text="0" FontSize="28" FontWeight="SemiBold" Margin="0,2,0,4"/><TextBlock x:Name="RunDetail" Text="생성된 프리셋 0개" Style="{StaticResource Muted}"/></StackPanel></Border>
+       <Border Style="{StaticResource Card}" Margin="0,0,14,0"><StackPanel><DockPanel><Border Style="{StaticResource IconChip}" DockPanel.Dock="Right" Background="#FFF4DE"><TextBlock Text="&#xE8C7;" Style="{StaticResource Icon}" Foreground="#7F5A12" FontSize="15"/></Border><TextBlock Text="예상 API 비용 · USD" Style="{StaticResource Muted}" FontWeight="SemiBold"/></DockPanel><TextBlock x:Name="CostKpi" Text="$0.0000" FontSize="28" FontWeight="SemiBold" Margin="0,2,0,4"/><TextBlock x:Name="CostDetail" Text="기록 시점의 요금표 기준" Style="{StaticResource Muted}"/></StackPanel></Border>
+      </UniformGrid>
+      <Grid Margin="0,0,0,16"><Grid.ColumnDefinitions><ColumnDefinition Width="3*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="1.7*"/></Grid.ColumnDefinitions>
+       <Border Style="{StaticResource Card}">
+        <StackPanel>
+         <DockPanel><ComboBox x:Name="TrendMetric" DockPanel.Dock="Right" Width="140" SelectedIndex="0" VerticalAlignment="Top"><ComboBoxItem Content="토큰 사용량" Tag="tokens"/><ComboBoxItem Content="API 호출 수" Tag="calls"/><ComboBoxItem Content="생성 작업 수" Tag="runs"/></ComboBox>
+          <StackPanel><TextBlock Text="이용 추세" Style="{StaticResource Title}" HorizontalAlignment="Left"/><TextBlock x:Name="TrendRange" Text="일별 합계" Style="{StaticResource Muted}" Margin="0,3,0,0"/></StackPanel></DockPanel>
+         <Canvas x:Name="TrendCanvas" Height="196" Margin="0,16,0,0" ClipToBounds="True"/>
+         <StackPanel x:Name="TrendLegend" Orientation="Horizontal" Margin="42,6,0,0"><Border Width="9" Height="9" Background="#B9CDEB" CornerRadius="2" Margin="0,0,6,0"/><TextBlock Text="입력" FontSize="11.5" Foreground="{StaticResource MutedBrush}" Margin="0,0,16,0"/><Border Width="9" Height="9" Background="#4F76B6" CornerRadius="2" Margin="0,0,6,0"/><TextBlock Text="출력 (추론 포함)" FontSize="11.5" Foreground="{StaticResource MutedBrush}"/></StackPanel>
+        </StackPanel>
+       </Border>
+       <Border Style="{StaticResource Card}" Grid.Column="2">
+        <DockPanel>
+         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14"><TextBlock Text="모델별 사용량" Style="{StaticResource Title}" HorizontalAlignment="Left"/><TextBlock Text="같은 기간의 토큰과 예상 비용" Style="{StaticResource Muted}" Margin="0,3,0,0"/></StackPanel>
+         <TextBlock x:Name="CacheDetail" DockPanel.Dock="Bottom" Text="캐시 입력 0 · 추론 0" Style="{StaticResource Muted}" Margin="0,10,0,0"/>
+         <DataGrid x:Name="ModelUsage" IsReadOnly="True" MaxHeight="230" VerticalAlignment="Top"><DataGrid.Columns><DataGridTextColumn Header="모델" Binding="{Binding Model}" Width="*" ElementStyle="{StaticResource TrimCell}"/><DataGridTextColumn Header="토큰" Binding="{Binding Tokens}" Width="82" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/><DataGridTextColumn Header="USD" Binding="{Binding Cost}" Width="82" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/></DataGrid.Columns></DataGrid>
+        </DockPanel>
+       </Border>
+      </Grid>
+      <Border x:Name="UsageNotice" Background="{StaticResource WarnSoftBrush}" BorderBrush="{StaticResource WarnLineBrush}" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,0,0,16" Visibility="Collapsed">
+       <DockPanel><TextBlock Text="&#xE7BA;" Style="{StaticResource Icon}" Foreground="{StaticResource WarnBrush}" Margin="0,1,10,0" VerticalAlignment="Top"/><TextBlock x:Name="UsageNoticeText" Foreground="{StaticResource WarnBrush}" FontSize="12" TextWrapping="Wrap"/></DockPanel>
+      </Border>
+      <Border Style="{StaticResource Card}">
+       <StackPanel>
+        <DockPanel><TextBlock x:Name="HistoryHint" DockPanel.Dock="Right" Text="선택 기간의 최근 200건" Style="{StaticResource Muted}" VerticalAlignment="Center"/><TextBlock Text="사용 기록" Style="{StaticResource Title}" HorizontalAlignment="Left"/></DockPanel>
+        <TabControl Margin="0,8,0,0">
+         <TabItem Header="API 호출"><DataGrid x:Name="UsageCalls" IsReadOnly="True" Height="268"><DataGrid.Columns>
+          <DataGridTextColumn Header="시간" Binding="{Binding Time}" Width="150"/><DataGridTextColumn Header="모델" Binding="{Binding Model}" Width="*" ElementStyle="{StaticResource TrimCell}"/><DataGridTextColumn Header="단계" Binding="{Binding PhaseText}" Width="86"/>
+          <DataGridTextColumn Header="검색" Binding="{Binding SearchCalls}" Width="54" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/><DataGridTextColumn Header="입력" Binding="{Binding InputText}" Width="76" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/><DataGridTextColumn Header="출력" Binding="{Binding OutputText}" Width="76" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/>
+          <DataGridTextColumn Header="합계" Binding="{Binding TotalText}" Width="80" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/><DataGridTextColumn Header="USD" Binding="{Binding CostText}" Width="80" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/>
+          <DataGridTemplateColumn Header="상태" Width="136" CellTemplate="{StaticResource StatusPill}" SortMemberPath="Status"/>
+         </DataGrid.Columns></DataGrid></TabItem>
+         <TabItem Header="생성 작업"><DataGrid x:Name="UsageRuns" IsReadOnly="True" Height="268" ToolTip="더블클릭하면 결과 폴더를 엽니다"><DataGrid.Columns>
+          <DataGridTextColumn Header="시간" Binding="{Binding Time}" Width="150"/><DataGridTextColumn Header="방식" Binding="{Binding Mode}" Width="84"/><DataGridTextColumn Header="모델" Binding="{Binding Model}" Width="*" ElementStyle="{StaticResource TrimCell}"/>
+          <DataGridTextColumn Header="요청" Binding="{Binding Requested}" Width="70" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/><DataGridTextColumn Header="생성" Binding="{Binding Generated}" Width="70" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/>
+          <DataGridTemplateColumn Header="상태" Width="150" CellTemplate="{StaticResource StatusPill}" SortMemberPath="Status"/>
+         </DataGrid.Columns></DataGrid></TabItem>
+        </TabControl>
+       </StackPanel>
+      </Border>
+      <TextBlock Text="앱에서 실행한 요청을 기록합니다. 비용은 청구서와 별개인 추정치이며, 기록은 PC에 보관됩니다." Style="{StaticResource Muted}" Margin="4,12,0,0"/>
+     </StackPanel>
+    </ScrollViewer>
+
+    <!-- Seed generator -->
+    <ScrollViewer x:Name="GeneratorPage" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+     <StackPanel x:Name="GeneratorForm" Margin="0,0,6,10">
+      <Grid Margin="0,0,0,16"><Grid.ColumnDefinitions><ColumnDefinition Width="370"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <Border x:Name="SeedCard" Style="{StaticResource Card}" AllowDrop="True">
+        <StackPanel>
+         <StackPanel>
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="1" Style="{StaticResource StepText}"/></Border><TextBlock Text="씨드 라이브러리" Style="{StaticResource Title}"/></StackPanel>
+          <TextBlock Text="내 스타일의 기준이 되는 Lightroom XMP를 등록하세요. 파일이나 폴더를 끌어다 놓아도 됩니다." Style="{StaticResource Muted}" Margin="0,8,0,14"/>
+          <WrapPanel Margin="0,0,0,12"><Button x:Name="AddFiles" Content="XMP 추가" Tag="&#xE710;" ToolTip="Ctrl+O"/><Button x:Name="AddFolder" Content="폴더 추가" Tag="&#xE8B7;" ToolTip="하위 폴더의 XMP까지 모두 읽습니다"/><Button x:Name="Demo" Content="예제 12개" Margin="0" ToolTip="동작 확인용 가상 씨드를 불러옵니다"/></WrapPanel>
+         </StackPanel>
+         <Grid>
+          <DataGrid x:Name="SeedGrid" Height="372" SelectionMode="Extended" CanUserSortColumns="False"><DataGrid.Columns>
+           <DataGridTemplateColumn Header="사용" Width="52"><DataGridTemplateColumn.CellTemplate><DataTemplate><CheckBox IsChecked="{Binding Use, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0" HorizontalAlignment="Center" Focusable="False"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+           <DataGridTextColumn Header="프리셋" Binding="{Binding name}" IsReadOnly="True" Width="*" ElementStyle="{StaticResource TrimCell}"/>
+           <DataGridTemplateColumn Header="마스크" Width="66"><DataGridTemplateColumn.CellTemplate><DataTemplate><Border CornerRadius="9" Background="#F3EEFB" Padding="7,1" HorizontalAlignment="Left" Visibility="{Binding Masks, Converter={StaticResource BoolVis}}" ToolTip="인물·배경 등 로컬 마스크가 포함된 씨드"><TextBlock Text="있음" FontSize="11.5" Foreground="#6A4FA8"/></Border></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+          </DataGrid.Columns></DataGrid>
+          <StackPanel x:Name="SeedEmpty" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,36,20,0" IsHitTestVisible="False">
+           <Border Width="52" Height="52" CornerRadius="26" Background="{StaticResource AccentSoftBrush}" HorizontalAlignment="Center"><TextBlock Text="&#xE896;" Style="{StaticResource Icon}" FontSize="22" Foreground="{StaticResource AccentBrush}"/></Border>
+           <TextBlock Text="XMP를 여기로 끌어다 놓으세요" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,12,0,4"/>
+           <TextBlock Text="처음이라면 '예제 12개'로 먼저 체험해 보세요." Style="{StaticResource Muted}" HorizontalAlignment="Center" TextAlignment="Center"/>
+          </StackPanel>
+         </Grid>
+         <DockPanel Margin="0,10,0,0">
+          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button x:Name="SeedToggleAll" Content="모두 해제" Style="{StaticResource Link}"/><Button x:Name="RemoveSeeds" Content="선택 삭제" Style="{StaticResource Link}" ToolTip="선택한 행을 목록에서 뺍니다 · Delete"/><Button x:Name="ClearSeeds" Content="비우기" Style="{StaticResource Link}"/></StackPanel>
+          <TextBlock x:Name="SeedCount" Text="등록된 씨드 없음" Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+         </DockPanel>
+        </StackPanel>
+       </Border>
+       <Border Grid.Column="2" Style="{StaticResource Card}">
+        <StackPanel>
+         <DockPanel><StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><TextBlock x:Name="KeywordSummary" Text="선택 없음" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,4,0"/><Button x:Name="KeywordClear" Content="모두 해제" Style="{StaticResource Link}" Visibility="Collapsed"/></StackPanel>
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="2" Style="{StaticResource StepText}"/></Border><TextBlock Text="이번에 탐색할 분위기" Style="{StaticResource Title}"/></StackPanel></DockPanel>
+         <TextBlock Text="44개 방향 중 원하는 것을 고르세요. 키워드는 후보별로 나눠 배정되며, 선택하지 않으면 자연스러운 변주를 만듭니다. 칩에 마우스를 올리면 보정 방향을 볼 수 있어요." Style="{StaticResource Muted}" Margin="0,8,0,14"/>
+         <StackPanel x:Name="KeywordGroups"/>
+        </StackPanel>
+       </Border>
+      </Grid>
+      <Grid Margin="0,0,0,16"><Grid.ColumnDefinitions><ColumnDefinition Width="370"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <Border Style="{StaticResource Card}">
+        <StackPanel>
+         <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="3" Style="{StaticResource StepText}"/></Border><TextBlock Text="변주 설정" Style="{StaticResource Title}"/></StackPanel>
+         <DockPanel Margin="0,18,0,18"><TextBox x:Name="Count" DockPanel.Dock="Right" Text="24" Width="78" HorizontalContentAlignment="Center" ToolTip="1–120"/><StackPanel VerticalAlignment="Center"><TextBlock Text="생성 개수" FontWeight="SemiBold"/><TextBlock Text="1–120개 · 씨드마다 비슷한 수로 나눕니다" Style="{StaticResource Muted}"/></StackPanel></DockPanel>
+         <DockPanel><Border DockPanel.Dock="Right" Style="{StaticResource ValuePill}"><TextBlock x:Name="FidelityValue" Text="85" Foreground="{StaticResource AccentTextBrush}" FontWeight="SemiBold" HorizontalAlignment="Center"/></Border><TextBlock Text="씨드 충실도" FontWeight="SemiBold" VerticalAlignment="Center"/></DockPanel>
+         <Slider x:Name="Fidelity" Minimum="0" Maximum="100" Value="85" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,2"/>
+         <DockPanel Margin="0,0,0,14"><TextBlock DockPanel.Dock="Right" Text="원본 유지" Style="{StaticResource Muted}" FontSize="11"/><TextBlock Text="자유롭게" Style="{StaticResource Muted}" FontSize="11"/></DockPanel>
+         <DockPanel><Border DockPanel.Dock="Right" Style="{StaticResource ValuePill}"><TextBlock x:Name="VariationValue" Text="70" Foreground="{StaticResource AccentTextBrush}" FontWeight="SemiBold" HorizontalAlignment="Center"/></Border><TextBlock Text="변주 폭" FontWeight="SemiBold" VerticalAlignment="Center"/></DockPanel>
+         <Slider x:Name="Variation" Minimum="0" Maximum="100" Value="70" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,2"/>
+         <DockPanel Margin="0,0,0,12"><TextBlock DockPanel.Dock="Right" Text="과감하게" Style="{StaticResource Muted}" FontSize="11"/><TextBlock Text="미세하게" Style="{StaticResource Muted}" FontSize="11"/></DockPanel>
+         <TextBlock Text="충실도는 일치율이 아닌 제어값입니다. 100에서는 색감·화이트밸런스를 고정하며 밝기·질감은 변할 수 있습니다. 서로 너무 비슷한 후보는 제외됩니다." Style="{StaticResource Muted}"/>
+         <Border Height="1" Background="{StaticResource LineBrush}" Margin="0,18,0,16"/>
+         <TextBlock Text="인물·배경 마스크 · 선택 사항" FontWeight="SemiBold"/>
+         <TextBlock Text="인물/배경 마스크가 담긴 XMP를 템플릿으로 쓰면 모든 후보에 마스크를 넣습니다." Style="{StaticResource Muted}" Margin="0,4,0,10"/>
+         <DockPanel><Button x:Name="MaskClear" DockPanel.Dock="Right" Tag="&#xE711;" Margin="8,0,0,0" Padding="10,0" ToolTip="템플릿 해제" AutomationProperties.Name="마스크 템플릿 해제" Visibility="Collapsed"/><Button x:Name="MaskButton" DockPanel.Dock="Left" Content="템플릿 선택" Tag="&#xE8E5;"/><TextBlock x:Name="MaskPath" Text="선택 안 함" Style="{StaticResource Muted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/></DockPanel>
+         <CheckBox x:Name="VaryMasks" Content="기존 인물·배경 마스크 보정도 변주" Margin="0,14,0,4"/>
+         <TextBlock Text="선택 영역은 씨드나 템플릿에서 가져오며 새로 만들지 않습니다." Style="{StaticResource Muted}" Margin="26,0,0,0"/>
+        </StackPanel>
+       </Border>
+       <Border Grid.Column="2" Style="{StaticResource Card}">
+        <StackPanel>
+         <DockPanel><CheckBox x:Name="UseAi" DockPanel.Dock="Right" Content="AI 사용" Style="{StaticResource Switch}" IsChecked="True" Margin="0" VerticalAlignment="Center"/>
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="4" Style="{StaticResource StepText}"/></Border><TextBlock Text="AI 디렉션" Style="{StaticResource Title}"/></StackPanel></DockPanel>
+         <TextBlock x:Name="AiModeHint" Text="AI가 키워드와 씨드를 함께 해석해 후보의 변화 방향을 설계합니다. 끄면 API 비용 없이 로컬 규칙으로 변주합니다." Style="{StaticResource Muted}" Margin="0,8,0,16"/>
+         <StackPanel x:Name="AiFields" IsEnabled="{Binding IsChecked, ElementName=UseAi}">
+          <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions>
+           <StackPanel><TextBlock Text="OpenAI API 키" Style="{StaticResource Label}"/><PasswordBox x:Name="ApiKey"/></StackPanel>
+           <StackPanel Grid.Column="2"><TextBlock Text="모델" Style="{StaticResource Label}"/><TextBox x:Name="Model" Text="gpt-6-luna"/></StackPanel>
+          </Grid>
+          <StackPanel Orientation="Horizontal" Margin="0,7,0,18"><TextBlock Text="&#xE8D7;" Style="{StaticResource Icon}" FontSize="11" Foreground="{StaticResource MutedBrush}" Margin="0,0,6,0"/><TextBlock Text="키는 메모리에만 두고 저장하지 않습니다. 레퍼런스 화면과 같은 키를 씁니다." Style="{StaticResource Muted}"/></StackPanel>
+          <TextBlock Text="분석용 사진 · 선택 사항" Style="{StaticResource Label}"/>
+          <DockPanel Margin="0,0,0,18">
+           <Border Style="{StaticResource Thumb}"><Grid><TextBlock Text="&#xEB9F;" Style="{StaticResource Icon}" FontSize="18" Foreground="{StaticResource FaintBrush}"/><Image x:Name="PhotoThumb" Stretch="UniformToFill"><Image.Clip><RectangleGeometry Rect="0,0,44,44" RadiusX="8" RadiusY="8"/></Image.Clip></Image></Grid></Border>
+           <Button x:Name="PhotoClear" DockPanel.Dock="Right" Tag="&#xE711;" Padding="10,0" Margin="8,0,0,0" ToolTip="사진 해제" AutomationProperties.Name="분석용 사진 해제" Visibility="Collapsed"/>
+           <Button x:Name="PhotoButton" DockPanel.Dock="Right" Content="사진 선택" Margin="8,0,0,0"/>
+           <TextBlock x:Name="PhotoPath" Text="JPG/PNG · 1024px 이하로 줄여 분석에만 사용합니다" Style="{StaticResource Muted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+          </DockPanel>
+          <TextBlock Text="추가 방향" Style="{StaticResource Label}"/>
+          <TextBox x:Name="Note" Height="96" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top" Padding="10,8" Tag="예: 피부는 자연스럽게, 배경의 핑크는 유지"/>
+         </StackPanel>
+        </StackPanel>
+       </Border>
+      </Grid>
+      <Border Style="{StaticResource Card}" Padding="22,16">
+       <DockPanel><StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Margin="0,0,16,0"><Border Style="{StaticResource Step}"><TextBlock Text="5" Style="{StaticResource StepText}"/></Border><TextBlock Text="저장 폴더" Style="{StaticResource Title}"/></StackPanel>
+        <Button x:Name="ChooseOutput" DockPanel.Dock="Right" Content="변경" Tag="&#xE8B7;" Margin="8,0,0,0"/><TextBox x:Name="Output" ToolTip="실행마다 이 폴더 아래에 새 하위 폴더를 만듭니다"/></DockPanel>
+      </Border>
+     </StackPanel>
+    </ScrollViewer>
+
+    <!-- Reference generator -->
+    <ScrollViewer x:Name="ReferencePage" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+     <StackPanel x:Name="ReferenceForm" Margin="0,0,6,10">
+      <Grid Margin="0,0,0,16"><Grid.ColumnDefinitions><ColumnDefinition Width="370"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <Border x:Name="RefCard" Style="{StaticResource Card}" AllowDrop="True">
+        <DockPanel>
+         <StackPanel DockPanel.Dock="Top">
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="1" Style="{StaticResource StepText}"/></Border><TextBlock Text="레퍼런스 사진" Style="{StaticResource Title}"/></StackPanel>
+          <TextBlock Text="닮고 싶은 색감의 JPG·PNG를 1~24장 고르세요. 끌어다 놓아도 됩니다." Style="{StaticResource Muted}" Margin="0,8,0,14"/>
+          <WrapPanel Margin="0,0,0,12"><Button x:Name="RefAdd" Content="사진 추가" Tag="&#xE710;" ToolTip="Ctrl+O"/><Button x:Name="RefRemove" Content="선택 삭제" Tag="&#xE74D;" ToolTip="선택한 사진을 뺍니다 · Delete"/><Button x:Name="RefClear" Content="비우기" Margin="0"/></WrapPanel>
+         </StackPanel>
+         <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,0"><TextBlock x:Name="RefPhotoCount" Text="0장 선택 · 최대 24장" Style="{StaticResource Muted}" FontWeight="SemiBold"/><TextBlock Text="사진은 1024px 이하의 분석용 사본으로 전송됩니다." Style="{StaticResource Muted}" Margin="0,2,0,0"/></StackPanel>
+         <Grid>
+          <Border CornerRadius="10" Background="{StaticResource SubtleBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="1">
+           <ListBox x:Name="ReferenceList" Height="266" SelectionMode="Extended" BorderThickness="0" Background="Transparent" Padding="8,8,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ListBox.ItemsPanel>
+            <ListBox.ItemContainerStyle><Style TargetType="ListBoxItem"><Setter Property="Margin" Value="0,0,6,6"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/><Setter Property="Cursor" Value="Hand"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem">
+             <Border x:Name="Tile" CornerRadius="10" BorderThickness="2" BorderBrush="Transparent" Background="White" Padding="4"><ContentPresenter/></Border>
+             <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Tile" Property="BorderBrush" Value="{StaticResource LineStrongBrush}"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter TargetName="Tile" Property="BorderBrush" Value="{StaticResource AccentBrush}"/><Setter TargetName="Tile" Property="Background" Value="{StaticResource AccentSoftBrush}"/></Trigger></ControlTemplate.Triggers>
+            </ControlTemplate></Setter.Value></Setter></Style></ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate><DataTemplate>
+             <StackPanel Width="90" ToolTip="{Binding name}">
+              <Grid Height="66"><Rectangle RadiusX="6" RadiusY="6" Fill="#E8EDF4"/><Rectangle RadiusX="6" RadiusY="6"><Rectangle.Fill><ImageBrush ImageSource="{Binding thumb}" Stretch="UniformToFill"/></Rectangle.Fill></Rectangle></Grid>
+              <TextBlock Text="{Binding id}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Text2Brush}" Margin="2,5,0,0"/>
+              <TextBlock Text="{Binding name}" FontSize="11" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" Margin="2,0,0,1"/>
+             </StackPanel>
+            </DataTemplate></ListBox.ItemTemplate>
+           </ListBox>
+          </Border>
+          <StackPanel x:Name="RefEmpty" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,0" IsHitTestVisible="False">
+           <Border Width="52" Height="52" CornerRadius="26" Background="{StaticResource AccentSoftBrush}" HorizontalAlignment="Center"><TextBlock Text="&#xEB9F;" Style="{StaticResource Icon}" FontSize="22" Foreground="{StaticResource AccentBrush}"/></Border>
+           <TextBlock Text="사진을 여기로 끌어다 놓으세요" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,12,0,4"/>
+           <TextBlock Text="여러 장이면 공통 스타일을 더 안정적으로 찾습니다." Style="{StaticResource Muted}" HorizontalAlignment="Center" TextAlignment="Center"/>
+          </StackPanel>
+         </Grid>
+        </DockPanel>
+       </Border>
+       <Border Grid.Column="2" Style="{StaticResource Card}">
+        <StackPanel>
+         <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="2" Style="{StaticResource StepText}"/></Border><TextBlock Text="스타일 추정" Style="{StaticResource Title}"/></StackPanel>
+         <TextBlock Text="사진의 색조·대비·커브·질감을 해석해 XMP 보정값을 만듭니다." Style="{StaticResource Muted}" Margin="0,8,0,16"/>
+         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions>
+          <StackPanel><TextBlock Text="OpenAI API 키" Style="{StaticResource Label}"/><PasswordBox x:Name="RefApiKey"/></StackPanel>
+          <StackPanel Grid.Column="2"><TextBlock Text="모델 · 이미지 입력 지원" Style="{StaticResource Label}"/><TextBox x:Name="RefModel" Text="gpt-6-luna"/></StackPanel>
+         </Grid>
+         <Grid Margin="0,16,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="190"/></Grid.ColumnDefinitions>
+          <StackPanel><TextBlock Text="추출 방식" Style="{StaticResource Label}"/><ComboBox x:Name="RefMode" SelectedIndex="0"><ComboBoxItem Content="여러 장의 공통 스타일" Tag="common"/><ComboBoxItem Content="사진별 개별 스타일" Tag="individual"/></ComboBox></StackPanel>
+          <StackPanel Grid.Column="2"><TextBlock Text="총 생성 개수 · 1–120" Style="{StaticResource Label}"/><TextBox x:Name="RefCount" Text="12" HorizontalContentAlignment="Center"/></StackPanel>
+         </Grid>
+         <Border Background="{StaticResource SubtleBrush}" CornerRadius="10" Padding="14,12" Margin="0,16,0,0">
+          <StackPanel><CheckBox x:Name="RefSearch" Content="웹에서 보정 방법 검색 · 출처 기록" Style="{StaticResource Switch}" IsChecked="True" Margin="0" FontWeight="SemiBold"/>
+           <TextBlock Text="사진 분석 → 보정 자료 검색 → 수치 추정 순서로 진행합니다. 검색은 API 호출 1회와 검색 요금이 추가되며 대시보드에 함께 기록됩니다." Style="{StaticResource Muted}" Margin="48,6,0,0"/></StackPanel>
+         </Border>
+         <TextBlock Text="적용할 원본 사진 · 선택 사항" Style="{StaticResource Label}" Margin="0,16,0,6"/>
+         <DockPanel>
+          <Border Style="{StaticResource Thumb}"><Grid><TextBlock Text="&#xEB9F;" Style="{StaticResource Icon}" FontSize="18" Foreground="{StaticResource FaintBrush}"/><Image x:Name="RefTargetThumb" Stretch="UniformToFill"><Image.Clip><RectangleGeometry Rect="0,0,44,44" RadiusX="8" RadiusY="8"/></Image.Clip></Image></Grid></Border>
+          <Button x:Name="RefTargetClear" DockPanel.Dock="Right" Tag="&#xE711;" Padding="10,0" Margin="8,0,0,0" ToolTip="원본 사진 해제" AutomationProperties.Name="원본 사진 해제" Visibility="Collapsed"/>
+          <Button x:Name="RefTargetButton" DockPanel.Dock="Right" Content="사진 선택" Margin="8,0,0,0"/>
+          <TextBlock x:Name="RefTargetPath" Text="보정 전 JPG/PNG를 넣으면 그 사진에 맞춰 보정값을 추정합니다." Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+         </DockPanel>
+        </StackPanel>
+       </Border>
+      </Grid>
+      <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+       <StackPanel>
+        <DockPanel><StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top"><Button x:Name="RefMaskButton" Content="AI 마스크 템플릿" Tag="&#xE8E5;"/><Button x:Name="RefMaskClear" Content="해제" Margin="0" Visibility="Collapsed"/></StackPanel>
+         <StackPanel><StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="3" Style="{StaticResource StepText}"/></Border><TextBlock Text="인물·배경 마스킹" Style="{StaticResource Title}"/></StackPanel>
+          <TextBlock Text="선택 영역은 Lightroom 템플릿에서 가져오고, AI가 영역별 보정값을 만듭니다. 전체 보정만 원하면 두 항목을 모두 끄세요." Style="{StaticResource Muted}" Margin="0,8,0,0"/></StackPanel></DockPanel>
+        <Grid Margin="0,16,0,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+         <StackPanel><CheckBox x:Name="RefSubject" Content="인물 보정" IsChecked="True" Margin="0,0,0,8" FontWeight="SemiBold"/><ComboBox x:Name="RefSubjectGroup" DisplayMemberPath="Label" ToolTip="인물에 사용할 템플릿 마스크"/></StackPanel>
+         <StackPanel Grid.Column="2"><CheckBox x:Name="RefBackground" Content="배경 보정" IsChecked="True" Margin="0,0,0,8" FontWeight="SemiBold"/><ComboBox x:Name="RefBackgroundGroup" DisplayMemberPath="Label" ToolTip="배경에 사용할 템플릿 마스크"/></StackPanel>
+        </Grid>
+        <Border x:Name="RefMaskInfoBox" Background="{StaticResource WarnSoftBrush}" BorderBrush="{StaticResource WarnLineBrush}" BorderThickness="1" CornerRadius="10" Padding="12,9">
+         <DockPanel><TextBlock x:Name="RefMaskIcon" Text="&#xE946;" Style="{StaticResource Icon}" Foreground="{StaticResource WarnBrush}" Margin="0,1,10,0" VerticalAlignment="Top"/><TextBlock x:Name="RefMaskInfo" Text="템플릿 필요 · Select Subject와 Select Background를 저장한 XMP를 선택하세요." Foreground="{StaticResource WarnBrush}" FontSize="12" TextWrapping="Wrap"/></DockPanel>
+        </Border>
+        <TextBlock Text="인물·배경의 노출, 하이라이트, 색온도, 채도, 텍스처 등을 각각 설계합니다. 적용 후 Lightroom에서 AI 마스크를 재계산할 수 있습니다." Style="{StaticResource Muted}" Margin="0,10,0,0"/>
+       </StackPanel>
+      </Border>
+      <Grid Margin="0,0,0,16"><Grid.ColumnDefinitions><ColumnDefinition Width="370"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+       <Border Style="{StaticResource Card}">
+        <StackPanel>
+         <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="4" Style="{StaticResource StepText}"/></Border><TextBlock Text="변주 설정" Style="{StaticResource Title}"/></StackPanel>
+         <TextBlock Text="각 스타일의 첫 후보는 추정 기본값입니다. 유사 후보는 제외되므로 실제 저장 개수는 줄어들 수 있습니다." Style="{StaticResource Muted}" Margin="0,8,0,16"/>
+         <DockPanel><Border DockPanel.Dock="Right" Style="{StaticResource ValuePill}"><TextBlock x:Name="RefFidelityValue" Text="85" Foreground="{StaticResource AccentTextBrush}" FontWeight="SemiBold" HorizontalAlignment="Center"/></Border><TextBlock Text="레퍼런스 충실도" FontWeight="SemiBold" VerticalAlignment="Center"/></DockPanel>
+         <Slider x:Name="RefFidelity" Minimum="0" Maximum="100" Value="85" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,14"/>
+         <DockPanel><Border DockPanel.Dock="Right" Style="{StaticResource ValuePill}"><TextBlock x:Name="RefVariationValue" Text="60" Foreground="{StaticResource AccentTextBrush}" FontWeight="SemiBold" HorizontalAlignment="Center"/></Border><TextBlock Text="나머지 후보의 변주 폭" FontWeight="SemiBold" VerticalAlignment="Center"/></DockPanel>
+         <Slider x:Name="RefVariation" Minimum="0" Maximum="100" Value="60" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,16"/>
+         <TextBlock Text="추가 방향" Style="{StaticResource Label}"/>
+         <TextBox x:Name="RefNote" Height="84" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top" Padding="10,8" Tag="예: 피부톤은 따뜻하게, 하늘은 덜 파랗게"/>
+        </StackPanel>
+       </Border>
+       <Border Grid.Column="2" Style="{StaticResource Card}">
+        <StackPanel>
+         <DockPanel><StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"><TextBlock x:Name="RefKeywordSummary" Text="선택 없음" Style="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,4,0"/><Button x:Name="RefKeywordClear" Content="모두 해제" Style="{StaticResource Link}" Visibility="Collapsed"/></StackPanel>
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="5" Style="{StaticResource StepText}"/></Border><TextBlock Text="함께 탐색할 분위기" Style="{StaticResource Title}"/></StackPanel></DockPanel>
+         <TextBlock Text="선택하지 않으면 자연스러운 변주를 만듭니다." Style="{StaticResource Muted}" Margin="0,8,0,14"/>
+         <StackPanel x:Name="RefKeywordGroups"/>
+        </StackPanel>
+       </Border>
+      </Grid>
+      <Border Style="{StaticResource Card}" Padding="22,16">
+       <StackPanel>
+        <DockPanel><StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Margin="0,0,16,0"><Border Style="{StaticResource Step}"><TextBlock Text="6" Style="{StaticResource StepText}"/></Border><TextBlock Text="저장 폴더" Style="{StaticResource Title}"/></StackPanel>
+         <Button x:Name="RefChooseOutput" DockPanel.Dock="Right" Content="변경" Tag="&#xE8B7;" Margin="8,0,0,0"/><TextBox x:Name="RefOutput" ToolTip="실행마다 이 폴더 아래에 새 하위 폴더를 만듭니다"/></DockPanel>
+        <TextBlock Text="사진에서 조명·소재·보정을 완전히 분리할 수는 없습니다. 결과는 원본 프리셋 복원이 아닌, 비슷한 스타일을 재현하는 시작점입니다." Style="{StaticResource Muted}" Margin="0,12,0,0"/>
+       </StackPanel>
+      </Border>
+     </StackPanel>
+    </ScrollViewer>
+
+    <!-- Results -->
+    <Grid x:Name="ResultsPage" Visibility="Collapsed">
+     <Border x:Name="ResultsEmpty" Style="{StaticResource Card}">
+      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="420">
+       <Border Width="64" Height="64" CornerRadius="32" Background="{StaticResource AccentSoftBrush}" HorizontalAlignment="Center"><TextBlock Text="&#xE8FD;" Style="{StaticResource Icon}" FontSize="26" Foreground="{StaticResource AccentBrush}"/></Border>
+       <TextBlock Text="아직 생성한 프리셋이 없어요" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,16,0,6"/>
+       <TextBlock Text="씨드나 레퍼런스 사진으로 후보를 만들면 이곳에서 후보별 보정값과 생성 이유를 확인할 수 있습니다." Style="{StaticResource Muted}" TextAlignment="Center"/>
+       <Button x:Name="ResultsGoGenerate" Content="프리셋 생성으로 이동" Style="{StaticResource Primary}" HorizontalAlignment="Center" Margin="0,18,0,0"/>
+      </StackPanel>
+     </Border>
+     <Grid x:Name="ResultsBody" Visibility="Collapsed"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+      <Border Style="{StaticResource Card}" Margin="0,0,0,16" Padding="22,16">
+       <DockPanel>
+        <Button x:Name="ResultsOpenFolder" DockPanel.Dock="Right" Content="결과 폴더 열기" Tag="&#xE838;" Margin="0" VerticalAlignment="Center"/>
+        <Border x:Name="ResultBadge" Style="{StaticResource IconChip}" Width="42" Height="42" CornerRadius="21" Background="#E6F4EC" Margin="0,0,14,0" VerticalAlignment="Center"><TextBlock x:Name="ResultBadgeIcon" Text="&#xE73E;" Style="{StaticResource Icon}" FontSize="17" Foreground="#2E7D55"/></Border>
+        <StackPanel VerticalAlignment="Center"><TextBlock x:Name="ResultSummary" Text="프리셋 생성 완료" FontSize="17" FontWeight="SemiBold"/><TextBlock x:Name="ResultMeta" Style="{StaticResource Muted}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/></StackPanel>
+       </DockPanel>
+      </Border>
+      <Border x:Name="ResultsNotice" Grid.Row="1" Background="{StaticResource WarnSoftBrush}" BorderBrush="{StaticResource WarnLineBrush}" BorderThickness="1" CornerRadius="10" Padding="14,8" Margin="0,0,0,16" Visibility="Collapsed">
+       <DockPanel><TextBlock Text="&#xE7BA;" Style="{StaticResource Icon}" Foreground="{StaticResource WarnBrush}" Margin="0,3,10,0" VerticalAlignment="Top"/><TextBlock x:Name="Detail" TextWrapping="Wrap" Foreground="{StaticResource WarnBrush}" FontSize="12" LineHeight="18"/></DockPanel>
+      </Border>
+      <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="400"/></Grid.ColumnDefinitions>
+       <Border Style="{StaticResource Card}">
+        <DockPanel>
+         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14"><TextBlock Text="생성된 후보" Style="{StaticResource Title}" HorizontalAlignment="Left"/><TextBlock Text="행을 선택하면 오른쪽에 상세가 표시됩니다. 더블클릭하면 파일 위치를 엽니다." Style="{StaticResource Muted}" Margin="0,3,0,0"/></StackPanel>
+         <DataGrid x:Name="Results" IsReadOnly="True" SelectionMode="Single"><DataGrid.Columns>
+          <DataGridTextColumn Header="#" Binding="{Binding No}" Width="48" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/>
+          <DataGridTextColumn Header="기준 스타일" Binding="{Binding Seed}" Width="*" ElementStyle="{StaticResource TrimCell}"/>
+          <DataGridTextColumn Header="키워드" Binding="{Binding Keyword}" Width="130" ElementStyle="{StaticResource TrimCell}"/>
+          <DataGridTextColumn Header="보정값" Binding="{Binding Changed}" Width="70" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/>
+          <DataGridTextColumn Header="마스크" Binding="{Binding MaskChanges}" Width="70" HeaderStyle="{StaticResource NumHeader}" ElementStyle="{StaticResource NumCell}"/>
+          <DataGridTextColumn Header="방식" Binding="{Binding ModeText}" Width="90"/>
+         </DataGrid.Columns></DataGrid>
+        </DockPanel>
+       </Border>
+       <Border Grid.Column="2" Style="{StaticResource Card}" Padding="0">
+        <Grid>
+         <StackPanel x:Name="DetailEmpty" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="24">
+          <TextBlock Text="&#xE8A1;" Style="{StaticResource Icon}" FontSize="26" Foreground="{StaticResource FaintBrush}"/>
+          <TextBlock Text="왼쪽에서 후보를 선택하세요" Style="{StaticResource Muted}" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+         </StackPanel>
+         <ScrollViewer x:Name="DetailPanel" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed">
+          <StackPanel Margin="22,20">
+           <TextBlock x:Name="DetailName" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap"/>
+           <WrapPanel Margin="0,10,0,0">
+            <Border CornerRadius="10" Background="{StaticResource AccentSoftBrush}" Padding="9,2" Margin="0,0,6,6"><TextBlock x:Name="DetailKeyword" Foreground="{StaticResource AccentTextBrush}" FontSize="12" FontWeight="SemiBold"/></Border>
+            <Border CornerRadius="10" Background="#EEF1F6" Padding="9,2" Margin="0,0,6,6"><TextBlock x:Name="DetailMode" Foreground="{StaticResource Text2Brush}" FontSize="12"/></Border>
+           </WrapPanel>
+           <TextBlock Text="기준 스타일" Style="{StaticResource Section}" Margin="0,12,0,4"/><TextBlock x:Name="DetailSeed" TextWrapping="Wrap"/>
+           <TextBlock Text="생성 이유" Style="{StaticResource Section}" Margin="0,16,0,4"/><TextBlock x:Name="DetailReason" TextWrapping="Wrap" LineHeight="20" Foreground="{StaticResource Text2Brush}"/>
+           <TextBlock x:Name="DetailChangesTitle" Text="씨드 대비 변경" Style="{StaticResource Section}" Margin="0,16,0,8"/><WrapPanel x:Name="DetailChanges"/>
+           <StackPanel x:Name="DetailLocal"/>
+           <TextBlock Text="파일" Style="{StaticResource Section}" Margin="0,12,0,4"/>
+           <DockPanel><Button x:Name="RevealFile" DockPanel.Dock="Right" Content="위치 열기" Tag="&#xE838;" Margin="8,0,0,0"/><TextBlock x:Name="DetailFile" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Foreground="{StaticResource Text2Brush}"/></DockPanel>
+           <TextBlock x:Name="DetailMask" Style="{StaticResource Muted}" Margin="0,10,0,0"/>
+          </StackPanel>
+         </ScrollViewer>
+        </Grid>
+       </Border>
+      </Grid>
+     </Grid>
+    </Grid>
+   </Grid>
+
+   <!-- Action bar -->
+   <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource LineBrush}" BorderThickness="1" CornerRadius="14" Padding="20,12" Margin="0,16,0,0">
+    <DockPanel>
+     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+      <Button x:Name="Cancel" Content="중지" Tag="&#xE71A;" Style="{StaticResource Danger}" IsEnabled="False" Visibility="Collapsed"/>
+      <Button x:Name="OpenOutput" Content="결과 폴더" Tag="&#xE838;" MinHeight="40" IsEnabled="False" Visibility="Collapsed"/>
+      <Button x:Name="Generate" Content="프리셋 생성" Tag="&#xE768;" Style="{StaticResource Primary}" Margin="0" ToolTip="Ctrl+Enter"/>
+     </StackPanel>
+     <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+      <TextBlock x:Name="RunSummary" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Visibility="Collapsed"/>
+      <TextBlock x:Name="Status" Text="준비됨 · 내 프리셋을 등록해 시작하세요." Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="0,2,0,0"/>
+      <ProgressBar x:Name="Progress" Margin="0,8,0,2" Width="360" HorizontalAlignment="Left" Visibility="Collapsed"/>
+     </StackPanel>
+    </DockPanel>
+   </Border>
+  </Grid>
+ </Grid>
+</Window>

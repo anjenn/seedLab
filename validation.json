@@ -1,0 +1,49 @@
+{
+  "version": "1.4.0",
+  "engineTests": "14 passed",
+  "testedConfigurations": 80,
+  "seedFairness": "16 seeds / 48 candidates",
+  "maximumCandidatesTested": 120,
+  "wshCodec": "actual Windows JScript and legacy VM checks passed",
+  "sampleXmpXml": "12 parsed",
+  "wpfXaml": "loaded by Windows PowerShell 5.1 / WPF",
+  "windowsPE": "rebuilt x64 PE32+, actual imports symbol offset used; real EXE launch passed",
+  "notExecuted": [
+    "real OpenAI API call",
+    "Lightroom import and mask recalculation",
+    "browser visual execution of historical HTML design preview",
+    "real seed/reference visual fidelity and diversity evaluation in Lightroom"
+  ],
+  "usageTests": "16 passed",
+  "totalLogicTests": 47,
+  "nativeUi": "real EXE UI Automation passed: navigation, sample import, Start-Job local generation, 24 XMPs, results and dashboard",
+  "uiRedesign": "v1.4 WPF redesign rendered offscreen and inspected (dashboard, both creation screens, busy state, empty and filled results); preferences save/restore without API key, shared API key, seed select-all toggle, run summary call estimates and result detail chips checked by script. Drag and drop, keyboard shortcuts and EXIF-rotated thumbnails were not exercised by automation.",
+  "preview": "Offline HTML sample preview included; browser execution unavailable in this environment",
+  "designImage": "1380 x 940 rendered design reference inspected; not a Windows screenshot; sample totals from shared usage.js",
+  "referenceTests": "17 passed",
+  "referenceCapacityTested": 24,
+  "referenceMaximumCandidatesTested": 120,
+  "referenceMaskUnits": "UI exposure converted to EV/4; supported local sliders converted to UI/100",
+  "referencePipeline": "actual Windows offline HTTP fixtures passed: observations, research, recipes, XMP masks, usage; no real API",
+  "validatedOn": "2026-10-16",
+  "windowsRegressions": "passed: input mutation before API, atomic XMP/no overwrite, seed tracked API, malformed output retains usage, HTTP/export cancellation, partial manifests, dashboard cache invalidation",
+  "diversity": "normalized slider-space separation within the same seed; not a rendered-image or perceptual similarity score",
+  "commands": [
+    "npm test",
+    "powershell -NoProfile -ExecutionPolicy Bypass -File ValidateOnWindows.ps1",
+    "powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-ui-smoke.ps1"
+  ],
+  "windowsPathCompatibility": "offline integration and real EXE UI smoke both passed from a path containing Korean characters and spaces",
+  "keywordCatalog": {
+    "count": 44,
+    "categories": {
+      "분위기": 8,
+      "톤": 8,
+      "따뜻한 색감": 6,
+      "차가운 색감": 6,
+      "팔레트": 8,
+      "스타일": 8
+    },
+    "verification": "Exact requested labels/order, shared engine/UI data, both Windows screens, selected cute_fantasy style exported to 24 XMPs"
+  }
+}

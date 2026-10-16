@@ -1,0 +1,10 @@
+{
+  "name": "preset-seed-lab",
+  "version": "1.4.0",
+  "private": true,
+  "description": "Windows Lightroom preset generator; Node is only used for development tests.",
+  "scripts": {
+    "test": "node tests/engine.test.js && node tests/usage.test.js && node tests/reference.test.js",
+    "build:launcher": "python3 src/build_launcher.py"
+  }
+}

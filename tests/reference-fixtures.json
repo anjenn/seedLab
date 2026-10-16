@@ -1,0 +1,219 @@
+{
+  "recipes": [
+    {
+      "referenceIds": [
+        "R001",
+        "R002"
+      ],
+      "name": "로즈 필름",
+      "reason": "저채도 색감과 부드러운 대비",
+      "confidence": "medium",
+      "limitations": "조명과 소재의 영향은 분리하기 어렵습니다.",
+      "values": {
+        "Exposure2012": 0,
+        "Contrast2012": 12,
+        "Highlights2012": 0,
+        "Shadows2012": 0,
+        "Whites2012": 0,
+        "Blacks2012": 0,
+        "Texture": 0,
+        "Clarity2012": 0,
+        "Dehaze": 0,
+        "Vibrance": 0,
+        "Saturation": -10,
+        "GrainAmount": 0,
+        "GrainSize": 25,
+        "GrainFrequency": 50,
+        "SplitToningShadowHue": 0,
+        "SplitToningShadowSaturation": 0,
+        "SplitToningHighlightHue": 0,
+        "SplitToningHighlightSaturation": 0,
+        "SplitToningBalance": 0,
+        "HueAdjustmentRed": 0,
+        "SaturationAdjustmentRed": 0,
+        "LuminanceAdjustmentRed": 0,
+        "HueAdjustmentOrange": 0,
+        "SaturationAdjustmentOrange": 0,
+        "LuminanceAdjustmentOrange": 0,
+        "HueAdjustmentYellow": 0,
+        "SaturationAdjustmentYellow": 0,
+        "LuminanceAdjustmentYellow": 0,
+        "HueAdjustmentGreen": 0,
+        "SaturationAdjustmentGreen": 0,
+        "LuminanceAdjustmentGreen": 0,
+        "HueAdjustmentAqua": 0,
+        "SaturationAdjustmentAqua": 0,
+        "LuminanceAdjustmentAqua": 0,
+        "HueAdjustmentBlue": 0,
+        "SaturationAdjustmentBlue": 0,
+        "LuminanceAdjustmentBlue": 0,
+        "HueAdjustmentPurple": 0,
+        "SaturationAdjustmentPurple": 0,
+        "LuminanceAdjustmentPurple": 0,
+        "HueAdjustmentMagenta": 0,
+        "SaturationAdjustmentMagenta": 0,
+        "LuminanceAdjustmentMagenta": 0
+      },
+      "curves": {
+        "ToneCurvePV2012": [
+          8,
+          62,
+          130,
+          196,
+          250
+        ],
+        "ToneCurvePV2012Red": [
+          8,
+          62,
+          130,
+          196,
+          250
+        ],
+        "ToneCurvePV2012Green": [
+          8,
+          62,
+          130,
+          196,
+          250
+        ],
+        "ToneCurvePV2012Blue": [
+          8,
+          62,
+          130,
+          196,
+          250
+        ]
+      },
+      "subject": {
+        "exposure": 0.3,
+        "contrast": 0,
+        "highlights": 0,
+        "shadows": 0,
+        "whites": 0,
+        "blacks": 0,
+        "temperature": 12,
+        "tint": 0,
+        "saturation": 0,
+        "texture": 0,
+        "clarity": -15,
+        "dehaze": 0
+      },
+      "background": {
+        "exposure": -0.25,
+        "contrast": 0,
+        "highlights": 0,
+        "shadows": 0,
+        "whites": 0,
+        "blacks": 0,
+        "temperature": -20,
+        "tint": 0,
+        "saturation": 0,
+        "texture": 0,
+        "clarity": 10,
+        "dehaze": 0
+      }
+    }
+  ],
+  "referenceIds": [
+    "R001",
+    "R002"
+  ],
+  "responses": [
+    {
+      "id": "test-analysis",
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "service_tier": "default",
+      "usage": {
+        "input_tokens": 1000,
+        "output_tokens": 500,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "reasoning_tokens": 100
+        }
+      },
+      "output": [
+        {
+          "type": "message",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "{\"observations\":[{\"referenceId\":\"R001\",\"style\":\"핑크 필름\",\"palette\":\"로즈\",\"tone\":\"부드러운\",\"lighting\":\"조명 영향 있음\",\"subject\":\"인물은 밝음\",\"background\":\"배경은 차가움\",\"confidence\":\"medium\",\"limitations\":\"추정값\"},{\"referenceId\":\"R002\",\"style\":\"핑크 필름\",\"palette\":\"로즈\",\"tone\":\"부드러운\",\"lighting\":\"조명 영향 있음\",\"subject\":\"인물은 밝음\",\"background\":\"배경은 차가움\",\"confidence\":\"medium\",\"limitations\":\"추정값\"}]}",
+              "annotations": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "test-search",
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "service_tier": "default",
+      "usage": {
+        "input_tokens": 1000,
+        "output_tokens": 500,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "reasoning_tokens": 100
+        }
+      },
+      "output": [
+        {
+          "type": "web_search_call",
+          "action": {
+            "type": "search",
+            "sources": [
+              {
+                "url": "https://helpx.adobe.com/lightroom/desktop/edit-photos/masking.html",
+                "title": "Lightroom masks"
+              }
+            ]
+          }
+        },
+        {
+          "type": "message",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "색감은 HSL과 커브, 인물과 배경은 별도 마스크로 조절합니다.",
+              "annotations": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "test-recipe",
+      "model": "gpt-6-luna",
+      "status": "completed",
+      "service_tier": "default",
+      "usage": {
+        "input_tokens": 1000,
+        "output_tokens": 500,
+        "input_tokens_details": {
+          "cached_tokens": 0
+        },
+        "output_tokens_details": {
+          "reasoning_tokens": 100
+        }
+      },
+      "output": [
+        {
+          "type": "message",
+          "content": [
+            {
+              "type": "output_text",
+              "text": "{\"recipes\":[{\"referenceIds\":[\"R001\",\"R002\"],\"name\":\"로즈 필름\",\"reason\":\"저채도 색감과 부드러운 대비\",\"confidence\":\"medium\",\"limitations\":\"조명과 소재의 영향은 분리하기 어렵습니다.\",\"values\":{\"Exposure2012\":0,\"Contrast2012\":12,\"Highlights2012\":0,\"Shadows2012\":0,\"Whites2012\":0,\"Blacks2012\":0,\"Texture\":0,\"Clarity2012\":0,\"Dehaze\":0,\"Vibrance\":0,\"Saturation\":-10,\"GrainAmount\":0,\"GrainSize\":25,\"GrainFrequency\":50,\"SplitToningShadowHue\":0,\"SplitToningShadowSaturation\":0,\"SplitToningHighlightHue\":0,\"SplitToningHighlightSaturation\":0,\"SplitToningBalance\":0,\"HueAdjustmentRed\":0,\"SaturationAdjustmentRed\":0,\"LuminanceAdjustmentRed\":0,\"HueAdjustmentOrange\":0,\"SaturationAdjustmentOrange\":0,\"LuminanceAdjustmentOrange\":0,\"HueAdjustmentYellow\":0,\"SaturationAdjustmentYellow\":0,\"LuminanceAdjustmentYellow\":0,\"HueAdjustmentGreen\":0,\"SaturationAdjustmentGreen\":0,\"LuminanceAdjustmentGreen\":0,\"HueAdjustmentAqua\":0,\"SaturationAdjustmentAqua\":0,\"LuminanceAdjustmentAqua\":0,\"HueAdjustmentBlue\":0,\"SaturationAdjustmentBlue\":0,\"LuminanceAdjustmentBlue\":0,\"HueAdjustmentPurple\":0,\"SaturationAdjustmentPurple\":0,\"LuminanceAdjustmentPurple\":0,\"HueAdjustmentMagenta\":0,\"SaturationAdjustmentMagenta\":0,\"LuminanceAdjustmentMagenta\":0},\"curves\":{\"ToneCurvePV2012\":[8,62,130,196,250],\"ToneCurvePV2012Red\":[8,62,130,196,250],\"ToneCurvePV2012Green\":[8,62,130,196,250],\"ToneCurvePV2012Blue\":[8,62,130,196,250]},\"subject\":{\"exposure\":0.3,\"contrast\":0,\"highlights\":0,\"shadows\":0,\"whites\":0,\"blacks\":0,\"temperature\":12,\"tint\":0,\"saturation\":0,\"texture\":0,\"clarity\":-15,\"dehaze\":0},\"background\":{\"exposure\":-0.25,\"contrast\":0,\"highlights\":0,\"shadows\":0,\"whites\":0,\"blacks\":0,\"temperature\":-20,\"tint\":0,\"saturation\":0,\"texture\":0,\"clarity\":10,\"dehaze\":0}}]}",
+              "annotations": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

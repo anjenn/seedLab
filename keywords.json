@@ -1,0 +1,794 @@
+[
+  {
+    "id": "dreamy",
+    "label": "몽환적인",
+    "category": "분위기",
+    "axes": {
+      "exposure": 0.2,
+      "contrast": -0.4,
+      "softness": 0.8,
+      "warmth": 0,
+      "magenta": 0.15,
+      "saturation": -0.2,
+      "shadowLift": 0.4,
+      "red": 0,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "fairytale",
+    "label": "동화적인",
+    "category": "분위기",
+    "axes": {
+      "exposure": 0.25,
+      "contrast": -0.25,
+      "softness": 0.6,
+      "warmth": 0.1,
+      "magenta": 0.15,
+      "saturation": 0.15,
+      "shadowLift": 0.3,
+      "red": 0.15,
+      "green": 0.1,
+      "blue": 0.15,
+      "grain": 0
+    }
+  },
+  {
+    "id": "romantic",
+    "label": "로맨틱한",
+    "category": "분위기",
+    "axes": {
+      "exposure": 0.1,
+      "contrast": -0.15,
+      "softness": 0.45,
+      "warmth": 0.2,
+      "magenta": 0.4,
+      "saturation": -0.1,
+      "shadowLift": 0.15,
+      "red": 0.25,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "girlish",
+    "label": "소녀스러운",
+    "category": "분위기",
+    "axes": {
+      "exposure": 0.25,
+      "contrast": -0.25,
+      "softness": 0.4,
+      "warmth": 0.1,
+      "magenta": 0.3,
+      "saturation": -0.15,
+      "shadowLift": 0.2,
+      "red": 0.25,
+      "green": 0,
+      "blue": 0.1,
+      "grain": 0
+    }
+  },
+  {
+    "id": "lovely",
+    "label": "사랑스러운",
+    "category": "분위기",
+    "axes": {
+      "exposure": 0.2,
+      "contrast": -0.1,
+      "softness": 0.3,
+      "warmth": 0.25,
+      "magenta": 0.25,
+      "saturation": 0.2,
+      "shadowLift": 0.15,
+      "red": 0.4,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "pure",
+    "label": "청순한",
+    "category": "분위기",
+    "axes": {
+      "exposure": 0.3,
+      "contrast": -0.2,
+      "softness": 0.35,
+      "warmth": -0.05,
+      "magenta": 0.05,
+      "saturation": -0.25,
+      "shadowLift": 0.2,
+      "red": 0.05,
+      "green": 0,
+      "blue": 0.05,
+      "grain": 0
+    }
+  },
+  {
+    "id": "mysterious",
+    "label": "신비로운",
+    "category": "분위기",
+    "axes": {
+      "exposure": -0.15,
+      "contrast": 0.15,
+      "softness": 0.4,
+      "warmth": -0.35,
+      "magenta": 0.3,
+      "saturation": -0.15,
+      "shadowLift": 0.15,
+      "red": 0,
+      "green": 0.1,
+      "blue": 0.4,
+      "grain": 0
+    }
+  },
+  {
+    "id": "fantasy",
+    "label": "판타지한",
+    "category": "분위기",
+    "axes": {
+      "exposure": 0.1,
+      "contrast": 0.15,
+      "softness": 0.4,
+      "warmth": -0.1,
+      "magenta": 0.35,
+      "saturation": 0.3,
+      "shadowLift": 0.1,
+      "red": 0.2,
+      "green": 0.1,
+      "blue": 0.35,
+      "grain": 0
+    }
+  },
+  {
+    "id": "soft",
+    "label": "부드러운",
+    "category": "톤",
+    "axes": {
+      "exposure": 0.1,
+      "contrast": -0.4,
+      "softness": 0.65,
+      "warmth": 0,
+      "magenta": 0,
+      "saturation": -0.1,
+      "shadowLift": 0.2,
+      "red": 0,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "airy",
+    "label": "밝고 가벼운",
+    "category": "톤",
+    "axes": {
+      "exposure": 0.6,
+      "contrast": -0.25,
+      "softness": 0.3,
+      "warmth": 0.1,
+      "magenta": 0,
+      "saturation": -0.1,
+      "shadowLift": 0.3,
+      "red": 0,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "clean",
+    "label": "깨끗한",
+    "category": "톤",
+    "axes": {
+      "exposure": 0.2,
+      "contrast": 0.15,
+      "softness": -0.15,
+      "warmth": 0,
+      "magenta": 0,
+      "saturation": -0.1,
+      "shadowLift": -0.05,
+      "red": 0,
+      "green": 0,
+      "blue": 0,
+      "grain": -0.2
+    }
+  },
+  {
+    "id": "radiant",
+    "label": "화사한",
+    "category": "톤",
+    "axes": {
+      "exposure": 0.45,
+      "contrast": -0.1,
+      "softness": 0.2,
+      "warmth": 0.15,
+      "magenta": 0.1,
+      "saturation": 0.2,
+      "shadowLift": 0.2,
+      "red": 0.15,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "calm",
+    "label": "차분한",
+    "category": "톤",
+    "axes": {
+      "exposure": 0,
+      "contrast": -0.2,
+      "softness": 0.2,
+      "warmth": -0.1,
+      "magenta": 0,
+      "saturation": -0.4,
+      "shadowLift": 0.1,
+      "red": 0,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "dreamy_tone",
+    "label": "드리미한",
+    "category": "톤",
+    "axes": {
+      "exposure": 0.3,
+      "contrast": -0.5,
+      "softness": 0.7,
+      "warmth": 0.05,
+      "magenta": 0.1,
+      "saturation": -0.3,
+      "shadowLift": 0.55,
+      "red": 0,
+      "green": 0,
+      "blue": 0.1,
+      "grain": 0
+    }
+  },
+  {
+    "id": "emotive",
+    "label": "감성적인",
+    "category": "톤",
+    "axes": {
+      "exposure": 0.05,
+      "contrast": -0.2,
+      "softness": 0.3,
+      "warmth": 0.15,
+      "magenta": 0.1,
+      "saturation": -0.3,
+      "shadowLift": 0.3,
+      "red": 0.1,
+      "green": 0,
+      "blue": -0.05,
+      "grain": 0.15
+    }
+  },
+  {
+    "id": "kitschy",
+    "label": "키치한",
+    "category": "톤",
+    "axes": {
+      "exposure": 0.1,
+      "contrast": 0.35,
+      "softness": -0.2,
+      "warmth": 0.1,
+      "magenta": 0.3,
+      "saturation": 0.65,
+      "shadowLift": -0.15,
+      "red": 0.4,
+      "green": 0.1,
+      "blue": 0.3,
+      "grain": 0
+    }
+  },
+  {
+    "id": "baby_pink",
+    "label": "베이비 핑크",
+    "category": "따뜻한 색감",
+    "axes": {
+      "exposure": 0.25,
+      "contrast": -0.35,
+      "softness": 0.35,
+      "warmth": 0.05,
+      "magenta": 0.5,
+      "saturation": -0.3,
+      "shadowLift": 0.25,
+      "red": 0.35,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "rose",
+    "label": "로즈 핑크",
+    "category": "따뜻한 색감",
+    "axes": {
+      "exposure": 0,
+      "contrast": 0,
+      "softness": 0.1,
+      "warmth": 0.15,
+      "magenta": 0.6,
+      "saturation": 0.1,
+      "shadowLift": 0,
+      "red": 0.6,
+      "green": -0.1,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "peach",
+    "label": "피치",
+    "category": "따뜻한 색감",
+    "axes": {
+      "exposure": 0.15,
+      "contrast": -0.1,
+      "softness": 0.2,
+      "warmth": 0.4,
+      "magenta": 0.2,
+      "saturation": -0.1,
+      "shadowLift": 0.1,
+      "red": 0.5,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "milky_pink",
+    "label": "밀키 핑크",
+    "category": "따뜻한 색감",
+    "axes": {
+      "exposure": 0.3,
+      "contrast": -0.45,
+      "softness": 0.5,
+      "warmth": 0.1,
+      "magenta": 0.35,
+      "saturation": -0.45,
+      "shadowLift": 0.4,
+      "red": 0.25,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "cream_white",
+    "label": "크림 화이트",
+    "category": "따뜻한 색감",
+    "axes": {
+      "exposure": 0.35,
+      "contrast": -0.3,
+      "softness": 0.3,
+      "warmth": 0.35,
+      "magenta": 0.05,
+      "saturation": -0.35,
+      "shadowLift": 0.25,
+      "red": 0.1,
+      "green": 0.05,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "candy_pink",
+    "label": "캔디 핑크",
+    "category": "따뜻한 색감",
+    "axes": {
+      "exposure": 0.15,
+      "contrast": 0.1,
+      "softness": 0.1,
+      "warmth": 0.1,
+      "magenta": 0.65,
+      "saturation": 0.5,
+      "shadowLift": 0.05,
+      "red": 0.7,
+      "green": -0.1,
+      "blue": 0.05,
+      "grain": 0
+    }
+  },
+  {
+    "id": "sky_blue",
+    "label": "하늘빛",
+    "category": "차가운 색감",
+    "axes": {
+      "exposure": 0.3,
+      "contrast": -0.2,
+      "softness": 0.2,
+      "warmth": -0.4,
+      "magenta": -0.05,
+      "saturation": -0.15,
+      "shadowLift": 0.2,
+      "red": 0,
+      "green": 0.1,
+      "blue": 0.4,
+      "grain": 0
+    }
+  },
+  {
+    "id": "cool_blue",
+    "label": "쿨 블루",
+    "category": "차가운 색감",
+    "axes": {
+      "exposure": 0,
+      "contrast": 0.1,
+      "softness": 0,
+      "warmth": -0.7,
+      "magenta": -0.05,
+      "saturation": -0.1,
+      "shadowLift": 0,
+      "red": 0,
+      "green": 0,
+      "blue": 0.6,
+      "grain": 0
+    }
+  },
+  {
+    "id": "cyan",
+    "label": "시안",
+    "category": "차가운 색감",
+    "axes": {
+      "exposure": 0,
+      "contrast": 0.1,
+      "softness": 0,
+      "warmth": -0.5,
+      "magenta": -0.3,
+      "saturation": 0.1,
+      "shadowLift": 0,
+      "red": 0,
+      "green": 0.1,
+      "blue": 0.65,
+      "grain": 0
+    }
+  },
+  {
+    "id": "lavender",
+    "label": "라벤더",
+    "category": "차가운 색감",
+    "axes": {
+      "exposure": 0.1,
+      "contrast": -0.2,
+      "softness": 0.2,
+      "warmth": -0.35,
+      "magenta": 0.55,
+      "saturation": -0.1,
+      "shadowLift": 0.1,
+      "red": 0.1,
+      "green": 0,
+      "blue": 0.5,
+      "grain": 0
+    }
+  },
+  {
+    "id": "mint",
+    "label": "민트",
+    "category": "차가운 색감",
+    "axes": {
+      "exposure": 0.2,
+      "contrast": -0.2,
+      "softness": 0.2,
+      "warmth": -0.3,
+      "magenta": -0.3,
+      "saturation": -0.2,
+      "shadowLift": 0.2,
+      "red": 0,
+      "green": 0.6,
+      "blue": 0.1,
+      "grain": 0
+    }
+  },
+  {
+    "id": "icy_blue",
+    "label": "아이시 블루",
+    "category": "차가운 색감",
+    "axes": {
+      "exposure": 0.35,
+      "contrast": 0.15,
+      "softness": -0.2,
+      "warmth": -0.6,
+      "magenta": -0.1,
+      "saturation": -0.3,
+      "shadowLift": 0.1,
+      "red": 0,
+      "green": 0.15,
+      "blue": 0.45,
+      "grain": 0
+    }
+  },
+  {
+    "id": "pastel",
+    "label": "파스텔",
+    "category": "팔레트",
+    "axes": {
+      "exposure": 0.25,
+      "contrast": -0.35,
+      "softness": 0.3,
+      "warmth": 0,
+      "magenta": 0,
+      "saturation": -0.6,
+      "shadowLift": 0.25,
+      "red": 0.1,
+      "green": 0.1,
+      "blue": 0.1,
+      "grain": 0
+    }
+  },
+  {
+    "id": "muted_pastel",
+    "label": "저채도 파스텔",
+    "category": "팔레트",
+    "axes": {
+      "exposure": 0.15,
+      "contrast": -0.3,
+      "softness": 0.35,
+      "warmth": 0,
+      "magenta": 0,
+      "saturation": -0.8,
+      "shadowLift": 0.3,
+      "red": 0.05,
+      "green": 0.05,
+      "blue": 0.05,
+      "grain": 0
+    }
+  },
+  {
+    "id": "milky_color",
+    "label": "밀키 컬러",
+    "category": "팔레트",
+    "axes": {
+      "exposure": 0.3,
+      "contrast": -0.5,
+      "softness": 0.5,
+      "warmth": 0.05,
+      "magenta": 0.05,
+      "saturation": -0.4,
+      "shadowLift": 0.5,
+      "red": 0.1,
+      "green": 0.1,
+      "blue": 0.1,
+      "grain": 0
+    }
+  },
+  {
+    "id": "candy_color",
+    "label": "캔디 컬러",
+    "category": "팔레트",
+    "axes": {
+      "exposure": 0.2,
+      "contrast": 0.15,
+      "softness": 0.05,
+      "warmth": 0.05,
+      "magenta": 0.2,
+      "saturation": 0.65,
+      "shadowLift": 0.05,
+      "red": 0.4,
+      "green": 0.25,
+      "blue": 0.4,
+      "grain": 0
+    }
+  },
+  {
+    "id": "clean_white",
+    "label": "깨끗한 화이트",
+    "category": "팔레트",
+    "axes": {
+      "exposure": 0.3,
+      "contrast": 0.1,
+      "softness": -0.1,
+      "warmth": -0.1,
+      "magenta": 0,
+      "saturation": -0.15,
+      "shadowLift": -0.05,
+      "red": 0,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "black_contrast",
+    "label": "블랙 대비",
+    "category": "팔레트",
+    "axes": {
+      "exposure": -0.1,
+      "contrast": 0.65,
+      "softness": -0.1,
+      "warmth": 0,
+      "magenta": 0,
+      "saturation": 0.1,
+      "shadowLift": -0.7,
+      "red": 0,
+      "green": 0,
+      "blue": 0,
+      "grain": 0
+    }
+  },
+  {
+    "id": "color_accent",
+    "label": "컬러 포인트",
+    "category": "팔레트",
+    "axes": {
+      "exposure": 0.05,
+      "contrast": 0.3,
+      "softness": -0.1,
+      "warmth": 0,
+      "magenta": 0.05,
+      "saturation": -0.15,
+      "shadowLift": -0.15,
+      "red": 0.55,
+      "green": -0.2,
+      "blue": 0.3,
+      "grain": 0
+    }
+  },
+  {
+    "id": "studio_backdrop",
+    "label": "스튜디오 배경색",
+    "category": "팔레트",
+    "axes": {
+      "exposure": 0.15,
+      "contrast": 0.15,
+      "softness": -0.1,
+      "warmth": 0,
+      "magenta": 0,
+      "saturation": 0.3,
+      "shadowLift": 0,
+      "red": 0.2,
+      "green": 0.25,
+      "blue": 0.25,
+      "grain": 0
+    }
+  },
+  {
+    "id": "idol_editorial",
+    "label": "아이돌 화보 느낌",
+    "category": "스타일",
+    "axes": {
+      "exposure": 0.3,
+      "contrast": 0.2,
+      "softness": 0.15,
+      "warmth": 0.05,
+      "magenta": 0.15,
+      "saturation": 0.25,
+      "shadowLift": -0.05,
+      "red": 0.2,
+      "green": 0.05,
+      "blue": 0.15,
+      "grain": 0
+    }
+  },
+  {
+    "id": "costume_editorial",
+    "label": "코스튬 화보",
+    "category": "스타일",
+    "axes": {
+      "exposure": 0.1,
+      "contrast": 0.4,
+      "softness": -0.25,
+      "warmth": 0,
+      "magenta": 0.1,
+      "saturation": 0.45,
+      "shadowLift": -0.2,
+      "red": 0.25,
+      "green": 0.15,
+      "blue": 0.25,
+      "grain": 0
+    }
+  },
+  {
+    "id": "character_focus",
+    "label": "캐릭터 중심",
+    "category": "스타일",
+    "axes": {
+      "exposure": 0.15,
+      "contrast": 0.3,
+      "softness": -0.15,
+      "warmth": 0,
+      "magenta": 0.05,
+      "saturation": 0.15,
+      "shadowLift": -0.1,
+      "red": 0.15,
+      "green": 0,
+      "blue": 0.1,
+      "grain": 0
+    }
+  },
+  {
+    "id": "subculture",
+    "label": "서브컬처 감성",
+    "category": "스타일",
+    "axes": {
+      "exposure": 0,
+      "contrast": 0.25,
+      "softness": 0.1,
+      "warmth": -0.15,
+      "magenta": 0.35,
+      "saturation": 0.35,
+      "shadowLift": -0.1,
+      "red": 0.25,
+      "green": 0.05,
+      "blue": 0.4,
+      "grain": 0
+    }
+  },
+  {
+    "id": "y2k",
+    "label": "Y2K 감성",
+    "category": "스타일",
+    "axes": {
+      "exposure": 0.15,
+      "contrast": 0.45,
+      "softness": -0.3,
+      "warmth": -0.1,
+      "magenta": 0.2,
+      "saturation": 0.55,
+      "shadowLift": -0.25,
+      "red": 0.2,
+      "green": 0.1,
+      "blue": 0.4,
+      "grain": 0.1
+    }
+  },
+  {
+    "id": "fairycore",
+    "label": "페어리코어",
+    "category": "스타일",
+    "axes": {
+      "exposure": 0.25,
+      "contrast": -0.35,
+      "softness": 0.65,
+      "warmth": 0.1,
+      "magenta": 0.1,
+      "saturation": -0.25,
+      "shadowLift": 0.4,
+      "red": 0.1,
+      "green": 0.35,
+      "blue": 0.1,
+      "grain": 0.1
+    }
+  },
+  {
+    "id": "angelcore",
+    "label": "엔젤코어",
+    "category": "스타일",
+    "axes": {
+      "exposure": 0.5,
+      "contrast": -0.4,
+      "softness": 0.7,
+      "warmth": -0.05,
+      "magenta": 0.05,
+      "saturation": -0.45,
+      "shadowLift": 0.4,
+      "red": 0.05,
+      "green": 0,
+      "blue": 0.1,
+      "grain": 0
+    }
+  },
+  {
+    "id": "cute_fantasy",
+    "label": "큐트 판타지",
+    "category": "스타일",
+    "axes": {
+      "exposure": 0.3,
+      "contrast": -0.1,
+      "softness": 0.35,
+      "warmth": 0.05,
+      "magenta": 0.35,
+      "saturation": 0.35,
+      "shadowLift": 0.2,
+      "red": 0.35,
+      "green": 0.1,
+      "blue": 0.3,
+      "grain": 0
+    }
+  }
+]

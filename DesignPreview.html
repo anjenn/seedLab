@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Seed Lab · Dashboard design preview</title>
+<style>
+:root{--ink:#25324a;--muted:#7c8aa1;--blue:#4f76b6;--line:#e4eaf2;--bg:#f5f7fa;--pale:#eaf1fc}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:13px 'Segoe UI','Malgun Gothic',Arial,sans-serif}button,select,input{font:inherit;color:inherit}button,select{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 13px;cursor:pointer}button:hover{border-color:#a7bddb}.app{display:grid;grid-template-columns:188px minmax(0,1fr);min-height:100vh}aside{background:#fff;border-right:1px solid var(--line);padding:28px 20px;display:flex;flex-direction:column;gap:35px}.brand{display:flex;align-items:center;gap:10px}.mark{display:grid;place-items:center;width:34px;height:34px;background:var(--blue);color:#fff;border-radius:10px;font-size:20px;font-weight:700}.brand strong{font-size:18px;display:block}.brand small{font-size:9px;color:#93a0b5;letter-spacing:1px}.nav-label{font-size:9px;color:#a1adc0;margin:0 12px 12px;letter-spacing:1px}nav button{display:block;width:100%;border:0;background:transparent;text-align:left;margin:4px 0;padding:13px;color:var(--muted)}nav button.active{background:var(--pale);color:#31598f;font-weight:600}.side-foot{margin-top:auto;font-size:10px;line-height:1.8;color:#99a6ba}.content{padding:24px 28px 18px;max-width:1600px;width:100%;margin:auto}header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px}h1{font-size:26px;letter-spacing:-1px;font-weight:600;margin:0 0 7px}p{margin:0;color:var(--muted);line-height:1.7}.sample{background:#eaf2ee;color:#648b78;padding:7px 11px;border-radius:20px;font-size:10px;white-space:nowrap}.toolbar{display:flex;justify-content:space-between;gap:12px;margin-bottom:16px}.group{display:flex;gap:8px;align-items:center}.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px}.label{font-size:11px;color:var(--muted)}.big{font-size:27px;font-weight:600;letter-spacing:-.7px;margin:9px 0 6px}.meta{font-size:11px;color:var(--muted)}.two{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,1.7fr);gap:16px;margin-bottom:16px}.card-head{display:flex;align-items:start;justify-content:space-between;gap:10px;margin-bottom:12px}h2{font-size:15px;font-weight:600;margin:0 0 8px}.chart{width:100%;height:188px;display:block}.legend{display:flex;gap:18px;padding-left:42px;font-size:10px;color:var(--muted)}.legend span{display:flex;align-items:center;gap:6px}.dot{width:7px;height:7px;background:#afc6e6;border-radius:2px}.dot.dark{background:var(--blue)}table{border-collapse:collapse;width:100%;font-size:11px;text-align:left}th{font-weight:600;background:#f6f8fc;color:var(--muted);padding:12px 10px;white-space:nowrap}td{padding:12px 10px;border-bottom:1px solid #eff2f7;color:#405470;white-space:nowrap}td.number{text-align:right;font-variant-numeric:tabular-nums}.badge{font-size:10px;color:#648b78;background:#eef5f0;padding:4px 8px;border-radius:5px}.warn{background:#fff8e9;border:1px solid #eedcb5;border-radius:9px;padding:12px;color:#9c8046;margin-bottom:14px;font-size:11px}.tabs{display:flex;gap:18px;border-bottom:1px solid var(--line);margin:10px 0 0}.tabs button{border:0;border-radius:0;padding:9px 0;color:var(--muted);background:none}.tabs button.selected{color:var(--blue);border-bottom:2px solid var(--blue)}.table-scroll{max-height:246px;overflow:auto}.footer{display:flex;justify-content:space-between;gap:20px;align-items:center;border-top:1px solid #e1e7f0;margin-top:18px;padding-top:15px}.primary{background:var(--blue);color:white;border-color:var(--blue);font-weight:600}.page-note{font-size:11px;color:var(--muted);margin:12px 4px 0}.hidden{display:none!important}.gen-two{display:grid;grid-template-columns:340px minmax(0,1fr);gap:16px}.gen-two+.gen-two{margin-top:16px}.chip{border:1px solid #e5ebf3;background:#f7f9fc;font-size:11px;padding:8px 10px;margin:0 7px 7px 0}.chip.selected{background:var(--pale);border-color:#93afd5;color:#31598f}.cat{margin:14px 0 8px;color:var(--muted);font-size:11px}.field{margin-top:14px}input{width:100%;border:1px solid #dee5ef;background:#fbfcfe;padding:10px;border-radius:6px;margin-top:7px}.field input[type=range]{padding:0;accent-color:var(--blue)}.number{font-variant-numeric:tabular-nums}.mini-note{background:#f5f7fa;border:1px dashed #d6e0ed;color:var(--muted);border-radius:8px;padding:14px;line-height:1.8;margin-top:14px}.model-table{height:169px;overflow:auto}.success{color:#648b78}.svg-label{font-size:10px;fill:#93a0b5;font-family:inherit}@media(max-width:1050px){.app{grid-template-columns:160px minmax(0,1fr)}.content{padding:24px 20px}.two{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.gen-two{grid-template-columns:1fr}.toolbar{flex-wrap:wrap}}@media(max-width:650px){.app{display:block}aside{display:none}.content{padding:20px 14px}.sample{font-size:9px}header{gap:10px}h1{font-size:22px}.toolbar .group{flex-wrap:wrap}.footer{align-items:flex-start;flex-direction:column}}
+</style></head><body>
+<div class="app"><aside><div class="brand"><div class="mark">S</div><div><strong>Seed Lab</strong><small>PRESET STUDIO</small></div></div><nav><div class="nav-label">WORKSPACE</div><button class="active" data-page="dash">사용량 대시보드</button><button data-page="gen">프리셋 생성</button><button data-page="ref">레퍼런스로 만들기</button><button data-page="result">생성 결과</button></nav><div class="side-foot">YOUR STYLE.<br>MORE POSSIBILITIES.<br><br>Desktop · v1.2</div></aside>
+<main class="content"><header><div><h1 id="pageTitle">사용량 대시보드</h1><p id="pageSubtitle">토큰과 이용 추세를 한눈에 확인하세요.</p></div><div class="sample">● 디자인 미리보기 · 샘플 데이터</div></header>
+<section id="dash"><div class="toolbar"><div class="group"><select id="period"><option value="7">최근 7일</option><option value="30">최근 30일</option><option value="90">최근 90일</option><option value="all">전체 기간</option></select><select id="model"><option value="all">전체 모델</option><option>gpt-6-luna</option><option>gpt-6.1-sol</option></select></div><div class="group"><button id="refresh">새로고침</button><button id="csv">호출 CSV</button><button id="dailyCsv">일별 CSV</button></div></div>
+<div class="kpis"><div class="card"><div class="label">총 사용 토큰</div><div class="big" id="tokens">0</div><div class="meta" id="compare"></div></div><div class="card"><div class="label">API 호출</div><div class="big" id="calls">0</div><div class="meta" id="callDetail"></div></div><div class="card"><div class="label">프리셋 생성 작업</div><div class="big" id="runs">0</div><div class="meta" id="runDetail"></div></div><div class="card"><div class="label">예상 API 비용 · USD</div><div class="big" id="cost">$0.0000</div><div class="meta">기록 시점의 요금표 기준</div></div></div>
+<div class="two"><div class="card"><div class="card-head"><div><h2>이용 추세</h2><div class="meta" id="range"></div></div><select id="metric"><option value="tokens">토큰 사용량</option><option value="calls">API 호출 수</option><option value="runs">생성 작업 수</option></select></div><svg class="chart" id="chart" viewBox="0 0 580 188" preserveAspectRatio="none"></svg><div class="legend" id="legend"><span><i class="dot"></i>입력</span><span><i class="dot dark"></i>출력 (추론 포함)</span></div></div><div class="card"><h2>모델별 사용량</h2><p class="meta">같은 기간의 토큰과 예상 비용</p><div class="model-table"><table style="margin-top:14px"><thead><tr><th>모델</th><th>토큰</th><th>USD</th></tr></thead><tbody id="models"></tbody></table></div><div class="meta" id="cache" style="margin-top:10px"></div></div></div>
+<div class="warn hidden" id="notice"></div>
+<div class="card"><div class="card-head"><h2>사용 기록</h2><div class="meta">선택 기간의 샘플 기록</div></div><div class="tabs"><button class="selected" id="callTab">API 호출</button><button id="runTab">생성 작업</button></div><div class="table-scroll"><table><thead id="historyHead"></thead><tbody id="history"></tbody></table></div></div><div class="page-note">이 화면은 디자인 참고용입니다. 실제 Windows 앱은 내 호출 기록을 저장하고 표시합니다.</div></section>
+<section id="gen" class="hidden"><div class="gen-two"><div class="card"><h2>씨드 라이브러리</h2><p class="meta">내 스타일의 기준이 되는 XMP를 등록하세요.</p><div class="group" style="margin:14px 0"><button>XMP 추가</button><button>폴더</button><button>비우기</button></div><table><thead><tr><th>사용</th><th>프리셋</th><th>마스크</th></tr></thead><tbody><tr><td>✓</td><td>Soft Rose</td><td>✓</td></tr><tr><td>✓</td><td>Warm Cream</td><td>✓</td></tr><tr><td>✓</td><td>Quiet Cyan</td><td>—</td></tr><tr><td>✓</td><td>Deep Film</td><td>✓</td></tr></tbody></table><p class="meta" style="margin-top:14px">12개 등록 · 샘플 라이브러리</p></div><div class="card"><h2>이번에 탐색할 분위기</h2><p class="meta">44개의 방향 중 원하는 것을 선택하세요.</p><div id="chips"></div></div></div><div class="gen-two"><div class="card"><h2>변주 설정</h2><div class="field">생성 개수<input value="24" type="number" min="1" max="120"></div><div class="field">씨드 충실도<input type="range" value="85"></div><div class="field">변주 폭<input type="range" value="70"></div><p class="meta">충실도가 높을수록 씨드의 색감을 더 가깝게 유지합니다.</p></div><div class="card"><h2>AI 디렉션</h2><p class="meta">API 키는 실제 Windows 앱에서 입력하세요.</p><div class="field">OpenAI API 키<input disabled placeholder="이번 실행에서만 사용"></div><div class="field">모델<input disabled value="gpt-6-luna"></div><div class="mini-note">이 미리보기에서는 API를 호출하지 않습니다.<br>버튼을 누르면 샘플 사용 기록만 추가됩니다.</div></div></div></section>
+<section id="ref" class="hidden"><div class="gen-two"><div class="card"><h2>레퍼런스 사진</h2><p>JPG·PNG 1~24장으로 색감과 톤을 추정합니다.</p><div class="group" style="margin:14px 0"><button disabled>사진 추가</button><button disabled>선택 삭제</button></div><table><thead><tr><th>ID</th><th>샘플 파일</th></tr></thead><tbody><tr><td>R001</td><td>rose_reference.jpg</td></tr><tr><td>R002</td><td>cream_portrait.jpg</td></tr><tr><td>R003</td><td>soft_light.jpg</td></tr></tbody></table><div class="mini-note">샘플 파일명입니다. 이 화면은 사진을 읽거나 API를 호출하지 않습니다.</div></div><div class="card"><h2>스타일 추정</h2><p>사진 분석 → 보정 자료 검색 → 수치 추정</p><div class="field">추출 방식 <select><option>여러 장의 공통 스타일</option><option>사진별 개별 스타일</option></select></div><div class="field">API 키<input disabled placeholder="실제 앱에서 입력 · 실행 중 메모리에만 유지"></div><div class="field">총 생성 개수<input type="number" value="12" min="1" max="120"></div><p style="margin-top:12px">✓ 웹에서 보정 방법 검색 · 출처 기록<br>✓ 적용할 원본 사진 선택 가능<br>✓ 각 스타일의 첫 후보는 추정 기본값</p></div></div><div class="card" style="margin-top:16px"><h2>인물·배경 마스킹</h2><p>Lightroom에서 만든 AI 마스크 XMP를 한 번 불러오면, 영역별 보정값을 따로 설계합니다.</p><div class="two" style="margin:16px 0"><div class="mini-note"><strong>인물</strong><br>노출 +0.30 EV · 색온도 +12 · 클래리티 −15<br>템플릿: Subject</div><div class="mini-note"><strong>배경</strong><br>노출 −0.25 EV · 색온도 −20 · 클래리티 +10<br>템플릿: Background</div></div><p>선택 영역은 Lightroom 템플릿에서 유지합니다. 새 사진에 적용 후 AI 마스크를 재계산할 수 있습니다.</p></div><div class="card" style="margin-top:16px"><h2>추정 결과에 포함되는 것</h2><p>노출·명암 / HSL 8색 / 분할 토닝 / RGB 채널 커브 / 질감·그레인 / 인물·배경 보정 / 검색 출처 / 추정 한계</p><div class="mini-note">사진에서 조명·소재·보정을 완전히 분리할 수는 없습니다. 원래 프리셋의 정확한 복원이 아닌 비슷한 스타일을 재현하는 시작점입니다.</div></div></section>
+<section id="result" class="hidden"><div class="card"><h2>생성된 프리셋</h2><p>실제 앱에서 후보의 변경값과 생성 이유를 확인할 수 있어요.</p><table style="margin-top:18px"><thead><tr><th>기준 씨드</th><th>키워드</th><th>변경값</th><th>방식</th></tr></thead><tbody><tr><td>Soft Rose</td><td>몽환적인</td><td>12</td><td>AI</td></tr><tr><td>Warm Cream</td><td>크리미 베이지</td><td>10</td><td>AI</td></tr><tr><td>Quiet Cyan</td><td>쿨 블루</td><td>14</td><td>AI</td></tr></tbody></table></div></section>
+<div class="footer"><div class="meta" id="status">미리보기 · 네트워크 요청 없이 동작합니다.</div><div class="group"><button id="addDemo" class="primary">샘플 생성 기록 추가</button></div></div></main></div>
+<script>/* ES5 usage aggregation for the native dashboard and its tests. */
+(function(root){
+ 'use strict';
+ function own(o,k){return Object.prototype.hasOwnProperty.call(o,k);}
+ function number(v){return typeof v==='number' && isFinite(v) && v>=0;}
+ function date(s){if(!/^\d{4}-\d{2}-\d{2}$/.test(s||''))return null;var p=s.split('-'),d=new Date(Date.UTC(+p[0],+p[1]-1,+p[2]));return key(d)===s?d:null;}
+ function key(d){function pad(n){return ('0'+n).slice(-2);}return d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate());}
+ function shift(s,n){var d=date(s);d.setUTCDate(d.getUTCDate()+n);return key(d);}
+ function blank(){return {inputTokens:0,outputTokens:0,totalTokens:0,cachedTokens:0,cacheWriteTokens:0,reasoningTokens:0,webSearchCalls:0,searchUSD:0,calls:0,knownCalls:0,unknownCalls:0,failedCalls:0,runs:0,referenceRuns:0,completedRuns:0,generatedPresets:0,estimatedUSD:0,costUnknownCalls:0};}
+ function known(e){return e.usageKnown===true && number(e.inputTokens)&&number(e.outputTokens);}
+ function estimateCost(req){
+  var rates={'gpt-6-luna':[.10,.01,.125,.50],'gpt-6.1-sol':[2,.10,2.50,10]},u=req.usage,t=req.serviceTier;
+  if(!u||!own(rates,req.model)||(t&&t!=='default'&&t!=='standard')||!number(u.input_tokens)||!number(u.output_tokens))return {estimatedUSD:null};
+  var searches=req.searchCalls===undefined?0:req.searchCalls;
+  if(!number(searches)||Math.floor(searches)!==searches)return {estimatedUSD:null};
+  var details=u.input_tokens_details||{},input=u.input_tokens,output=u.output_tokens,cached=Math.min(input,number(details.cached_tokens)?details.cached_tokens:0),writes=Math.min(input-cached,number(details.cache_write_tokens)?details.cache_write_tokens:0);
+  var rate=rates[req.model],inf=input>272000?2:1,outf=input>272000?1.5:1;
+  var tokenUSD=((input-cached-writes)*rate[0]*inf+cached*rate[1]*inf+writes*rate[2]*inf+output*rate[3]*outf)/1000000,searchUSD=searches*.01;
+  return {estimatedUSD:tokenUSD+searchUSD,tokenUSD:tokenUSD,searchUSD:searchUSD};
+ }
+ function summarize(req){
+  var today=req.today;if(!date(today))throw new Error('Invalid dashboard date');
+  var dedup={},list=[],events=req.events||[],i,e,id,discarded=0;
+  for(i=0;i<events.length;i++){
+   e=events[i];if(!e||typeof e.eventId!=='string'||!e.eventId||!date(e.localDate)||['api','run_start','run_result'].indexOf(e.kind)<0){discarded++;continue;}
+   // Later append entries replace logical state; pending -> response is one call.
+   dedup['id:'+e.eventId]=e;
+  }
+  for(id in dedup)if(own(dedup,id))list.push(dedup[id]);
+  list.sort(function(a,b){return String(a.timestampUtc||'').localeCompare(String(b.timestampUtc||''));});
+  var days=req.days==='all'?'all':Math.floor(Number(req.days)||30);if(days!=='all'&&(days<1||days>3660))throw new Error('Invalid range');
+  var earliest=today;
+  for(i=0;i<list.length;i++)if(list[i].localDate<earliest)earliest=list[i].localDate;
+  var start=days==='all'?earliest:shift(today,1-days),previousStart=days==='all'?null:shift(start,-days),previousEnd=shift(start,-1);
+  var total=blank(),previous=blank(),daily={},models={},rows=[],runRows=[],runMap={},allModels={},modelFilter=req.model||'all';
+  function modelOf(e){return String(e.model||'local');}
+  function addCall(target,e){
+   target.calls++;
+   target.webSearchCalls+=number(e.webSearchCalls)?e.webSearchCalls:0;
+   target.searchUSD+=number(e.searchUSD)?e.searchUSD:0;
+   if(e.status==='failed'||e.status==='incomplete'||e.status==='refused')target.failedCalls++;
+   if(!known(e)){target.unknownCalls++;target.costUnknownCalls++;return;}
+   target.knownCalls++;target.inputTokens+=e.inputTokens;target.outputTokens+=e.outputTokens;target.totalTokens+=e.inputTokens+e.outputTokens;
+   target.cachedTokens+=Math.min(e.inputTokens,number(e.cachedTokens)?e.cachedTokens:0);
+   target.cacheWriteTokens+=Math.min(e.inputTokens,number(e.cacheWriteTokens)?e.cacheWriteTokens:0);
+   target.reasoningTokens+=Math.min(e.outputTokens,number(e.reasoningTokens)?e.reasoningTokens:0);
+   if(number(e.estimatedUSD))target.estimatedUSD+=e.estimatedUSD;else target.costUnknownCalls++;
+  }
+  function dayOf(s){if(!daily[s]){daily[s]=blank();daily[s].date=s;}return daily[s];}
+  function modelStats(m){var mk='m:'+m;if(!models[mk]){models[mk]=blank();models[mk].model=m;}return models[mk];}
+  for(i=0;i<list.length;i++){
+   e=list[i];var m=modelOf(e);if(e.kind==='api')allModels['m:'+m]=m;
+   if(modelFilter!=='all'&&m!==modelFilter)continue;
+   if(e.localDate>today)continue;
+   if(e.kind==='run_start'){if(!runMap['r:'+e.runId])runMap['r:'+e.runId]={};runMap['r:'+e.runId].start=e;continue;}
+   if(e.kind==='run_result'){
+    var rk='r:'+e.runId;if(!runMap[rk])runMap[rk]={};runMap[rk].result=e;continue;
+   }
+   if(e.localDate<start){if(previousStart&&e.localDate>=previousStart&&e.localDate<=previousEnd)addCall(previous,e);continue;}
+   addCall(total,e);addCall(dayOf(e.localDate),e);addCall(modelStats(m),e);
+   rows.push({EventId:e.eventId,RunId:e.runId,Time:e.localTime||e.timestampUtc,Date:e.localDate,Model:m,
+    Status:e.status==='completed'?'완료':e.status==='pending'?'응답 대기 / 미확인':e.status==='failed'?'실패 / 미확인':e.status==='incomplete'?'응답 미완료':e.status==='refused'?'요청 거절':String(e.status||'미확인'),
+    Input:known(e)?e.inputTokens:null,Output:known(e)?e.outputTokens:null,Total:known(e)?e.inputTokens+e.outputTokens:null,
+    Cached:known(e)?Math.min(e.inputTokens,e.cachedTokens||0):null,CacheWrite:known(e)?e.cacheWriteTokens||0:null,
+    Reasoning:known(e)?Math.min(e.outputTokens,e.reasoningTokens||0):null,
+    USD:number(e.estimatedUSD)?e.estimatedUSD:null,SearchCalls:number(e.webSearchCalls)?e.webSearchCalls:0,SearchUSD:number(e.searchUSD)?e.searchUSD:null,Phase:e.phase||'seed_variation',Mode:e.mode||'seed',DurationMs:number(e.durationMs)?e.durationMs:null,UsageKnown:known(e),PriceDate:e.priceDate||'',Batch:e.batchIndex||0});
+  }
+  for(id in runMap)if(own(runMap,id)){
+   var run=runMap[id],beg=run.start||run.result,end=run.result;
+   if(beg.localDate<start||beg.localDate>today)continue;
+   total.runs++;dayOf(beg.localDate).runs++;
+   if(beg.mode==='reference'){total.referenceRuns++;dayOf(beg.localDate).referenceRuns++;}
+   var count=end&&number(end.generatedCount)?end.generatedCount:0;
+   total.generatedPresets+=count;dayOf(beg.localDate).generatedPresets+=count;
+   if(end&&end.status==='completed'){total.completedRuns++;dayOf(beg.localDate).completedRuns++;}
+   runRows.push({RunId:beg.runId,Time:beg.localTime||beg.timestampUtc,Model:modelOf(beg)==='local'?'로컬':modelOf(beg),
+    Status:!end?'진행 중 / 종료 미확인':end.status==='completed'?'완료':end.status==='cancelled'?'중지':end.status==='exporting'?'내보내는 중':'실패',
+    Requested:beg.requestedCount||0,Generated:count,Mode:beg.mode==='reference'?'레퍼런스':beg.mode==='local'?'로컬':'씨드',DurationMs:end&&number(end.durationMs)?end.durationMs:null,Folder:end?end.folder||'':''});
+  }
+  var d=start;while(d<=today){dayOf(d);d=shift(d,1);}
+  var dailyList=[];for(id in daily)if(own(daily,id))dailyList.push(daily[id]);dailyList.sort(function(a,b){return a.date.localeCompare(b.date);});
+  // Weekly buckets keep long ranges legible. Exact daily values remain in export.
+  var chart=[],bucket;
+  for(i=0;i<dailyList.length;i++){
+   if(dailyList.length>31){if(i%7===0){bucket=blank();bucket.date=dailyList[i].date;bucket.endDate=dailyList[i].date;chart.push(bucket);}else bucket.endDate=dailyList[i].date;
+    for(id in total)if(own(total,id)&&number(dailyList[i][id]))bucket[id]+=dailyList[i][id];
+   }else chart.push(dailyList[i]);
+  }
+  var modelList=[];for(id in models)if(own(models,id))modelList.push(models[id]);modelList.sort(function(a,b){return b.totalTokens-a.totalTokens;});
+  rows.sort(function(a,b){return String(b.Time).localeCompare(String(a.Time));});runRows.sort(function(a,b){return String(b.Time).localeCompare(String(a.Time));});
+  var comparison=previous.totalTokens?Math.round((total.totalTokens-previous.totalTokens)/previous.totalTokens*100):null;
+  var names=[];for(id in allModels)if(own(allModels,id))names.push(allModels[id]);
+  return {totals:total,previous:previous,changePercent:comparison,start:start,end:today,chartUnit:dailyList.length>31?'주별':'일별',daily:dailyList,chart:chart,models:modelList,allModels:names,calls:rows,runs:runRows,discardedEvents:discarded};
+ }
+ function keys(o){var r=[],k;for(k in o)if(own(o,k))r.push(k);return r;}
+ var api={summarize:summarize,estimateCost:estimateCost};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.UsageEngine=api;
+}(this));
+</script><script>
+/* ES5 core shared by Windows Script Host and the Node test runner.
+ * No network, no XML construction, no eval. All AI directions are bounded. */
+(function (root) {
+  'use strict';
+  var axes = ['exposure','contrast','softness','warmth','magenta','saturation','shadowLift','red','green','blue','grain'];
+  function vec(a){var r={},i;for(i=0;i<axes.length;i++)r[axes[i]]=a[i]||0;return r;}
+  var tags=[
+    ['dreamy','몽환적인','분위기',[.2,-.4,.8,0,.15,-.2,.4,0,0,0,0]],
+    ['fairytale','동화적인','분위기',[.25,-.25,.6,.1,.15,.15,.3,.15,.1,.15,0]],
+    ['romantic','로맨틱한','분위기',[.1,-.15,.45,.2,.4,-.1,.15,.25,0,0,0]],
+    ['girlish','소녀스러운','분위기',[.25,-.25,.4,.1,.3,-.15,.2,.25,0,.1,0]],
+    ['lovely','사랑스러운','분위기',[.2,-.1,.3,.25,.25,.2,.15,.4,0,0,0]],
+    ['pure','청순한','분위기',[.3,-.2,.35,-.05,.05,-.25,.2,.05,0,.05,0]],
+    ['mysterious','신비로운','분위기',[-.15,.15,.4,-.35,.3,-.15,.15,0,.1,.4,0]],
+    ['fantasy','판타지한','분위기',[.1,.15,.4,-.1,.35,.3,.1,.2,.1,.35,0]],
+    ['soft','부드러운','톤',[.1,-.4,.65,0,0,-.1,.2,0,0,0,0]],
+    ['airy','밝고 가벼운','톤',[.6,-.25,.3,.1,0,-.1,.3,0,0,0,0]],
+    ['clean','깨끗한','톤',[.2,.15,-.15,0,0,-.1,-.05,0,0,0,-.2]],
+    ['radiant','화사한','톤',[.45,-.1,.2,.15,.1,.2,.2,.15,0,0,0]],
+    ['calm','차분한','톤',[0,-.2,.2,-.1,0,-.4,.1,0,0,0,0]],
+    ['dreamy_tone','드리미한','톤',[.3,-.5,.7,.05,.1,-.3,.55,0,0,.1,0]],
+    ['emotive','감성적인','톤',[.05,-.2,.3,.15,.1,-.3,.3,.1,0,-.05,.15]],
+    ['kitschy','키치한','톤',[.1,.35,-.2,.1,.3,.65,-.15,.4,.1,.3,0]],
+    ['baby_pink','베이비 핑크','따뜻한 색감',[.25,-.35,.35,.05,.5,-.3,.25,.35,0,0,0]],
+    ['rose','로즈 핑크','따뜻한 색감',[0,0,.1,.15,.6,.1,0,.6,-.1,0,0]],
+    ['peach','피치','따뜻한 색감',[.15,-.1,.2,.4,.2,-.1,.1,.5,0,0,0]],
+    ['milky_pink','밀키 핑크','따뜻한 색감',[.3,-.45,.5,.1,.35,-.45,.4,.25,0,0,0]],
+    ['cream_white','크림 화이트','따뜻한 색감',[.35,-.3,.3,.35,.05,-.35,.25,.1,.05,0,0]],
+    ['candy_pink','캔디 핑크','따뜻한 색감',[.15,.1,.1,.1,.65,.5,.05,.7,-.1,.05,0]],
+    ['sky_blue','하늘빛','차가운 색감',[.3,-.2,.2,-.4,-.05,-.15,.2,0,.1,.4,0]],
+    ['cool_blue','쿨 블루','차가운 색감',[0,.1,0,-.7,-.05,-.1,0,0,0,.6,0]],
+    ['cyan','시안','차가운 색감',[0,.1,0,-.5,-.3,.1,0,0,.1,.65,0]],
+    ['lavender','라벤더','차가운 색감',[.1,-.2,.2,-.35,.55,-.1,.1,.1,0,.5,0]],
+    ['mint','민트','차가운 색감',[.2,-.2,.2,-.3,-.3,-.2,.2,0,.6,.1,0]],
+    ['icy_blue','아이시 블루','차가운 색감',[.35,.15,-.2,-.6,-.1,-.3,.1,0,.15,.45,0]],
+    ['pastel','파스텔','팔레트',[.25,-.35,.3,0,0,-.6,.25,.1,.1,.1,0]],
+    ['muted_pastel','저채도 파스텔','팔레트',[.15,-.3,.35,0,0,-.8,.3,.05,.05,.05,0]],
+    ['milky_color','밀키 컬러','팔레트',[.3,-.5,.5,.05,.05,-.4,.5,.1,.1,.1,0]],
+    ['candy_color','캔디 컬러','팔레트',[.2,.15,.05,.05,.2,.65,.05,.4,.25,.4,0]],
+    ['clean_white','깨끗한 화이트','팔레트',[.3,.1,-.1,-.1,0,-.15,-.05,0,0,0,0]],
+    ['black_contrast','블랙 대비','팔레트',[-.1,.65,-.1,0,0,.1,-.7,0,0,0,0]],
+    ['color_accent','컬러 포인트','팔레트',[.05,.3,-.1,0,.05,-.15,-.15,.55,-.2,.3,0]],
+    ['studio_backdrop','스튜디오 배경색','팔레트',[.15,.15,-.1,0,0,.3,0,.2,.25,.25,0]],
+    ['idol_editorial','아이돌 화보 느낌','스타일',[.3,.2,.15,.05,.15,.25,-.05,.2,.05,.15,0]],
+    ['costume_editorial','코스튬 화보','스타일',[.1,.4,-.25,0,.1,.45,-.2,.25,.15,.25,0]],
+    ['character_focus','캐릭터 중심','스타일',[.15,.3,-.15,0,.05,.15,-.1,.15,0,.1,0]],
+    ['subculture','서브컬처 감성','스타일',[0,.25,.1,-.15,.35,.35,-.1,.25,.05,.4,0]],
+    ['y2k','Y2K 감성','스타일',[.15,.45,-.3,-.1,.2,.55,-.25,.2,.1,.4,.1]],
+    ['fairycore','페어리코어','스타일',[.25,-.35,.65,.1,.1,-.25,.4,.1,.35,.1,.1]],
+    ['angelcore','엔젤코어','스타일',[.5,-.4,.7,-.05,.05,-.45,.4,.05,0,.1,0]],
+    ['cute_fantasy','큐트 판타지','스타일',[.3,-.1,.35,.05,.35,.35,.2,.35,.1,.3,0]]
+  ];
+  var keywords=[],i,j;
+  for(i=0;i<tags.length;i++)keywords.push({id:tags[i][0],label:tags[i][1],category:tags[i][2],axes:vec(tags[i][3])});
+  var defaultKeyword={id:'natural',label:'자연스러운',axes:vec([0,0,0,0,0,-.1,0,0,0,0,0])};
+  // [min,max,max delta,default,style anchor flag]
+  var specs={
+    Exposure2012:[-5,5,.8,0,0],Contrast2012:[-100,100,30,0,0],Highlights2012:[-100,100,28,0,0],
+    Shadows2012:[-100,100,28,0,0],Whites2012:[-100,100,22,0,0],Blacks2012:[-100,100,25,0,0],
+    Texture:[-100,100,24,0,0],Clarity2012:[-100,100,22,0,0],Dehaze:[-100,100,12,0,0],
+    Vibrance:[-100,100,24,0,1],Saturation:[-100,100,20,0,1],GrainAmount:[0,100,22,0,0],
+    Tint:[-150,150,15,0,1],SplitToningBalance:[-100,100,20,0,1],
+    SplitToningShadowSaturation:[0,100,14,0,1],SplitToningHighlightSaturation:[0,100,14,0,1],
+    ColorGradeMidtoneSat:[0,100,14,0,1]
+  };
+  var colors=['Red','Orange','Yellow','Green','Aqua','Blue','Purple','Magenta'];
+  for(i=0;i<colors.length;i++)for(j=0;j<3;j++)specs[['Hue','Saturation','Luminance'][j]+'Adjustment'+colors[i]]=[-100,100,j===0?12:18,0,1];
+  function own(o,k){return Object.prototype.hasOwnProperty.call(o,k);}
+  function clamp(n,a,b){return Math.min(b,Math.max(a,n));}
+  function numeric(n){return typeof n==='number' && isFinite(n);}
+  function rng(s){s=(s>>>0)||1234567;return function(){s=(1664525*s+1013904223)>>>0;return s/4294967296;};}
+  function round(n,d){var p=Math.pow(10,d),r=Math.round(n*p)/p;return r===0?0:r;}
+  function selected(req){var r=[],i;for(i=0;i<keywords.length;i++)if(req.keywordIds && req.keywordIds.indexOf(keywords[i].id)>=0)r.push(keywords[i]);return r;}
+  function prepare(req){
+    if(!req.seeds || !req.seeds.length)throw new Error('At least one XMP seed is required.');
+    var count=Math.round(Number(req.count)||0);if(count<1 || count>120)throw new Error('Count must be 1..120.');
+    var choices=selected(req);if(!choices.length)choices=[defaultKeyword];
+    var a=[],i,seed,k,order=req.seeds.slice(),shuffle=rng(Number(req.randomSeed)||1),swap,at;
+    for(i=order.length-1;i>0;i--){at=Math.floor(shuffle()*(i+1));swap=order[i];order[i]=order[at];order[at]=swap;}
+    for(i=0;i<count;i++){
+      seed=order[i%order.length];k=choices[(Math.floor(i/order.length)+i%order.length)%choices.length];
+      a.push({index:i,seedId:seed.id,seedName:seed.name,keywordId:k.id,keyword:k.label,keywordAxes:k.axes});
+    }
+    return {assignments:a,axes:axes,keywords:choices};
+  }
+  function influences(a,k){
+    if(k==='Exposure2012')return a.exposure;
+    if(k==='Contrast2012')return a.contrast;
+    if(k==='Highlights2012')return -.55*a.softness-.2*a.exposure;
+    if(k==='Shadows2012')return .65*a.shadowLift-.2*a.contrast;
+    if(k==='Whites2012')return .4*a.exposure-.35*a.softness;
+    if(k==='Blacks2012')return .8*a.shadowLift-.25*a.contrast;
+    if(k==='Texture' || k==='Clarity2012')return -a.softness;
+    if(k==='Dehaze')return .4*a.contrast-.6*a.softness;
+    if(k==='Vibrance' || k==='Saturation')return a.saturation;
+    if(k==='GrainAmount')return a.grain;
+    if(k==='Tint')return a.magenta;
+    if(k==='SplitToningBalance')return a.warmth;
+    if(/Sat(?:uration)?$/.test(k))return .5*a.saturation+.25*(Math.abs(a.warmth)+Math.abs(a.magenta));
+    var col=k.replace(/^(Hue|Saturation|Luminance)Adjustment/,'');
+    var p=(col==='Red'||col==='Orange'||col==='Magenta')?a.red:(col==='Yellow'||col==='Green')?a.green:a.blue;
+    if(k.indexOf('HueAdjustment')===0)return .65*p+.2*a.warmth;
+    if(k.indexOf('SaturationAdjustment')===0)return .5*a.saturation+.5*p;
+    if(k.indexOf('LuminanceAdjustment')===0)return .3*a.exposure+.4*p;
+    return 0;
+  }
+  function generate(req){
+    var prep=prepare(req),random=rng(Number(req.randomSeed)||1),f=clamp(Number(req.fidelity)/100,0,1),v=clamp(Number(req.variation)/100,0,1);
+    if(!numeric(f)||!numeric(v))throw new Error('Invalid sliders.');
+    var plans={},i,j,k,plan,seen={},out=[],warnings=[],seedById={};
+    for(i=0;i<req.seeds.length;i++)seedById[req.seeds[i].id]=req.seeds[i];
+    if(req.aiPlans){
+      if(req.aiPlans.length!==prep.assignments.length)throw new Error('AI returned the wrong candidate count.');
+      for(i=0;i<req.aiPlans.length;i++){
+        plan=req.aiPlans[i];if(!numeric(plan.index)||plan.index%1 ||plan.index<0||plan.index>=prep.assignments.length||own(plans,plan.index))throw new Error('Invalid AI index.');
+        for(j=0;j<axes.length;j++)if(!plan.axes||!numeric(plan.axes[axes[j]]))throw new Error('Invalid AI axis.');
+        plans[plan.index]=plan;
+      }
+    }
+    for(i=0;i<prep.assignments.length;i++){
+      var assignment=prep.assignments[i],seed=seedById[assignment.seedId],candidate,signature,attempt,delta,values,ax;
+      for(attempt=0;attempt<40;attempt++){
+        ax={};plan=plans[i];
+        for(j=0;j<axes.length;j++){
+          k=axes[j];var kw=assignment.keywordAxes[k],ai=plan?clamp(plan.axes[k],-1,1):kw;
+          // Coherent artistic axes, bounded scatter, no indiscriminate seed averaging.
+          ax[k]=clamp(.55*kw+.45*ai+(random()-.5)*.9,-1,1);
+        }
+        values={};delta={};
+        for(k in specs)if(own(specs,k)){
+          var sp=specs[k],has=own(seed.values,k),base=has?Number(seed.values[k]):sp[3];
+          if(!numeric(base)||base<sp[0]||base>sp[1])continue;
+          // Preserve missing style fields; only essential global sliders can be added.
+          if(!has && (sp[4] || k==='GrainAmount'))continue;
+          var budget=sp[2]*v*(sp[4]?(1-f):(.3+.7*(1-f)));
+          var val=round(clamp(base+clamp(influences(ax,k),-1,1)*budget,sp[0],sp[1]),k==='Exposure2012'?2:0);
+          if(val!==base){values[k]=val;delta[k]=round(val-base,2);}
+        }
+        if(own(seed.values,'Temperature')){
+          var t=Number(seed.values.Temperature),raw=t>=1000;
+          if(numeric(t)&&t>=(raw?2000:-100)&&t<=(raw?50000:100)){
+            var tv=round(clamp(t+ax.warmth*(raw?1000:16)*v*(1-f),raw?2000:-100,raw?50000:100),0);
+            if(tv!==t){values.Temperature=tv;delta.Temperature=tv-t;}
+          }
+        }
+        signature=seed.id+'|'+JSON.stringify(values);
+        if(!own(seen,signature))break;
+      }
+      if(attempt===40){warnings.push('Candidate '+(i+1)+' omitted: identical values. Increase variation.');continue;}
+      seen[signature]=true;
+      candidate={index:i,seedId:seed.id,seedName:seed.name,keyword:assignment.keyword,keywordId:assignment.keywordId,
+        values:values,delta:delta,axes:ax,reason:plan?String(plan.reason).slice(0,400):'씨드의 색상 앵커와 커브를 유지하며 '+assignment.keyword+' 방향으로 변형',
+        mode:plan?'ai':'local',fidelity:req.fidelity,variation:req.variation};
+      out.push(candidate);
+    }
+    return {candidates:out,warnings:warnings,keywordCount:keywords.length,version:'1.0.0'};
+  }
+  var api={keywords:keywords,axes:axes,specs:specs,prepare:prepare,generate:generate};
+  if(typeof module!=='undefined' && module.exports)module.exports=api;else root.SeedEngine=api;
+}(this));
+
+</script><script>
+const $=id=>document.getElementById(id),N=n=>Number(n).toLocaleString('ko-KR'),money=n=>'$'+Number(n).toFixed(4);let events=[],current,historyKind='calls';const today='2026-10-14';
+function dateOf(offset){const d=new Date(today+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+offset);return d.toISOString().slice(0,10)}
+function addSample(id,date,model,input,output){const usage={input_tokens:input,output_tokens:output,input_tokens_details:{cached_tokens:Math.floor(input*.2)}};events.push({eventId:id,kind:'api',runId:'r'+id,localDate:date,localTime:date+' 18:24:00',timestampUtc:date+'T09:24:00Z',model,status:'completed',usageKnown:true,inputTokens:input,outputTokens:output,cachedTokens:usage.input_tokens_details.cached_tokens,reasoningTokens:Math.floor(output*.25),estimatedUSD:UsageEngine.estimateCost({model,usage,serviceTier:'default'}).estimatedUSD});events.push({eventId:id+'s',kind:'run_start',runId:'r'+id,localDate:date,localTime:date+' 18:23:00',timestampUtc:date+'T09:23:00Z',model,requestedCount:24});events.push({eventId:id+'e',kind:'run_result',runId:'r'+id,localDate:date,localTime:date+' 18:24:01',timestampUtc:date+'T09:24:01Z',model,status:'completed',generatedCount:24});}
+for(let i=-45;i<=0;i++){if(i%3===0||i>-7)addSample('demo'+i,dateOf(i),i%4===0?'gpt-6.1-sol':'gpt-6-luna',6500+((i+45)%5)*1450,2200+((i+45)%4)*620)}
+function draw(){const a=current.chart,w=580,left=42,width=526,h=130,base=145,metric=$('metric').value,max=Math.max(1,...a.map(d=>metric==='tokens'?d.totalTokens:metric==='calls'?d.calls:d.runs)),top=metric==='tokens'?Math.ceil(max/10000)*10000:Math.max(4,Math.ceil(max/4)*4),slot=width/a.length,bw=Math.min(32,slot*.54);let svg='';for(let t=0;t<=4;t++){let y=base-h*t/4,n=top*t/4;svg+=`<line x1="42" y1="${y}" x2="575" y2="${y}" stroke="#eaf0f7"/><text class="svg-label" x="0" y="${y+3}">${n>=1000?(n/1000)+'k':n}</text>`}a.forEach((d,i)=>{let x=left+slot*(i+.5)-bw/2,val=metric==='tokens'?d.inputTokens:metric==='calls'?d.calls:d.runs,bh=val/top*h,oh=metric==='tokens'?d.outputTokens/top*h:0;svg+=`<g><title>${d.date}: 입력 ${N(d.inputTokens)} / 출력 ${N(d.outputTokens)}</title><rect x="${x}" y="${base-bh}" width="${bw}" height="${bh}" rx="3" fill="${metric==='tokens'?'#afc6e6':'#4f76b6'}"/><rect x="${x}" y="${base-bh-oh}" width="${bw}" height="${oh}" rx="3" fill="#4f76b6"/></g>`;if(a.length<=10||i%Math.ceil(a.length/6)===0)svg+=`<text class="svg-label" x="${x-3}" y="171">${d.date.slice(5).replace('-','/')}</text>`});$('chart').innerHTML=svg;$('legend').classList.toggle('hidden',metric!=='tokens')}
+function history(){const isCalls=historyKind==='calls';$('callTab').classList.toggle('selected',isCalls);$('runTab').classList.toggle('selected',!isCalls);$('historyHead').innerHTML='<tr>'+(isCalls?['시간','모델','입력','출력','합계','USD','상태']:['시간','모델','요청','생성','상태']).map(x=>'<th>'+x+'</th>').join('')+'</tr>';$('history').innerHTML=(isCalls?current.calls:current.runs).slice(0,15).map(r=>'<tr><td>'+r.Time+'</td><td>'+r.Model+'</td>'+(isCalls?`<td class="number">${N(r.Input)}</td><td class="number">${N(r.Output)}</td><td class="number">${N(r.Total)}</td><td class="number">${money(r.USD)}</td>`:`<td>${r.Requested}</td><td>${r.Generated}</td>`)+`<td><span class="badge">${r.Status}</span></td></tr>`).join('')}
+function render(){current=UsageEngine.summarize({events,today,days:$('period').value==='all'?'all':Number($('period').value),model:$('model').value});const t=current.totals;$('tokens').textContent=N(t.totalTokens);$('compare').textContent=current.changePercent===null?'확인된 응답의 입력 + 출력':'전기간 대비 '+(current.changePercent>=0?'+':'')+current.changePercent+'%';$('calls').textContent=N(t.calls);$('callDetail').textContent='확인된 응답 '+t.knownCalls+'건 · 미확인 '+t.unknownCalls+'건';$('runs').textContent=N(t.runs);$('runDetail').textContent='생성된 프리셋 '+N(t.generatedPresets)+'개';$('cost').textContent=money(t.estimatedUSD);$('range').textContent=current.start.replaceAll('-','.')+' — '+current.end.replaceAll('-','.')+' · '+current.chartUnit+' 합계';$('cache').textContent='캐시 입력 '+N(t.cachedTokens)+' · 추론 '+N(t.reasoningTokens)+' (출력에 포함)';$('models').innerHTML=current.models.map(m=>`<tr><td>${m.model}</td><td class="number">${N(m.totalTokens)}</td><td class="number">${money(m.estimatedUSD)}</td></tr>`).join('');draw();history()}
+function page(p){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));['dash','gen','ref','result'].forEach(id=>$(id).classList.toggle('hidden',id!==p));$('pageTitle').textContent={dash:'사용량 대시보드',gen:'프리셋 생성',ref:'레퍼런스로 만들기',result:'생성 결과'}[p];$('pageSubtitle').textContent={dash:'토큰과 이용 추세를 한눈에 확인하세요.',gen:'내 스타일을 유지하며 새로운 보정 방향을 탐색하세요.',ref:'사진의 스타일을 분석해 전체·인물·배경 보정값을 추정합니다.',result:'후보별 변화와 보정값을 확인하세요.'}[p]}
+['period','model'].forEach(id=>$(id).onchange=render);$('metric').onchange=draw;$('refresh').onclick=render;$('callTab').onclick=()=>{historyKind='calls';history()};$('runTab').onclick=()=>{historyKind='runs';history()};document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>page(b.dataset.page));
+function exportCsv(daily){const rows=daily?current.daily:current.calls,keys=daily?['date','inputTokens','outputTokens','totalTokens','calls','runs','generatedPresets','estimatedUSD']:['Time','Model','Input','Output','Total','USD','Status'];const csv='\ufeff'+keys.join(',')+'\r\n'+rows.map(r=>keys.map(k=>'"'+String(r[k]??'').replaceAll('"','""')+'"').join(',')).join('\r\n'),link=document.createElement('a'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));link.href=url;link.download=daily?'SeedLab_SAMPLE_Daily.csv':'SeedLab_SAMPLE_Calls.csv';link.click();URL.revokeObjectURL(url)}$('csv').onclick=()=>exportCsv(false);$('dailyCsv').onclick=()=>exportCsv(true);
+for(const cat of ['분위기','톤','따뜻한 색감','차가운 색감','팔레트','스타일']){const label=document.createElement('div');label.className='cat';label.textContent=cat;$('chips').append(label);const wrap=document.createElement('div');SeedEngine.keywords.filter(k=>k.category===cat).forEach(k=>{const b=document.createElement('button');b.className='chip'+(['dreamy','rose','cream_white'].includes(k.id)?' selected':'');b.textContent=k.label;b.onclick=()=>b.classList.toggle('selected');wrap.append(b)});$('chips').append(wrap)}
+$('addDemo').onclick=()=>{addSample('extra'+Date.now(),today,'gpt-6-luna',8000,4000);render();page('dash');$('status').textContent='샘플 기록을 추가했습니다. 실제 API 호출은 없습니다.'};render();
+</script></body></html>
