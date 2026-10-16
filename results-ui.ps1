@@ -3,6 +3,8 @@ $script:FieldLabels = @{
     Exposure2012 = '노출'; Contrast2012 = '대비'; Highlights2012 = '하이라이트'; Shadows2012 = '섀도'; Whites2012 = '화이트'; Blacks2012 = '블랙'
     Texture = '텍스처'; Clarity2012 = '클래리티'; Dehaze = '디헤이즈'; Vibrance = '비브런스'; Saturation = '채도'; Temperature = '색온도'; Tint = '틴트'
     GrainAmount = '그레인'; GrainSize = '그레인 크기'; GrainFrequency = '그레인 거칠기'; ColorGradeMidtoneSat = '중간톤 그레이딩 채도'
+    ColorGradeMidtoneHue = '중간톤 그레이딩 색상'; ColorGradeMidtoneLum = '중간톤 그레이딩 휘도'; ColorGradeShadowLum = '섀도 그레이딩 휘도'; ColorGradeHighlightLum = '하이라이트 그레이딩 휘도'
+    ColorGradeGlobalHue = '전체 그레이딩 색상'; ColorGradeGlobalSat = '전체 그레이딩 채도'; ColorGradeGlobalLum = '전체 그레이딩 휘도'; ColorGradeBlending = '그레이딩 혼합'
     SplitToningShadowHue = '섀도 토닝 색상'; SplitToningShadowSaturation = '섀도 토닝 채도'; SplitToningHighlightHue = '하이라이트 토닝 색상'; SplitToningHighlightSaturation = '하이라이트 토닝 채도'; SplitToningBalance = '토닝 균형'
     # Local mask keys (lower case). Lookups are case-insensitive, so temperature/tint/saturation/texture/dehaze reuse the entries above.
     exposure = '노출'; contrast = '대비'; highlights = '하이라이트'; shadows = '섀도'; whites = '화이트'; blacks = '블랙'; clarity = '클래리티'
