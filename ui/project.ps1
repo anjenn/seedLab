@@ -57,6 +57,8 @@ function Get-WorkValues([bool]$Relative = $false) {
     if ($Relative) { $output = ConvertTo-ProjectPath $output; $refOutput = ConvertTo-ProjectPath $refOutput; $mixOutput = ConvertTo-ProjectPath $mixOutput }
     return @{ output = $output; model = $controls.Model.Text.Trim(); count = $controls.Count.Text; fidelity = [int]$controls.Fidelity.Value; variation = [int]$controls.Variation.Value; useAi = [bool]$controls.UseAi.IsChecked;
         refOutput = $refOutput; refModel = $controls.RefModel.Text.Trim(); refMode = $controls.RefMode.SelectedItem.Tag; refCount = $controls.RefCount.Text; refSearch = [bool]$controls.RefSearch.IsChecked;
+        autoSubjectMask = [bool]$controls.AutoSubjectMask.IsChecked; autoBackgroundMask = [bool]$controls.AutoBackgroundMask.IsChecked;
+        refMaskMode = [string]$controls.RefMaskMode.SelectedItem.Tag; refSubject = [bool]$controls.RefSubject.IsChecked; refBackground = [bool]$controls.RefBackground.IsChecked;
         refFidelity = [int]$controls.RefFidelity.Value; refVariation = [int]$controls.RefVariation.Value;
         mixOutput = $mixOutput; mixModel = $controls.MixModel.Text.Trim(); mixCount = $controls.MixCount.Text; mixVariation = [int]$controls.MixVariation.Value; mixUseAi = [bool]$controls.MixUseAi.IsChecked }
 }
@@ -66,6 +68,8 @@ function Set-WorkValues($Values) {
         if (-not [string]::IsNullOrWhiteSpace($Values.($pair[0]))) { $controls[$pair[1]].Text = $(if ($pair[0] -like '*utput') { Resolve-ProjectPath ([string]$Values.($pair[0])) } else { [string]$Values.($pair[0]) }) }
     }
     foreach ($pair in @(@('fidelity','Fidelity'), @('variation','Variation'), @('refFidelity','RefFidelity'), @('refVariation','RefVariation'), @('mixVariation','MixVariation'))) { if ($null -ne $Values.($pair[0])) { $controls[$pair[1]].Value = [Math]::Max(0, [Math]::Min(100, [int]$Values.($pair[0]))) } }
+    foreach ($pair in @(@('autoSubjectMask','AutoSubjectMask'),@('autoBackgroundMask','AutoBackgroundMask'),@('refSubject','RefSubject'),@('refBackground','RefBackground'))) { if ($null -ne $Values.($pair[0])) { $controls[$pair[1]].IsChecked = [bool]$Values.($pair[0]) } }
+    foreach ($item in $controls.RefMaskMode.Items) { if ($item.Tag -eq $Values.refMaskMode) { $controls.RefMaskMode.SelectedItem = $item } }
     if ($null -ne $Values.useAi) { $controls.UseAi.IsChecked = [bool]$Values.useAi }
     if ($null -ne $Values.mixUseAi) { $controls.MixUseAi.IsChecked = [bool]$Values.mixUseAi }
     if ($null -ne $Values.refSearch) { $controls.RefSearch.IsChecked = [bool]$Values.refSearch }
@@ -128,6 +132,7 @@ function Clear-Work {
     $script:Seeds.Clear(); $script:References.Clear(); $script:MixSources.Clear(); Refresh-MixChoices; $controls.MixNote.Text = ''
     foreach ($check in @($script:KeywordChecks) + @($script:RefKeywordChecks)) { $check.IsChecked = $false }
     Set-SeedMask ''; Set-AiPhoto ''; Set-ReferenceTarget ''; Clear-ReferenceMask
+    $controls.AutoSubjectMask.IsChecked = $false; $controls.AutoBackgroundMask.IsChecked = $false
     $controls.Note.Text = ''; $controls.RefNote.Text = ''; $controls.VaryMasks.IsChecked = $false; $controls.RefSubject.IsChecked = $true; $controls.RefBackground.IsChecked = $true
     Clear-Results
 }
@@ -180,6 +185,7 @@ function Restore-ProjectState($State) {
                 foreach ($pair in @(@('refSubjectIndex','RefSubjectGroup'), @('refBackgroundIndex','RefBackgroundGroup'))) { $index = [int]$State.($pair[0]); if ($index -ge -1 -and $index -lt $controls[$pair[1]].Items.Count) { $controls[$pair[1]].SelectedIndex = $index } }
             } catch { $missing.Add([IO.Path]::GetFileName($refMask)) }
         }
+        if ($State.options.refMaskMode) { foreach ($item in $controls.RefMaskMode.Items) { if ($item.Tag -eq $State.options.refMaskMode) { $controls.RefMaskMode.SelectedItem = $item } } }
         $controls.Note.Text = [string]$State.note; $controls.RefNote.Text = [string]$State.refNote; $controls.VaryMasks.IsChecked = [bool]$State.varyMasks
         if ($null -ne $State.refSubject) { $controls.RefSubject.IsChecked = [bool]$State.refSubject }
         if ($null -ne $State.refBackground) { $controls.RefBackground.IsChecked = [bool]$State.refBackground }

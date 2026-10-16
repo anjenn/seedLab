@@ -330,7 +330,7 @@ function Start-Generation {
         $request = @{ seeds = $seeds; count = $count; fidelity = [int]$controls.Fidelity.Value; variation = [int]$controls.Variation.Value;
             keywordIds = @($script:KeywordChecks | Where-Object { $_.IsChecked } | ForEach-Object { $_.Tag });
             useAi = [bool]$controls.UseAi.IsChecked; apiKey = $controls.ApiKey.Password; model = $controls.Model.Text.Trim();
-            photo = $script:Photo; note = $controls.Note.Text; maskTemplate = $script:Mask; maskTemplateHash = $maskCheck.Hash; varyMasks = [bool]$controls.VaryMasks.IsChecked;
+            photo = $script:Photo; note = $controls.Note.Text; maskTemplate = $script:Mask; maskTemplateHash = $maskCheck.Hash; varyMasks = [bool]$controls.VaryMasks.IsChecked; addSubjectMask = [bool]$controls.AutoSubjectMask.IsChecked; addBackgroundMask = [bool]$controls.AutoBackgroundMask.IsChecked;
             output = [IO.Path]::GetFullPath($controls.Output.Text); randomSeed = (Get-Random -Minimum 1 -Maximum 2147483647) }
         }
         $request.cancelPath = Join-Path ([IO.Path]::GetTempPath()) ('SeedLab-Cancel-' + [Guid]::NewGuid().ToString('N'))
@@ -347,7 +347,7 @@ $controls.Cancel.Add_Click({ Stop-TrackedJob })
 
 foreach ($name in @('Note','RefNote','Model','RefModel','Output','RefOutput','Count','RefCount')) { $controls[$name].Add_TextChanged({ Request-AutoSave }) }
 foreach ($name in @('Fidelity','Variation','RefFidelity','RefVariation')) { $controls[$name].Add_ValueChanged({ Request-AutoSave }) }
-foreach ($name in @('UseAi','VaryMasks','RefSearch','RefSubject','RefBackground')) { $controls[$name].Add_Checked({ Request-AutoSave }); $controls[$name].Add_Unchecked({ Request-AutoSave }) }
+foreach ($name in @('UseAi','VaryMasks','AutoSubjectMask','AutoBackgroundMask','RefSearch','RefSubject','RefBackground')) { $controls[$name].Add_Checked({ Request-AutoSave }); $controls[$name].Add_Unchecked({ Request-AutoSave }) }
 foreach ($name in @('RefMode','RefSubjectGroup','RefBackgroundGroup')) { $controls[$name].Add_SelectionChanged({ Request-AutoSave }) }
 $script:References.Add_CollectionChanged({ Request-AutoSave })
 $controls.ApiKey.Add_PasswordChanged({ if ($controls.RememberKey.IsChecked) { Request-AutoSave } })

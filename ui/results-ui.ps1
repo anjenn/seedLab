@@ -59,6 +59,7 @@ function Show-ResultDetail($Row) {
     else { $none = [Windows.Controls.TextBlock]::new(); $none.Text = '바뀐 전역 보정값이 없습니다.'; $none.Style = $window.FindResource('Muted'); [void]$controls.DetailChanges.Children.Add($none) }
     if ($reference) {
         foreach ($area in @(@{ key = 'subject'; title = '인물 보정' }, @{ key = 'background'; title = '배경 보정' })) {
+            if ($Row.Details.maskInstructions -and -not $Row.Details.maskInstructions.($area.key)) { continue }
             $local = @(Get-NamedValues $Row.Details.($area.key) | Where-Object { [double]$_.Value -ne 0 })
             if (-not $local.Count) { continue }
             $title = [Windows.Controls.TextBlock]::new(); $title.Text = $area.title; $title.Style = $window.FindResource('Section'); $title.Margin = [Windows.Thickness]::new(0,10,0,8)
@@ -67,7 +68,7 @@ function Show-ResultDetail($Row) {
         }
     }
     $controls.DetailFile.Text = $Row.File
-    $controls.DetailMask.Text = $(if ([int]$Row.MaskChanges) { '마스크 보정 필드 ' + $Row.MaskChanges + '개를 변경했습니다.' } else { '' })
+    $controls.DetailMask.Text = $(if ($Row.Details.maskInstructions.source -eq 'automatic') { '자동 마스크는 Lightroom에서 프리셋을 적용할 때 계산합니다. 필요하면 마스크를 업데이트하세요.' } elseif ([int]$Row.MaskChanges) { '마스크 보정값 ' + $Row.MaskChanges + '개를 설정했습니다.' } else { '' })
     $controls.DetailMask.Visibility = $(if ([int]$Row.MaskChanges) { 'Visible' } else { 'Collapsed' })
 }
 function Show-Results($Rows, [string]$Folder, [string]$Title, [string]$Meta, [bool]$Partial, [bool]$Activate = $true) {

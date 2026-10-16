@@ -30,7 +30,8 @@
     "npm test",
     "powershell -NoProfile -ExecutionPolicy Bypass -File tests/ValidateOnWindows.ps1",
     "powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-ui-smoke.ps1",
-    "powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-mix-ui.ps1"
+    "powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-mix-ui.ps1",
+    "powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-adaptive-ui.ps1"
   ],
   "windowsPathCompatibility": "offline integration and real EXE UI smoke both passed from a path containing Korean characters and spaces",
   "keywordCatalog": {
@@ -59,5 +60,11 @@
     "layout": "Adaptive source/settings columns, keyword category groups in one or two columns, full-width mask and note fields, narrower adaptive results detail panel, summary above the count/action row.",
     "visualVerification": "Real WPF rendered and inspected at 1380x940 and 1140x760: seed, reference, mix, dashboard, empty/filled results, scrolled settings/output, busy state and keyword/slider tooltip popups. All 120 keyword checkboxes retained; tooltip width and primary action bounds checked.",
     "regression": "70 Node tests and real EXE Windows UI automation passed: 24 seed XMPs and 1 local mixed XMP, 60 keywords in each creation screen, ratio editing, results and dashboard. No real API calls."
+  },
+  "adaptiveMasks": {
+    "selectors": "Fresh Mask/Image descriptors, subtype 1, subject false/background true inversion; operational fields compared against installed Adobe Adaptive Subject - Light. No raster selections, digests, cloud APIs or proprietary preset styles copied.",
+    "backend": "Windows integration passed: both/individual/no masks, unique IDs, encoded reference values, legacy/custom template behavior, nonfinite rejection, existing mask preservation, actual local pipeline with 0 API calls, partial provenance.",
+    "ui": "Real WPF app twice: automatic reference requests without a template, independent flags, optional template controls, real Start-Job seed output with both masks and AI off; options/results restart and legacy project templates restored. Reference card rendered and inspected.",
+    "notVerified": "Actual Lightroom import/apply and mask computation are not automated or verified. Lightroom computes the selection when the preset is applied; import alone adds the preset."
   }
 }

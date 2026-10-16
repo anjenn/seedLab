@@ -569,9 +569,12 @@
            </StackPanel>
           </Grid>
           <Border Height="1" Background="{StaticResource LineBrush}" Margin="0,18,0,14"/>
-          <StackPanel Orientation="Horizontal" Margin="0,0,0,10"><TextBlock Text="마스크 템플릿 · 선택" Style="{StaticResource FieldTitle}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="Lightroom에서 만든 인물·배경 마스크가 담긴 XMP를 선택하세요. 해당 마스크를 생성할 프리셋에 함께 넣습니다."/></StackPanel>
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><TextBlock Text="인물·배경 마스크" Style="{StaticResource FieldTitle}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="선택한 영역의 자동 마스크를 프리셋에 추가합니다. 인물·피사체는 Lightroom의 피사체 선택, 배경은 그 선택 영역의 반전을 사용합니다. AI 사용을 꺼도 추가할 수 있습니다."/></StackPanel>
+          <WrapPanel><CheckBox x:Name="AutoSubjectMask" Content="인물·피사체 추가"/><CheckBox x:Name="AutoBackgroundMask" Content="배경 추가"/></WrapPanel>
+          <TextBlock Text="실제 영역은 Lightroom에서 프리셋을 적용할 때 계산합니다." Style="{StaticResource Muted}" Margin="0,4,0,16"/>
+          <TextBlock Text="직접 만든 템플릿 · 선택 사항" Style="{StaticResource Label}"/>
           <DockPanel><Button x:Name="MaskClear" DockPanel.Dock="Right" Tag="&#xE711;" Margin="8,0,0,0" Padding="10,0" ToolTip="템플릿 해제" AutomationProperties.Name="마스크 템플릿 해제" Visibility="Collapsed"/><Button x:Name="MaskButton" DockPanel.Dock="Right" Content="템플릿 선택" Tag="&#xE8E5;" Margin="12,0,0,0"/><TextBlock x:Name="MaskPath" Text="선택 안 함" Style="{StaticResource Muted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/></DockPanel>
-          <CheckBox x:Name="VaryMasks" Content="마스크의 보정값도 함께 변주" Margin="0,12,0,0" ToolTip="씨드나 템플릿에 있는 인물·배경 마스크의 보정값도 함께 바꿉니다. 선택 영역은 기존 마스크를 사용합니다."/>
+          <CheckBox x:Name="VaryMasks" Content="씨드·템플릿의 기존 마스크도 변주" Margin="0,12,0,0" ToolTip="씨드나 템플릿에 있는 인물·배경 마스크의 보정값도 함께 바꿉니다. 선택 영역은 기존 마스크를 사용합니다."/>
          </StackPanel>
         </Border>
         <Border Style="{StaticResource StackCard}">
@@ -670,15 +673,17 @@
         </Border>
         <Border Style="{StaticResource StackCard}">
          <StackPanel>
-          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="3" Style="{StaticResource StepText}"/></Border><TextBlock Text="인물·배경 보정" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="인물과 배경의 보정값을 따로 제안합니다. Lightroom에서 만든 마스크 템플릿이 필요하며, 사진에 적용한 뒤 마스크를 업데이트해야 할 수 있습니다. 전체 보정만 만들려면 두 항목을 모두 끄세요."/></StackPanel>
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="3" Style="{StaticResource StepText}"/></Border><TextBlock Text="인물·배경 보정" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="템플릿 없이 인물·피사체와 배경의 자동 마스크를 추가할 수 있습니다. 실제 선택 영역은 Lightroom에서 프리셋을 적용할 때 계산합니다. 직접 만든 템플릿도 선택해서 사용할 수 있습니다."/></StackPanel>
           <Border Style="{StaticResource CardGap}"/>
-          <StackPanel Orientation="Horizontal" Margin="0,0,0,16"><Button x:Name="RefMaskButton" Content="템플릿 선택" Tag="&#xE8E5;"/><Button x:Name="RefMaskClear" Content="해제" Margin="0" Visibility="Collapsed"/></StackPanel>
+          <WrapPanel Margin="0,0,0,12"><CheckBox x:Name="RefSubject" Content="인물·피사체 보정" IsChecked="True" FontWeight="SemiBold"/><CheckBox x:Name="RefBackground" Content="배경 보정" IsChecked="True" FontWeight="SemiBold"/></WrapPanel>
+          <ComboBox x:Name="RefMaskMode" SelectedIndex="0" Margin="0,0,0,12" ToolTip="자동 선택은 템플릿 파일 없이 사용합니다. 직접 만든 마스크를 가져오려면 템플릿 사용을 고르세요."><ComboBoxItem Content="자동 선택 · 템플릿 없이" Tag="automatic"/><ComboBoxItem Content="직접 만든 템플릿 사용" Tag="template"/></ComboBox>
+          <StackPanel x:Name="RefMaskTemplateTools" Orientation="Horizontal" Margin="0,0,0,12" Visibility="Collapsed"><Button x:Name="RefMaskButton" Content="템플릿 선택" Tag="&#xE8E5;"/><Button x:Name="RefMaskClear" Content="해제" Margin="0" Visibility="Collapsed"/></StackPanel>
           <Grid Margin="0,0,0,12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-           <StackPanel><CheckBox x:Name="RefSubject" Content="인물 보정" IsChecked="True" Margin="0,0,0,8" FontWeight="SemiBold"/><ComboBox x:Name="RefSubjectGroup" DisplayMemberPath="Label" ToolTip="인물에 사용할 템플릿 마스크"/></StackPanel>
-           <StackPanel Grid.Column="2"><CheckBox x:Name="RefBackground" Content="배경 보정" IsChecked="True" Margin="0,0,0,8" FontWeight="SemiBold"/><ComboBox x:Name="RefBackgroundGroup" DisplayMemberPath="Label" ToolTip="배경에 사용할 템플릿 마스크"/></StackPanel>
+           <ComboBox x:Name="RefSubjectGroup" DisplayMemberPath="Label" Visibility="Collapsed" ToolTip="인물에 사용할 템플릿 마스크"/>
+           <ComboBox x:Name="RefBackgroundGroup" Grid.Column="2" DisplayMemberPath="Label" Visibility="Collapsed" ToolTip="배경에 사용할 템플릿 마스크"/>
           </Grid>
           <Border x:Name="RefMaskInfoBox" Style="{StaticResource Callout}">
-           <DockPanel><Border x:Name="RefMaskBar" Style="{StaticResource CalloutBar}"/><TextBlock x:Name="RefMaskIcon" Text="&#xE946;" Style="{StaticResource Icon}" Foreground="{StaticResource WarnBrush}" Margin="0,1,10,0" VerticalAlignment="Top"/><TextBlock x:Name="RefMaskInfo" Text="인물·배경 마스크가 담긴 Lightroom XMP를 선택하세요." Foreground="{StaticResource Text2Brush}" FontSize="12" TextWrapping="Wrap"/></DockPanel>
+           <DockPanel><Border x:Name="RefMaskBar" Style="{StaticResource CalloutBar}"/><TextBlock x:Name="RefMaskIcon" Text="&#xE946;" Style="{StaticResource Icon}" Foreground="{StaticResource WarnBrush}" Margin="0,1,10,0" VerticalAlignment="Top"/><TextBlock x:Name="RefMaskInfo" Text="템플릿 없이 자동 마스크를 추가합니다. 영역은 Lightroom에서 계산합니다." Foreground="{StaticResource Text2Brush}" FontSize="12" TextWrapping="Wrap"/></DockPanel>
           </Border>
          </StackPanel>
         </Border>

@@ -49,18 +49,25 @@ function Set-ReferenceMask([string]$Path) {
     $background = @($groups | Where-Object { $_.Name -match '(?i)background|배경|^bg$' } | Select-Object -First 1)
     $controls.RefSubjectGroup.SelectedIndex = $(if ($subject.Count) { $subject[0].Index } else { 0 })
     $controls.RefBackgroundGroup.SelectedIndex = $(if ($background.Count) { $background[0].Index } elseif ($groups.Count -gt 1) { 1 } else { -1 })
+    $controls.RefMaskMode.SelectedIndex = 1
     Update-MaskState; Request-AutoSave
 }
-function Clear-ReferenceMask { $script:ReferenceMask = ''; $script:ReferenceMaskHash = ''; $controls.RefSubjectGroup.ItemsSource = @(); $controls.RefBackgroundGroup.ItemsSource = @(); Update-MaskState; Request-AutoSave }
+function Clear-ReferenceMask { $controls.RefMaskMode.SelectedIndex = 0; $script:ReferenceMask = ''; $script:ReferenceMaskHash = ''; $controls.RefSubjectGroup.ItemsSource = @(); $controls.RefBackgroundGroup.ItemsSource = @(); Update-MaskState; Request-AutoSave }
 # The info box explains what the current subject/background choices will do before a run starts.
 function Update-MaskState {
     $hasTemplate = [bool]$script:ReferenceMask
+    $enabled = [bool]($controls.RefSubject.IsChecked -or $controls.RefBackground.IsChecked)
+    $automatic = $controls.RefMaskMode.SelectedItem.Tag -eq 'automatic'
+    $controls.RefMaskMode.IsEnabled = $enabled
+    $controls.RefMaskTemplateTools.Visibility = $(if ($enabled -and -not $automatic) { 'Visible' } else { 'Collapsed' })
+    foreach ($name in @('RefSubjectGroup','RefBackgroundGroup')) { $controls[$name].Visibility = $(if ($enabled -and -not $automatic) { 'Visible' } else { 'Collapsed' }) }
     $controls.RefSubjectGroup.IsEnabled = $hasTemplate -and [bool]$controls.RefSubject.IsChecked
     $controls.RefBackgroundGroup.IsEnabled = $hasTemplate -and [bool]$controls.RefBackground.IsChecked
     $controls.RefMaskClear.Visibility = $(if ($hasTemplate) { 'Visible' } else { 'Collapsed' })
-    if (-not ($controls.RefSubject.IsChecked -or $controls.RefBackground.IsChecked)) { $text = '사진 전체에 적용할 보정만 만듭니다.'; $ok = $true }
+    if (-not $enabled) { $text = '사진 전체에 적용할 보정만 만듭니다.'; $ok = $true }
+    elseif ($automatic) { $text = '템플릿 없이 자동 마스크를 추가합니다. 인물·피사체는 Lightroom이 선택하고, 배경은 그 바깥 영역을 사용합니다. 적용 후 필요하면 마스크를 업데이트하세요.'; $ok = $true }
     elseif ($hasTemplate) { $text = [IO.Path]::GetFileName($script:ReferenceMask) + ' · ' + @($controls.RefSubjectGroup.ItemsSource).Count + '개 마스크 · 인물과 배경에 사용할 마스크를 확인하세요.'; $ok = $true }
-    else { $text = '인물·배경 마스크가 담긴 Lightroom XMP를 선택하세요. 전체 보정만 만들려면 인물 보정과 배경 보정을 모두 끄세요.'; $ok = $false }
+    else { $text = '직접 만든 인물·배경 마스크가 담긴 Lightroom XMP를 선택하세요. 자동 선택으로 바꾸면 템플릿 없이 사용할 수 있습니다.'; $ok = $false }
     $controls.RefMaskInfo.Text = $text
     $tone = Get-Brush $(if ($ok) { 'AccentBrush' } else { 'WarnBrush' })
     $controls.RefMaskBar.Background = $tone; $controls.RefMaskIcon.Foreground = $tone
@@ -84,6 +91,7 @@ $controls.RefCount.Add_PreviewTextInput({ param($sender, $e) if ($e.Text -notmat
 $controls.RefMode.Add_SelectionChanged({ Update-RunSummary })
 $controls.RefSearch.Add_Checked({ Update-RunSummary }); $controls.RefSearch.Add_Unchecked({ Update-RunSummary })
 $controls.RefKeywordClear.Add_Click({ foreach ($check in $script:RefKeywordChecks) { $check.IsChecked = $false } })
+$controls.RefMaskMode.Add_SelectionChanged({ Update-MaskState; Request-AutoSave })
 foreach ($name in @('RefSubject','RefBackground')) { $controls[$name].Add_Checked({ Update-MaskState }); $controls[$name].Add_Unchecked({ Update-MaskState }) }
 $controls.RefMaskButton.Add_Click({
     try { $files = @(Pick-Files 'Lightroom AI mask preset (*.xmp)|*.xmp' $false); if ($files.Count) { Set-ReferenceMask $files[0] } }
@@ -104,7 +112,8 @@ function New-ReferenceRequest {
         apiKey = $controls.RefApiKey.Password; model = $controls.RefModel.Text.Trim(); note = $controls.RefNote.Text;
         fidelity = [int]$controls.RefFidelity.Value; variation = [int]$controls.RefVariation.Value;
         keywordIds = @($script:RefKeywordChecks | Where-Object { $_.IsChecked } | ForEach-Object { $_.Tag });
-        referenceMaskTemplate = $script:ReferenceMask; referenceMaskHash = $script:ReferenceMaskHash;
+        referenceMaskMode = [string]$controls.RefMaskMode.SelectedItem.Tag;
+        referenceMaskTemplate = $(if ($controls.RefMaskMode.SelectedItem.Tag -eq 'template') { $script:ReferenceMask } else { '' }); referenceMaskHash = $(if ($controls.RefMaskMode.SelectedItem.Tag -eq 'template') { $script:ReferenceMaskHash } else { '' });
         maskSubject = [bool]$controls.RefSubject.IsChecked; maskBackground = [bool]$controls.RefBackground.IsChecked;
         subjectMaskIndex = $(if ($controls.RefSubjectGroup.SelectedItem) { $controls.RefSubjectGroup.SelectedItem.Index } else { $null });
         backgroundMaskIndex = $(if ($controls.RefBackgroundGroup.SelectedItem) { $controls.RefBackgroundGroup.SelectedItem.Index } else { $null });
