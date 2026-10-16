@@ -35,25 +35,26 @@
   if(!arr(req.sources)||req.sources.length<2||req.sources.length>12)throw Error('혼합할 프리셋을 2~12개 등록하세요.');
   if(!finite(req.count)||req.count%1||req.count<1||req.count>24)throw Error('믹스매치 생성 개수는 1~24 정수여야 합니다.');
   if(!finite(req.variation)||req.variation<0||req.variation>100)throw Error('조합 탐색 폭은 0~100이어야 합니다.');
-  var seen={},active=[],raw=[],base=null,n,k,s,g,hasBlend=false,changed=false;
+  var seen={},active=[],raw=[],base=null,n,k,s,g,hasBlend=false,changed=false,baseRandom=req.baseId==='random',randomized=baseRandom;
   for(n=0;n<req.sources.length;n++){
    s=req.sources[n];if(!s||typeof s.id!=='string'||!s.id||seen['s:'+s.id]||!s.values||typeof s.values!=='object')throw Error('프리셋 ID가 없거나 중복되었습니다.');
    seen['s:'+s.id]=true;if(!finite(s.weight)||s.weight<0||s.weight>100)throw Error(s.name+': 비율은 0~100이어야 합니다.');
    if(s.weight>0){active.push(s);raw.push(s.weight);if(s.id===req.baseId)base=s;}
   }
   if(active.length<2)throw Error('비율이 0보다 큰 프리셋이 2개 이상 필요합니다.');
+  if(baseRandom)base=active[0];
   if(!base)throw Error('기준 프리셋을 선택하고 비율을 0보다 크게 설정하세요.');
   if(!req.groups)throw Error('혼합할 항목을 선택하세요.');
   for(n=0;n<groups.length;n++){
    g=groups[n];k=req.groups[g];
-   if(k==='blend'){hasBlend=true;changed=true;}else if(k!=='base'){
+   if(k==='blend'||k==='random'){hasBlend=true;changed=true;if(k==='random')randomized=true;}else if(k!=='base'){
     var found=false;for(var q=0;q<active.length;q++)if(active[q].id===k)found=true;
     if(!found)throw Error(labels[g]+': 사용할 프리셋의 비율을 0보다 크게 설정하세요.');
     if(k!==req.baseId)changed=true;
    }
   }
   if(!changed)throw Error('최소 한 항목은 섞거나 다른 프리셋에서 가져오세요.');
-  if(req.useAi&&!hasBlend)throw Error('AI 설계에는 비율대로 섞는 항목이 하나 이상 필요합니다.');
+  if(req.useAi&&!hasBlend)throw Error('AI 설계에는 비율대로 섞기 또는 랜덤으로 섞기 항목이 하나 이상 필요합니다.');
   for(n=0;n<active.length;n++){
    s=active[n];
    if((s.processVersion||'')!==(base.processVersion||''))throw Error('현상 버전이 다른 프리셋은 함께 섞을 수 없습니다. Lightroom에서 같은 현상 버전으로 다시 내보내세요.');
@@ -63,11 +64,12 @@
    }
    if(req.groups.curves!=='base')for(k=0;k<curves.length;k++)if(s.curves&&own(s.curves,curves[k]))curve(s.curves[curves[k]],s.name+' · '+curves[k]);
   }
-  var prepared={sources:active,base:base,weights:weights(raw,active.length),groups:req.groups,schema:schema(active.length)};
+  var prepared={sources:active,base:base,weights:weights(raw,active.length),groups:req.groups,schema:schema(active.length),baseRandom:baseRandom,randomized:randomized};
   var preview=blend(prepared,matrix(prepared,null,0)),available=false;
   for(k in preview.values)if(own(preview.values,k))available=true;
   for(k in preview.curves)if(own(preview.curves,k))available=true;
   if(!available)throw Error('선택한 항목에 혼합 가능한 보정값이 없습니다. 다른 항목이나 프리셋을 선택하세요.');
+  if(randomized)prepared.drafts=randomDrafts(prepared,req);
   return prepared;
  }
  function schema(n){
@@ -80,16 +82,49 @@
   for(var n=1;n<points.length;n++)if(x<=points[n][0]){var a=points[n-1],b=points[n];return a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0]);}
   return points[points.length-1][1];
  }
- function matrix(prep,proposal,variation){
+ function matrix(prep,proposal,variation,baseline){
   var result={},g,n,j,rule,w;
   for(j=0;j<groups.length;j++){
    g=groups[j];rule=prep.groups[g];w=[];
-   if(rule==='blend'){
-    w=prep.weights.slice(0);
-    if(proposal){var target=weights(proposal[g],prep.sources.length);for(n=0;n<w.length;n++)w[n]=w[n]*(1-variation*.5)+target[n]*variation*.5;}
+   if(rule==='blend'||rule==='random'){
+    w=(baseline?baseline[g]:prep.weights).slice(0);
+    if(proposal){var target=weights(proposal[g],prep.sources.length),amount=variation*(rule==='random'?.2:.5);for(n=0;n<w.length;n++)w[n]=w[n]*(1-amount)+target[n]*amount;}
    }else for(n=0;n<prep.sources.length;n++)w.push(prep.sources[n].id===(rule==='base'?prep.base.id:rule)?1:0);
    result[g]=w;
   }
+  return result;
+ }
+ function generator(seed){
+  seed=(seed>>>0)||17;
+  return function(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+ }
+ function withBase(prep,id){
+  var base=prep.base;for(var n=0;n<prep.sources.length;n++)if(prep.sources[n].id===id)base=prep.sources[n];
+  return {sources:prep.sources,base:base,weights:prep.weights,groups:prep.groups};
+ }
+ function randomWeights(n,variation,random){
+  var order=[],w=[],i,j,temp,total=0;
+  for(i=0;i<n;i++){order.push(i);w.push(0);}
+  for(i=n-1;i>0;i--){j=Math.floor(random()*(i+1));temp=order[i];order[i]=order[j];order[j]=temp;}
+  var participants=random()<variation?2+Math.floor(random()*(n-1)):1;
+  for(i=0;i<participants;i++){w[order[i]]=-Math.log(Math.max(1e-12,random()));total+=w[order[i]];}
+  for(i=0;i<n;i++)w[i]/=total;return w;
+ }
+ function randomDrafts(prep,req){
+  var random=generator(req.randomSeed),drafts=[],variation=req.variation/100;
+  for(var n=0;n<req.count;n++){
+   var base=prep.baseRandom?prep.sources[Math.floor(random()*prep.sources.length)]:prep.base;
+   var local=withBase(prep,base.id),proposal=null,g,i,a;
+   if(n>0){proposal={};for(g=0;g<groups.length;g++){a=[];for(i=0;i<prep.weights.length;i++)a.push(prep.weights[i]*100*(.15+random()*.85));proposal[groups[g]]=a;}}
+   var table=matrix(local,proposal,variation);
+   for(g=0;g<groups.length;g++)if(prep.groups[groups[g]]==='random')table[groups[g]]=randomWeights(prep.sources.length,variation,random);
+   var mixed=blend(local,table);
+   drafts.push({index:n,baseId:base.id,weights:table,values:mixed.values,curves:mixed.curves});
+  }
+  return drafts;
+ }
+ function ratios(prep,table){
+  var result={};for(var g=0;g<groups.length;g++){var a=[];for(var i=0;i<prep.sources.length;i++)a.push({id:prep.sources[i].id,name:prep.sources[i].name,percent:round(table[groups[g]][i]*100,3)});result[groups[g]]=a;}
   return result;
  }
  function blend(prep,table){
@@ -123,8 +158,7 @@
   return {values:values,delta:delta,curves:outCurves};
  }
  function generate(req){
-  var prep=prepare(req),plans=req.aiPlans,map={},out=[],seen={},warnings=[],seed=(req.randomSeed>>>0)||17;
-  function random(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}
+  var prep=prepare(req),plans=req.aiPlans,map={},out=[],seen={},warnings=[],random=generator(req.randomSeed);
   if(req.useAi){
    if(!arr(plans)||plans.length!==req.count)throw Error('AI 조합 개수가 요청과 다릅니다.');
    for(var i=0;i<plans.length;i++){
@@ -134,12 +168,13 @@
   }
   for(var n=0;n<req.count;n++){
    var plan=req.useAi?map['i:'+n]:null,proposal=plan?plan.weights:null;
-   if(!plan&&n>0){proposal={};for(g=0;g<groups.length;g++){var a=[];for(i=0;i<prep.weights.length;i++)a.push(prep.weights[i]*100*(.15+random()*.85));proposal[groups[g]]=a;}}
-   var table=matrix(prep,proposal,req.variation/100),mixed=blend(prep,table),signature=JSON.stringify([mixed.values,mixed.curves]);
+   if(!prep.randomized&&!plan&&n>0){proposal={};for(g=0;g<groups.length;g++){var a=[];for(i=0;i<prep.weights.length;i++)a.push(prep.weights[i]*100*(.15+random()*.85));proposal[groups[g]]=a;}}
+   var draft=prep.randomized?prep.drafts[n]:null,local=draft?withBase(prep,draft.baseId):prep;
+   var table=matrix(local,proposal,req.variation/100,draft?draft.weights:null),mixed=blend(local,table),signature=JSON.stringify([local.base.id,mixed.values,mixed.curves]);
    if(seen['s:'+signature])continue;seen['s:'+signature]=true;
-   var ratios={};for(g=0;g<groups.length;g++){a=[];for(i=0;i<prep.sources.length;i++)a.push({id:prep.sources[i].id,name:prep.sources[i].name,percent:round(table[groups[g]][i]*100,3)});ratios[groups[g]]=a;}
-   out.push({index:out.length,name:plan?text(plan.name,80):'믹스매치 '+(n+1),reason:plan?text(plan.reason,1200):'지정한 비율과 항목별 선택으로 혼합했습니다.',baseId:prep.base.id,baseName:prep.base.name,values:mixed.values,delta:mixed.delta,curves:mixed.curves,ratios:ratios,mode:req.useAi?'mix_ai':'mix_local'});
+   out.push({index:out.length,name:plan?text(plan.name,80):(prep.randomized?'랜덤 믹스매치 ':'믹스매치 ')+(n+1),reason:plan?text(plan.reason,1200):(prep.randomized?'항목별 출처와 비율을 무작위로 정해 혼합했습니다.':'지정한 비율과 항목별 선택으로 혼합했습니다.'),baseId:local.base.id,baseName:local.base.name,values:mixed.values,delta:mixed.delta,curves:mixed.curves,ratios:ratios(local,table),randomized:prep.randomized,draftRatios:draft?ratios(local,draft.weights):null,mode:req.useAi?'mix_ai':'mix_local'});
   }
+  if(prep.randomized)warnings.push('랜덤 항목은 비율이 0보다 큰 프리셋 중에서 동등한 기회로 출처와 비율을 정합니다. AI를 켜면 랜덤 조합에 추천 비율을 최대 20% 반영하며, 실제 기준 프리셋과 비율은 후보별로 기록합니다.');
   warnings.push('화이트밸런스·프로필·LUT·마스크·크롭 및 지원하지 않는 설정은 기준 프리셋에서 유지합니다. 결과의 외관은 적용할 사진에 따라 달라집니다.');
   warnings.push('섞는 항목에서 일부 프리셋에 없는 슬라이더는 중립값으로 계산합니다. 여러 커브를 섞을 때는 5개 입력 밝기에서 보간하며, 사진을 렌더링한 결과와 동일한 혼합을 보장하지 않습니다.');
   if(out.length<req.count)warnings.push('보정값이 같은 후보 '+(req.count-out.length)+'개를 제외했습니다. 조합 탐색 폭을 높이거나 사용할 프리셋을 바꿔 보세요.');

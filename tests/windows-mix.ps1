@@ -37,6 +37,21 @@ try {
     Assert-Regression ($manifest.mode -eq 'mix' -and @($manifest.mix.sources).Count -eq 2 -and $manifest.usage.calls -eq 0) 'Mix recipe was not recorded.'
     Assert-Regression (-not ((Get-Content -LiteralPath (Join-Path $local.folder 'manifest.json') -Raw).Contains('TEST_MIX_KEY_DO_NOT_SAVE'))) 'Mix manifest leaked a key.'
 
+    # Each random candidate exports from its own recorded base, including opaque settings.
+    $r = New-TestMixRequest; $r.baseId = 'random'; $r.count = 12; $r.variation = 100
+    $r.mixGroups = @{ tone = 'random'; color = 'random'; texture = 'random'; curves = 'random' }
+    $randomLocal = Run-Generation $r $mixRoot
+    Assert-Regression (@($randomLocal.rows).Count -gt 5 -and $randomLocal.cost -eq 0 -and @($randomLocal.rows.Details.baseId | Select-Object -Unique).Count -eq 2) 'Random local mix did not explore candidates and bases.'
+    foreach ($row in $randomLocal.rows) {
+        $expectedBase = $(if ($row.Details.baseId -eq $mixA.id) { $mixA } else { $mixB })
+        $saved = Read-Xmp (Join-Path $randomLocal.folder $row.File); $originalBase = Read-Xmp $expectedBase.path
+        foreach ($key in @('CameraProfile','Temperature')) { Assert-Regression ((Get-CrsValue $saved $saved.Desc $key) -eq (Get-CrsValue $originalBase $originalBase.Desc $key)) ('Random mix exported from the wrong base: ' + $key) }
+        Assert-Regression ($row.Seed -eq $expectedBase.name -and $row.Reason.Contains('기준 프리셋:')) 'Random result did not disclose its actual base.'
+        Assert-Regression ($row.Details.randomized -and $row.Details.draftRatios.tone) 'Random output lost the original recipe.'
+    }
+    $randomManifest = Get-Content -LiteralPath (Join-Path $randomLocal.folder 'manifest.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+    Assert-Regression ($randomManifest.mix.randomized -and $randomManifest.mix.baseId -eq 'random' -and $randomManifest.usage.calls -eq 0) 'Random mode was lost from the manifest.'
+    $script:MixExpectedDrafts = @{}
     $script:MixApiMode = 'valid'
     function Invoke-RestMethod { param($Uri,$Method,$Headers,$ContentType,$Body,$TimeoutSec)
         $script:MixApiCalls++
@@ -44,6 +59,13 @@ try {
         Assert-Regression ($wire.store -eq $false -and $wire.text.format.strict -eq $true) 'Mix request lost structured output or privacy settings.'
         $context = $wire.input[1].content[0].text | ConvertFrom-Json
         Assert-Regression (@($context.presets).Count -eq 2 -and @($wire.input[1].content | Where-Object { $_.type -eq 'input_image' }).Count -eq 0) 'Mix request unexpectedly transmitted photos.'
+        if ($context.randomDrafts) {
+            Assert-Regression (@($context.randomDrafts).Count -eq @($context.indexes).Count -and $context.randomRefinementLimit -le 0.2) 'AI did not receive its own bounded random draft batch.'
+            foreach ($draft in $context.randomDrafts) {
+                Assert-Regression ($draft.baseId -in $context.sourceIdsInOrder -and $null -ne $draft.values.Exposure2012 -and $draft.curves.ToneCurvePV2012) 'AI random draft omitted computed values, curves or the actual base.'
+                $script:MixExpectedDrafts[[string]$draft.index] = $draft
+            }
+        }
         $plans = @($context.indexes | ForEach-Object { @{ index = $_; name = 'Test Mix'; reason = 'Warm palette with restrained contrast'; weights = @{ tone = @((20 + $_ * 3), (80 - $_ * 3)); color = @(10,90); texture = @(30,70); curves = @(50,50) } } })
         $response = $fixture.responses[0] | ConvertTo-Json -Depth 40 | ConvertFrom-Json
         $response.output[0].content[0].text = $(if ($script:MixApiMode -eq 'malformed') { '{bad' } else { @{ plans = $plans } | ConvertTo-Json -Depth 20 -Compress })
@@ -56,6 +78,17 @@ try {
     Assert-Regression ((Get-CrsValue $saved $saved.Desc 'Saturation') -eq '20') 'AI overrode a locked component.'
     $calls = @((Read-UsageEvents).events | Where-Object { $_.runId -eq $r.runId -and $_.kind -eq 'api' })
     Assert-Regression ($calls[-1].phase -eq 'mix_design' -and $calls[-1].mode -eq 'mix' -and $r.usageSummary.inputTokens -eq 2000) 'AI mix usage lost phase/mode/tokens.'
+    $script:MixApiCalls = 0; $r = New-TestMixRequest; $r.useAi = $true; $r.count = 8; $r.variation = 100; $r.baseId = 'random'
+    $r.mixGroups = @{ tone = 'random'; color = 'random'; texture = 'random'; curves = 'random' }
+    $randomAi = Run-Generation $r $mixRoot
+    Assert-Regression ($script:MixApiCalls -eq 2 -and $script:MixExpectedDrafts.Count -eq 8 -and @($randomAi.rows).Count -eq 8) 'AI refinement of random candidates did not batch correctly.'
+    foreach ($row in $randomAi.rows) {
+        $draft = $script:MixExpectedDrafts[[string]$row.Details.index]
+        Assert-Regression ($row.Details.baseId -eq $draft.baseId) 'AI changed a randomly selected base.'
+        foreach ($key in @('tone','color','texture','curves')) {
+            for ($j = 0; $j -lt 2; $j++) { Assert-Regression ([Math]::Abs($row.Details.ratios.$key[$j].percent - $row.Details.draftRatios.$key[$j].percent) -le 20.001) 'AI replaced too much of a random recipe.' }
+        }
+    }
     $script:MixApiCalls = 0; $script:MixApiMode = 'malformed'; $r = New-TestMixRequest; $r.useAi = $true
     Expect-RegressionFailure { Run-Generation $r $mixRoot }
     Assert-Regression ($script:MixApiCalls -eq 1 -and $r.usageSummary.inputTokens -eq 1000 -and -not $r.runFolder) 'Invalid AI mix response lost usage or silently exported.'
@@ -72,5 +105,5 @@ try {
     Assert-Regression ($partial.status -eq 'cancelled' -and $partial.generatedCount -eq 1 -and @($partial.mix.sources).Count -eq 2) 'Cancelled mix lost provenance.'
     $dashboard = Get-UsageDashboard $mixRoot 7 'all'
     Assert-Regression (@($dashboard.runs | Where-Object { $_.Mode -eq '믹스매치' }).Count -ge 2) 'Mix runs were mislabeled.'
-    Write-Host 'PASS: local/AI mix, batching and usage, attribute/child sliders, RGB curves, profile/WB/mask preservation, hashes, partial provenance, no local API.'
+    Write-Host 'PASS: local/AI mix, batching and usage, attribute/child sliders, RGB curves, profile/WB/mask preservation, random components and per-candidate bases, draft-aware bounded AI refinement, hashes, partial provenance, no local API.'
 } finally { Set-Item Function:Invoke-RestMethod $mixTransport; Set-Item Function:Export-MixCandidate $mixExporter }
