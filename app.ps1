@@ -204,7 +204,6 @@ $controls.SeedCard.Add_DragLeave({ param($sender, $e) Clear-DropFeedback $sender
 $controls.SeedCard.Add_Drop({ param($sender, $e) Clear-DropFeedback $sender; $paths = @(Get-DropPaths $e @('.xmp')); if ($paths.Count) { Add-Seeds $paths } else { Set-Status 'XMP 파일이나 XMP가 든 폴더를 놓아 주세요.' 'error' } })
 $controls.AddFiles.Add_Click({ Add-Seeds (Pick-Files 'Lightroom preset (*.xmp)|*.xmp' $true) })
 $controls.AddFolder.Add_Click({ $folder = Pick-Folder ''; if ($folder) { Add-Seeds @(Get-ChildItem -LiteralPath $folder -Filter '*.xmp' -File -Recurse | ForEach-Object { $_.FullName }) } })
-$controls.Demo.Add_Click({ Add-Seeds @(Get-ChildItem -LiteralPath (Join-Path $script:AppRoot 'examples') -Filter '*.xmp' | ForEach-Object { $_.FullName }); Set-Status '예제는 동작 확인용 가상 씨드입니다. 실제 취향에는 내 프리셋을 사용하세요.' })
 $controls.ClearSeeds.Add_Click({
     if ($script:Seeds.Count -and [Windows.MessageBox]::Show($window, ('등록한 씨드 ' + $script:Seeds.Count + '개를 목록에서 모두 뺄까요? 원본 파일은 그대로 남습니다.'), '씨드 비우기', 'YesNo', 'Question') -eq 'Yes') { $script:Seeds.Clear() }
 })

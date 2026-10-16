@@ -527,7 +527,7 @@
          <StackPanel>
           <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="1" Style="{StaticResource StepText}"/></Border><TextBlock Text="씨드 라이브러리" Style="{StaticResource Title}"/></StackPanel>
           <TextBlock Text="내 스타일의 기준이 되는 Lightroom XMP를 등록하세요. 파일이나 폴더를 끌어다 놓아도 됩니다." Style="{StaticResource Muted}" Margin="0,8,0,14"/>
-          <WrapPanel Margin="0,0,0,12"><Button x:Name="AddFiles" Content="XMP 추가" Tag="&#xE710;" ToolTip="Ctrl+O"/><Button x:Name="AddFolder" Content="폴더 추가" Tag="&#xE8B7;" ToolTip="하위 폴더의 XMP까지 모두 읽습니다"/><Button x:Name="Demo" Content="예제 12개" Margin="0" ToolTip="동작 확인용 가상 씨드를 불러옵니다"/></WrapPanel>
+          <WrapPanel Margin="0,0,0,12"><Button x:Name="AddFiles" Content="XMP 추가" Tag="&#xE710;" ToolTip="Ctrl+O"/><Button x:Name="AddFolder" Content="폴더 추가" Tag="&#xE8B7;" Margin="0" ToolTip="하위 폴더의 XMP까지 모두 읽습니다"/></WrapPanel>
          </StackPanel>
          <Grid>
           <DataGrid x:Name="SeedGrid" Height="372" SelectionMode="Extended" CanUserSortColumns="False"><DataGrid.Columns>
@@ -538,7 +538,7 @@
           <StackPanel x:Name="SeedEmpty" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20,36,20,0" IsHitTestVisible="False">
            <Border Width="52" Height="52" CornerRadius="26" Background="{StaticResource AccentSoftBrush}" HorizontalAlignment="Center"><TextBlock Text="&#xE896;" Style="{StaticResource Icon}" FontSize="22" Foreground="{StaticResource AccentBrush}"/></Border>
            <TextBlock Text="XMP를 여기로 끌어다 놓으세요" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,12,0,4"/>
-           <TextBlock Text="처음이라면 '예제 12개'로 먼저 체험해 보세요." Style="{StaticResource Muted}" HorizontalAlignment="Center" TextAlignment="Center"/>
+           <TextBlock Text="Lightroom에서 내보낸 내 프리셋을 쓰세요. 폴더는 하위 폴더까지 읽습니다." Style="{StaticResource Muted}" HorizontalAlignment="Center" TextAlignment="Center"/>
           </StackPanel>
          </Grid>
          <DockPanel Margin="0,10,0,0">

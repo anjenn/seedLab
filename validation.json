@@ -5,7 +5,7 @@
   "seedFairness": "16 seeds / 48 candidates",
   "maximumCandidatesTested": 120,
   "wshCodec": "actual Windows JScript and legacy VM checks passed",
-  "sampleXmpXml": "12 parsed",
+  "testSeedXmpXml": "12 synthetic fixtures in tests/fixtures/seeds parsed (no bundled examples in the app)",
   "wpfXaml": "loaded by Windows PowerShell 5.1 / WPF",
   "windowsPE": "rebuilt x64 PE32+, actual imports symbol offset used; real EXE launch passed",
   "notExecuted": [

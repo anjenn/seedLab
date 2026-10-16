@@ -14,8 +14,8 @@ try {
     $view = [Windows.Markup.XamlReader]::Load([Xml.XmlNodeReader]::new($ui))
     foreach ($name in @('ReferencePage','RefSubjectGroup','RefBackgroundGroup','UsageCalls','GeneratorForm','ReferenceForm','ReferenceList','ResultsBody','Progress','RunSummary','ProjectCard','ProjectPick','RememberKey','RefRememberKey','MixPage','MixForm','MixGrid','MixUseAi','MixBase')) { if (-not $view.FindName($name)) { throw ('Missing WPF control ' + $name) } }
     $view.Close()
-    $seeds = @(Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot 'examples') -Filter '*.xmp' | ForEach-Object { Get-Seed $_.FullName })
-    if ($seeds.Count -ne 12) { throw 'Missing samples.' }
+    $seeds = @(Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot 'tests\fixtures\seeds') -Filter '*.xmp' | ForEach-Object { Get-Seed $_.FullName })
+    if ($seeds.Count -ne 12) { throw 'Missing test seed fixtures.' }
     $request = @{ seeds = $seeds; count = 24; fidelity = 85; variation = 70; keywordIds = @('dreamy', 'rose', 'cyan');
         useAi = $false; output = $temporary; randomSeed = 23; maskTemplate = ''; varyMasks = $false }
     $result = Run-Generation $request $PSScriptRoot

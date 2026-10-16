@@ -65,7 +65,7 @@ AI 설계는 후보 6개당 최대 한 호출(`ceil(개수/6)`)이며 대시보�
 6. 하단의 실행 요약을 확인하고 **프리셋 생성**(Ctrl+Enter)을 누릅니다. 결과 폴더에는 후보별 XMP와 `manifest.json`이 저장됩니다. 원본 씨드는 수정하지 않습니다.
 7. Lightroom 데스크톱의 프리셋 가져오기 기능으로 생성된 XMP를 가져와 실제 사진에 적용합니다.
 
-**AI 사용**을 끄면 API 비용 없이 로컬 규칙으로 변주할 수 있습니다. 결과의 `mode`가 `local`로 표시되며, AI 결과로 표시하지 않습니다. 예제 12개는 동작 확인용 가상 씨드이며 사용자의 실제 프리셋이 아닙니다.
+**AI 사용**을 끄면 API 비용 없이 로컬 규칙으로 변주할 수 있습니다. 결과의 `mode`가 `local`로 표시되며, AI 결과로 표시하지 않습니다.
 
 ## 씨드 변주 방식
 
@@ -104,15 +104,15 @@ Windows 10/11 x64, Windows PowerShell 5.1, .NET Framework의 WPF와 Windows Scri
 
 EXE는 함께 제공된 읽을 수 있는 PowerShell 앱을 실행하는 작은 네이티브 런처입니다. PowerShell 실행 정책 우회는 해당 자식 프로세스에만 적용하며 시스템 정책을 변경하지 않습니다. 설치·관리자 권한·레지스트리 변경은 없습니다.
 
-검증한 항목: 실제 JS 변주 엔진의 범위/씨드 배정/중복 제거/AI 응답 검증/WSH 호환 JSON, 예제 XMP의 XML 구조, Windows PE 실행파일의 형식·엔트리·DLL import.
+검증한 항목: 실제 JS 변주 엔진의 범위/씨드 배정/중복 제거/AI 응답 검증/WSH 호환 JSON, 테스트용 XMP의 XML 구조, Windows PE 실행파일의 형식·엔트리·DLL import.
 
-**Windows PowerShell 5.1에서 WPF·WSH·가상 API 통합 검사와 실제 EXE 화면 조작(예제 등록·로컬 24개 생성·결과·대시보드) 검사를 통과했습니다. 개인 API 키로 실제 요청하기, Lightroom 가져오기·마스크 재계산·보정 품질 비교는 아직 별도 확인이 필요합니다.**
+**Windows PowerShell 5.1에서 WPF·WSH·가상 API 통합 검사와 실제 EXE 화면 조작(프로젝트 복원·로컬 24개 생성·결과·대시보드) 검사를 통과했습니다. 개인 API 키로 실제 요청하기, Lightroom 가져오기·마스크 재계산·보정 품질 비교는 아직 별도 확인이 필요합니다.**
 
 ## 소스와 재현
 
-`app.ps1`·`ui.xaml`: 화면. `results-ui.ps1`: 결과 화면. `project.ps1`: 설정·API 키·프로젝트 저장. `functions.ps1`: XMP·API·내보내기. `engine.js`: 변주 엔진. `runner.js`와 `json_compat.js`: Windows Script Host 연결. `mix.js`: 로컬 혼합·AI 비율 계약. `mix.ps1`: XMP 혼합 출력·AI 설계 연결. `mix-ui.ps1`: 믹스매치 화면. `src/launcher.c`: 런처. `src/build_launcher.py`: GNU 도구로 Windows 런처 빌드. `src/build_assets.js`: 예제·키워드 생성. `tests/engine.test.js`: Node에서 실제 엔진 테스트.
+`app.ps1`·`ui.xaml`: 화면. `results-ui.ps1`: 결과 화면. `project.ps1`: 설정·API 키·프로젝트 저장. `functions.ps1`: XMP·API·내보내기. `engine.js`: 변주 엔진. `runner.js`와 `json_compat.js`: Windows Script Host 연결. `mix.js`: 로컬 혼합·AI 비율 계약. `mix.ps1`: XMP 혼합 출력·AI 설계 연결. `mix-ui.ps1`: 믹스매치 화면. `src/launcher.c`: 런처. `src/build_launcher.py`: GNU 도구로 Windows 런처 빌드. `src/build_assets.js`: 키워드·테스트용 XMP 생성. `tests/engine.test.js`: Node에서 실제 엔진 테스트.
 
-전체 로직 테스트: `npm test` (개발용 Node 필요, 앱 실행에는 불필요). Windows 통합 검사는 `ValidateOnWindows.cmd`. 실제 EXE와 화면 조작 검사는 `powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-ui-smoke.ps1`로 실행합니다. 화면 검사는 예제·로컬 모드만 사용하고 테스트 이력과 결과는 임시 폴더에 격리합니다.
+전체 로직 테스트: `npm test` (개발용 Node 필요, 앱 실행에는 불필요). Windows 통합 검사는 `ValidateOnWindows.cmd`. 실제 EXE와 화면 조작 검사는 `powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-ui-smoke.ps1`로 실행합니다. 화면 검사는 테스트용 씨드와 로컬 모드만 사용하고 테스트 이력과 결과는 임시 폴더에 격리합니다.
 
 공식 자료:
 
@@ -193,7 +193,7 @@ AI는 인물·배경의 노출, 대비, 하이라이트·섀도·화이트·블�
 
 - `npm test`: 씨드 14개·사용량 16개·레퍼런스 24개·믹스매치 16개 로직 검사.
 - `ValidateOnWindows.cmd`: Windows PowerShell/WPF/WSH/XMP/가상 API/실패·취소, 커브·슬라이더 복구, 실제 사진 디코딩·사전 확인, 로컬/AI 믹스매치·사용량·마스크/프로필 보존 회귀 검사. 외부 API 호출 없음.
-- `powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-ui-smoke.ps1`: 실제 EXE에서 화면 탐색·예제 추가·로컬 변주 24개 및 믹스매치 1개 생성·혼합 비율 슬라이더·대시보드 확인. 실행 중 테스트 창이 표시됩니다.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-ui-smoke.ps1`: 실제 EXE에서 테스트 프로젝트 복원·화면 탐색·로컬 변주 24개 및 믹스매치 1개 생성·혼합 비율 슬라이더·대시보드 확인. 실행 중 테스트 창이 표시됩니다.
 - `powershell -NoProfile -ExecutionPolicy Bypass -File tests/windows-mix-ui.ps1`: 실제 앱 화면 객체와 Start-Job으로 로컬 믹스매치, 공용 키, 결과 상세, 프로젝트 저장·재시작 복원을 검사합니다. 임시 프로젝트와 가짜 키만 사용합니다.
 - `python3 src/build_launcher.py`: GNU gcc/ld/nm을 사용한 x64 EXE 런처 빌드.
 

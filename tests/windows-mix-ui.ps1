@@ -14,7 +14,7 @@ try {
     if ($script:MixUiPass -eq 1) {
         Assert-MixUI (-not $controls.MixUseAi.IsChecked) 'AI was not opt-in.'
         $script:ProjectRoot = Join-Path $script:MixUiTemporary 'My Mix Project'; [void][IO.Directory]::CreateDirectory($script:ProjectRoot)
-        Add-Seeds @(Get-ChildItem -LiteralPath (Join-Path $script:AppRoot 'examples') -Filter '*.xmp' | Select-Object -First 2 | ForEach-Object { $_.FullName })
+        Add-Seeds @(Get-ChildItem -LiteralPath (Join-Path $script:AppRoot 'tests\fixtures\seeds') -Filter '*.xmp' | Select-Object -First 2 | ForEach-Object { $_.FullName })
         Set-View 'mix'
         $controls.MixFromSeeds.RaiseEvent([Windows.RoutedEventArgs]::new([Windows.Controls.Button]::ClickEvent))
         Assert-MixUI ($script:MixSources.Count -eq 2) 'Import from seeds failed.'

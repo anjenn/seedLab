@@ -23,6 +23,14 @@ function Check-KeywordChoices([string]$PageId) {
     return $checkboxes
 }
 try {
+    # Seeds come from a prepared project that the app reopens on start, exercising project restore.
+    $project = Join-Path $temporary 'Smoke Project'; $seedDir = Join-Path $project 'seeds'
+    [void][IO.Directory]::CreateDirectory($seedDir); [void][IO.Directory]::CreateDirectory($env:SEEDLAB_TEST_USAGE_DIR)
+    $fixtures = @(Get-ChildItem -LiteralPath (Join-Path $AppRoot 'tests\fixtures\seeds') -Filter '*.xmp')
+    foreach ($fixture in $fixtures) { Copy-Item -LiteralPath $fixture.FullName -Destination $seedDir }
+    $state = @{ app = 'PresetSeedLab'; version = 1; seeds = @($fixtures | ForEach-Object { @{ file = ('seeds\' + $_.Name); use = $true } }) }
+    [IO.File]::WriteAllText((Join-Path $project 'seedlab-project.json'), ($state | ConvertTo-Json -Depth 5), [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText((Join-Path $env:SEEDLAB_TEST_USAGE_DIR 'settings.json'), (@{ version = 1; project = $project; view = 'generator' } | ConvertTo-Json), [Text.UTF8Encoding]::new($false))
     $before = @([Diagnostics.Process]::GetProcessesByName('powershell') | ForEach-Object { $_.Id })
     $null = Start-Process -FilePath (Join-Path $AppRoot 'PresetSeedLab.exe') -PassThru
     $deadline = [DateTime]::UtcNow.AddSeconds(20)
@@ -34,7 +42,8 @@ try {
         if (-not $windowElement) { Start-Sleep -Milliseconds 200 }
     }
     if (-not $windowElement) { throw 'EXE did not open its WPF window within 20 seconds.' }
-    Click-Control 'GeneratorNav'; Click-Control 'Demo'
+    Click-Control 'GeneratorNav'
+    if ((Find-Control 'SeedCount').Current.Name -ne ('{0}개 중 {0}개 사용' -f $fixtures.Count)) { throw ('Project seeds were not restored: ' + (Find-Control 'SeedCount').Current.Name) }
     $choices = Check-KeywordChoices 'GeneratorPage'
     $styleChoice = @($choices | Where-Object { $_.Current.Name -eq '큐트 판타지' })[0]
     $styleChoice.GetCurrentPattern([Windows.Automation.TogglePattern]::Pattern).Toggle()
@@ -75,7 +84,7 @@ try {
     if ($mixture.mode -ne 'mix' -or $mixture.mix.useAi -or $mixture.usage.calls -ne 0 -or @($mixture.mix.sources).Count -ne 12 -or $mixture.mix.sources[0].weight -ne 25) { throw 'UI mixture did not preserve source weights or local mode.' }
     Click-Control 'DashboardNav'
     if ((Find-Control 'RunKpi').Current.Name -ne '2') { throw 'Dashboard did not show both local generations.' }
-    Write-Host 'PASS: real EXE launch, navigation, sample import, local generation through Start-Job, 24 seed XMPs and 1 mixed XMP, ratio slider, results and persistent dashboard.'
+    Write-Host 'PASS: real EXE launch, project restore of 12 seeds, navigation, local generation through Start-Job, 24 seed XMPs and 1 mixed XMP, ratio slider, results and persistent dashboard.'
     Write-Host 'No external API was called. The test used isolated usage/output directories.'
 } finally {
     if ($windowElement) { $windowElement.GetCurrentPattern([Windows.Automation.WindowPattern]::Pattern).Close() }
