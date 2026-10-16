@@ -184,7 +184,7 @@ function Remove-SelectedSeeds { foreach ($item in @($controls.SeedGrid.SelectedI
 function Set-AiPhoto([string]$Path) {
     $Path = Import-ProjectFile $Path 'photos'
     $script:Photo = $Path
-    $controls.PhotoPath.Text = $(if ($Path) { [IO.Path]::GetFileName($Path) } else { 'JPG/PNG · 1024px 이하로 줄여 분석에만 사용합니다' })
+    $controls.PhotoPath.Text = $(if ($Path) { [IO.Path]::GetFileName($Path) } else { '선택 안 함' })
     $controls.PhotoPath.ToolTip = $(if ($Path) { $Path } else { $null })
     $controls.PhotoThumb.Source = $(if ($Path) { New-Thumbnail $Path 120 } else { $null })
     $controls.PhotoClear.Visibility = $(if ($Path) { 'Visible' } else { 'Collapsed' })
@@ -334,8 +334,8 @@ $script:References.Add_CollectionChanged({ Request-AutoSave })
 $controls.ApiKey.Add_PasswordChanged({ if ($controls.RememberKey.IsChecked) { Request-AutoSave } })
 
 function Update-KeyHint {
-    $text = $(if ($controls.RememberKey.IsChecked) { 'Windows 계정으로 암호화해 이 PC에만 저장 · 세 화면 공용' } else { '꺼 두면 키는 메모리에만 있고 앱을 닫을 때 지워집니다' })
-    $controls.KeyHint.Text = $text; $controls.RefKeyHint.Text = $text
+    $tip = $(if ($controls.RememberKey.IsChecked) { 'Windows 계정으로 암호화해 이 PC에만 저장했습니다. 끄면 저장된 키를 지웁니다.' } else { '켜면 Windows 계정으로 암호화해 이 PC에만 저장합니다. 꺼 두면 키는 메모리에만 있고 앱을 닫을 때 지워집니다.' }) + ' 세 생성 화면이 같은 키를 씁니다.'
+    foreach ($name in @('RememberKey','RefRememberKey','MixRememberKey')) { $controls[$name].ToolTip = $tip }
 }
 function Set-RememberKey([bool]$On) {
     if ($script:SyncingRemember) { return }

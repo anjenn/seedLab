@@ -12,7 +12,7 @@ function Set-View([string]$View) {
         'results' { $page = 'ResultsPage'; $nav = 'ResultsNav'; $title = '생성 결과'; $subtitle = '후보별 변화와 보정값을 확인하고 Lightroom의 프리셋 가져오기로 불러오세요.' }
     }
     $controls[$page].Visibility = 'Visible'; $controls[$nav].Background = Get-Brush 'SideActiveBrush'; $controls[$nav].Foreground = [Windows.Media.Brushes]::White; $controls[$nav].FontWeight = [Windows.FontWeights]::SemiBold
-    $controls.PageTitle.Text = $title; $controls.PageSubtitle.Text = $subtitle
+    $controls.PageTitle.Text = $title; $controls.PageTitle.ToolTip = $subtitle
     # The primary action only appears where a run can be configured.
     $controls.Generate.Visibility = $(if ($View -in @('generator','reference','mix')) { 'Visible' } else { 'Collapsed' })
     $controls.Generate.Content = $(if ($View -eq 'mix') { '믹스매치 생성' } elseif ($View -eq 'reference') { '레퍼런스 프리셋 생성' } else { '프리셋 생성' })

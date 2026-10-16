@@ -32,7 +32,7 @@ function Remove-SelectedReferences { foreach ($item in @($controls.ReferenceList
 function Set-ReferenceTarget([string]$Path) {
     $Path = Import-ProjectFile $Path 'photos'
     $script:ReferenceTarget = $Path
-    $controls.RefTargetPath.Text = $(if ($Path) { [IO.Path]::GetFileName($Path) } else { '보정 전 JPG/PNG를 넣으면 그 사진에 맞춰 보정값을 추정합니다.' })
+    $controls.RefTargetPath.Text = $(if ($Path) { [IO.Path]::GetFileName($Path) } else { '선택 안 함' })
     $controls.RefTargetPath.ToolTip = $(if ($Path) { $Path } else { $null })
     $controls.RefTargetThumb.Source = $(if ($Path) { New-Thumbnail $Path 120 } else { $null })
     $controls.RefTargetClear.Visibility = $(if ($Path) { 'Visible' } else { 'Collapsed' })
