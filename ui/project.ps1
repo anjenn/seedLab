@@ -167,7 +167,7 @@ function Restore-ProjectState($State) {
                 if ($script:MixSources.Count -lt 12 -and -not @($script:MixSources | Where-Object { $_.id -eq $source.id }).Count) { $script:MixSources.Add($source) }
             } catch { $missing.Add([IO.Path]::GetFileName($path)) }
         }
-        if ($State.mixBaseId -in @($script:MixSources | ForEach-Object { $_.id })) { $controls.MixBase.SelectedValue = $State.mixBaseId }
+        if ($State.mixBaseId -eq 'random' -or $State.mixBaseId -in @($script:MixSources | ForEach-Object { $_.id })) { $controls.MixBase.SelectedValue = $State.mixBaseId }
         Set-MixGroupChoices $State.mixGroups; $controls.MixNote.Text = [string]$State.mixNote
         $photos = @()
         foreach ($file in @($State.references | Where-Object { $_ })) { $path = Resolve-ProjectPath $file; if ([IO.File]::Exists($path)) { $photos += $path } else { $missing.Add([IO.Path]::GetFileName($path)) } }

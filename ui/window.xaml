@@ -753,8 +753,9 @@
        <StackPanel Margin="0,0,8,0">
         <Border Style="{StaticResource StackCard}">
          <StackPanel>
-          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="2" Style="{StaticResource StepText}"/></Border><TextBlock Text="항목별 믹스매치" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="항목마다 정한 비율로 섞거나, 특정 프리셋의 값을 그대로 가져올 수 있습니다."/></StackPanel>
+          <DockPanel><Button x:Name="MixRandomAll" DockPanel.Dock="Right" Content="모두 랜덤으로" Margin="12,0,0,0" ToolTip="톤·색감·질감·커브와 기준 프리셋을 모두 랜덤으로 설정합니다. 생성할 때 후보마다 새로운 조합을 만듭니다."/><StackPanel Orientation="Horizontal" VerticalAlignment="Center"><Border Style="{StaticResource Step}"><TextBlock Text="2" Style="{StaticResource StepText}"/></Border><TextBlock Text="항목별 믹스매치" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="항목마다 랜덤으로 섞거나, 지정한 비율로 섞거나, 특정 프리셋에서 가져올 수 있습니다. 모두 랜덤으로 버튼은 기준 프리셋까지 후보마다 새로 고르게 합니다."/></StackPanel></DockPanel>
           <Border Style="{StaticResource CardGap}"/>
+          <TextBlock x:Name="MixRandomHint" Text="랜덤 항목은 비율이 0보다 큰 프리셋 중에서 출처와 비율을 새로 고릅니다. 슬라이더의 비율은 따르지 않으며, AI를 켜면 완성된 조합을 조금 다듬습니다." Style="{StaticResource Muted}" Margin="0,0,0,14" Visibility="Collapsed"/>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
            <StackPanel Margin="0,0,0,14"><TextBlock Text="톤" Style="{StaticResource Label}"/><ComboBox x:Name="MixTone" ToolTip="노출과 대비, 밝은 영역과 어두운 영역의 보정값을 가져옵니다." DisplayMemberPath="label" SelectedValuePath="id"/></StackPanel>
            <StackPanel Grid.Column="2" Margin="0,0,0,14"><TextBlock Text="색감" Style="{StaticResource Label}"/><ComboBox x:Name="MixColor" ToolTip="HSL, 채도, 토닝 등 색감 관련 보정값을 가져옵니다." DisplayMemberPath="label" SelectedValuePath="id"/></StackPanel>
@@ -765,15 +766,15 @@
         </Border>
         <Border Style="{StaticResource StackCard}">
          <StackPanel>
-          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="3" Style="{StaticResource StepText}"/></Border><TextBlock Text="조합 설정" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="섞는 항목 외의 화이트밸런스, 프로필, 마스크 등은 기준 프리셋에서 가져옵니다. 조합 탐색 폭을 높이면 비율을 조금씩 달리한 후보를 만듭니다."/></StackPanel>
+          <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="3" Style="{StaticResource StepText}"/></Border><TextBlock Text="조합 설정" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="화이트밸런스·프로필·마스크 등은 기준 프리셋에서 가져옵니다. 기준도 랜덤으로 고를 수 있습니다. 조합 탐색 폭을 높이면 혼합 비율과 랜덤 조합을 더 다양하게 만듭니다."/></StackPanel>
           <Border Style="{StaticResource CardGap}"/>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
            <StackPanel>
-            <TextBlock Text="기준 프리셋" Style="{StaticResource Label}"/><ComboBox x:Name="MixBase" DisplayMemberPath="name" SelectedValuePath="id"/>
+            <TextBlock Text="기준 프리셋" Style="{StaticResource Label}"/><ComboBox x:Name="MixBase" DisplayMemberPath="name" SelectedValuePath="id" ToolTip="화이트밸런스·프로필·마스크 등 혼합하지 않는 설정의 출처입니다. 랜덤을 고르면 비율이 0보다 큰 프리셋 중에서 후보마다 하나를 무작위로 선택합니다. 실제로 사용된 기준은 결과에 표시됩니다."/>
            </StackPanel>
            <StackPanel Grid.Column="2">
             <DockPanel><Border DockPanel.Dock="Right" Style="{StaticResource ValuePill}"><TextBlock x:Name="MixVariationValue" Text="40" Style="{StaticResource ValueText}"/></Border><TextBlock Text="조합 탐색 폭" Style="{StaticResource FieldTitle}"/></DockPanel>
-            <Slider x:Name="MixVariation" Minimum="0" Maximum="100" Value="40" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,0" ToolTip="0이면 지정한 비율을 유지합니다. 값을 높이면 추가 후보나 AI 추천에서 항목별 비율을 더 다양하게 조절합니다. AI를 끈 경우 첫 결과는 항상 지정 비율을 사용합니다."/>
+            <Slider x:Name="MixVariation" Minimum="0" Maximum="100" Value="40" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="5" Margin="0,8,0,0" ToolTip="비율대로 섞기는 0이면 지정 비율을 유지하고, 값을 높이면 추가 후보의 비율을 바꿉니다. 랜덤으로 섞기는 0이어도 항목별 출처를 무작위로 고르며, 값을 높일수록 여러 프리셋을 섞는 조합이 늘어납니다. AI 추천 반영도 함께 커지며 랜덤 항목은 최대 20%로 제한합니다."/>
            </StackPanel>
           </Grid>
          </StackPanel>
@@ -781,7 +782,7 @@
         <Border Style="{StaticResource StackCard}">
          <StackPanel>
           <DockPanel><CheckBox x:Name="MixUseAi" DockPanel.Dock="Right" Content="AI 사용" Style="{StaticResource Switch}" IsChecked="False" Margin="0" VerticalAlignment="Center"/>
-           <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="4" Style="{StaticResource StepText}"/></Border><TextBlock Text="AI 조합 추천" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="AI가 프리셋의 보정값과 요청사항을 보고 혼합 비율을 추천합니다. 항목별로 직접 지정한 프리셋은 유지합니다. AI를 끄면 API 비용 없이 이 PC에서 섞습니다."/></StackPanel></DockPanel>
+           <StackPanel Orientation="Horizontal"><Border Style="{StaticResource Step}"><TextBlock Text="4" Style="{StaticResource StepText}"/></Border><TextBlock Text="AI 조합 추천" Style="{StaticResource Title}"/><TextBlock Style="{StaticResource InfoIcon}" ToolTip="AI가 보정값과 요청사항을 보고 혼합 비율을 추천합니다. 랜덤 항목은 먼저 완성한 조합을 AI에 보여 주고, 추천 비율을 최대 20% 반영해 다듬습니다. 직접 지정한 항목과 후보별 기준 프리셋은 유지합니다. AI를 끄면 API 비용 없이 섞습니다."/></StackPanel></DockPanel>
           <Border Style="{StaticResource CardGap}"/>
           <StackPanel IsEnabled="{Binding IsChecked, ElementName=MixUseAi}">
            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="200"/></Grid.ColumnDefinitions>

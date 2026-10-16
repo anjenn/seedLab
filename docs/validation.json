@@ -14,7 +14,7 @@
     "real seed/reference visual fidelity and diversity evaluation in Lightroom"
   ],
   "usageTests": "16 passed",
-  "totalLogicTests": 70,
+  "totalLogicTests": 78,
   "nativeUi": "Real EXE UI Automation passed: 60 keywords in both seed/reference screens, renamed idol_editorial and new daily_snap selections exported to 24 XMPs, mix tab/import/ratio slider/local generation (1 XMP), results and two runs in dashboard",
   "uiRedesign": "v1.4 WPF redesign rendered offscreen and inspected (dashboard, both creation screens, busy state, empty and filled results); preferences save/restore without API key, shared API key, seed select-all toggle, run summary call estimates and result detail chips checked by script. Drag and drop, keyboard shortcuts and EXIF-rotated thumbnails were not exercised by automation.",
   "projectPersistence": "Real app.ps1 run three times offscreen: new project copies current seeds and later additions without duplicates, photos copied, relative paths, local Start-Job generation into project outputs, restart restores seeds/use flags/keywords/notes/options/reference photos/target/last results/view; remembered API key is DPAPI-encrypted outside settings and project files, restored, and deleted when turned off. ValidateOnWindows adds DPAPI round trip and project import checks.",
@@ -50,9 +50,9 @@
   "referenceInputPreflight": "Real System.Drawing decoding passed: valid PNG, hash mismatch, corrupt fifth reference and corrupt target rejected before HTTP, handles released; analyzed image snapshots reused for recipes",
   "apiFailureHandling": "Offline fixtures passed: malformed JSON/recipe, incomplete max_output_tokens, refusal, network failure; no automatic retry, recorded usage retained",
   "curveStress": "400 deterministic cases / 1,600 channel curves: integer, bounded, nondecreasing and nonconstant",
-  "mixTests": "16 passed",
-  "mixPipeline": "Windows PowerShell 5.1/WSH offline tests passed: weighted local mixtures; AI plans in two batches, component locks and token accounting; curve and child/attribute slider output; base profile/WB/mask preservation; input hash preflight; cancellation retains mixture provenance",
-  "mixUi": "Real app run twice with isolated project: source import, ratio/options editing, default AI off, shared optional API key, local Start-Job output and result ratios, no API calls, relative project inputs/options/last-results restored",
+  "mixTests": "24 passed",
+  "mixPipeline": "Windows PowerShell 5.1/WSH offline tests passed: weighted local mixtures; random component donors/proportions and candidate-specific random bases; actual base profile/white balance preservation; AI receives computed random draft values/curves/proportions and stays within the 20% refinement bound; batching, locks, usage, input hashes and partial provenance. HTTP responses are fixtures; no live API calls.",
+  "mixUi": "Real app run twice with isolated project: default AI off, source import/ratios, random-all sets four components and base, refresh retains choices, per-group random plus explicit donor requests, shared optional key, local Start-Job creates 3 random XMPs without API calls, actual base and ratios in results, random choices/options/last results restored.",
   "mixVisual": "WPF mix tab rendered and inspected with sources, ratios and component selectors; no browser preview used",
   "nonfiniteUsage": "Windows regression passed: new NaN run metadata and legacy Infinity ledger values normalize to unknown without breaking strict JSON/dashboard",
   "uiRefinement": {
@@ -66,5 +66,11 @@
     "backend": "Windows integration passed: both/individual/no masks, unique IDs, encoded reference values, legacy/custom template behavior, nonfinite rejection, existing mask preservation, actual local pipeline with 0 API calls, partial provenance.",
     "ui": "Real WPF app twice: automatic reference requests without a template, independent flags, optional template controls, real Start-Job seed output with both masks and AI off; options/results restart and legacy project templates restored. Reference card rendered and inspected.",
     "notVerified": "Actual Lightroom import/apply and mask computation are not automated or verified. Lightroom computes the selection when the preset is applied; import alone adds the preset."
+  },
+  "randomMix": {
+    "components": "tone/color/texture/curves each accept random, with a random-all button including base selection. Only sources with weight > 0 participate; random choices ignore positive weight magnitude.",
+    "exploration": "0 chooses a single donor per random group; higher values increase the chance of mixing multiple donors. First result is randomized, and saved seed reproduces drafts independently of AI.",
+    "ai": "Completed draft values/curves/weights are supplied per batch. Random groups interpolate at most variation/100 * 0.2 of normalized AI weights; fixed component and candidate-base choices remain locked. draftRatios retain pre-AI proportions.",
+    "verification": "78 Node tests, Windows offline pipeline including native WSH and XMP exports, real WPF random controls/generation/project restart passed. Screenshot inspected at 1380x940. Actual Lightroom rendering and live AI quality are unverified."
   }
 }

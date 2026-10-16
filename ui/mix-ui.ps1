@@ -15,10 +15,10 @@ function Refresh-MixChoices {
     $script:RefreshingMix = $true
     try {
         $base = $controls.MixBase.SelectedValue; $selected = Get-MixGroupChoices
-        $controls.MixBase.ItemsSource = @($script:MixSources)
+        $controls.MixBase.ItemsSource = @([pscustomobject]@{ id = 'random'; name = '랜덤 · 후보마다 선택' }) + @($script:MixSources)
         $controls.MixBase.SelectedValue = $base
-        if (-not $controls.MixBase.SelectedItem -and $script:MixSources.Count) { $controls.MixBase.SelectedIndex = 0 }
-        $options = @([pscustomobject]@{ id = 'blend'; label = '비율대로 섞기' }, [pscustomobject]@{ id = 'base'; label = '기준 프리셋 유지' })
+        if (-not $controls.MixBase.SelectedItem -and $script:MixSources.Count) { $controls.MixBase.SelectedValue = $script:MixSources[0].id }
+        $options = @([pscustomobject]@{ id = 'random'; label = '랜덤으로 섞기' }, [pscustomobject]@{ id = 'blend'; label = '비율대로 섞기' }, [pscustomobject]@{ id = 'base'; label = '기준 프리셋 유지' })
         $options += @($script:MixSources | ForEach-Object { [pscustomobject]@{ id = $_.id; label = $_.name } })
         foreach ($name in @('MixTone','MixColor','MixTexture','MixCurves')) { $controls[$name].ItemsSource = $options; $controls[$name].SelectedValue = 'blend' }
         Set-MixGroupChoices $selected
@@ -28,6 +28,10 @@ function Refresh-MixChoices {
 function Update-MixSummary {
     $active = @($script:MixSources | Where-Object { $_.weight -gt 0 }); $sum = ($active | Measure-Object -Property weight -Sum).Sum
     $controls.MixSummary.Text = $(if ($sum -gt 0) { '사용 ' + $active.Count + '개 · ' + ((@($active | ForEach-Object { $_.name + ' ' + ([double](100 * $_.weight / $sum)).ToString('0.#') + '%' })) -join ' / ') } else { '혼합할 프리셋 2개 이상을 추가하고 비율을 설정하세요.' })
+    $choices = Get-MixGroupChoices
+    $random = $controls.MixBase.SelectedValue -eq 'random' -or @($choices.Values | Where-Object { $_ -eq 'random' }).Count -gt 0
+    $controls.MixRandomHint.Visibility = $(if ($random) { 'Visible' } else { 'Collapsed' })
+    $controls.MixRandomAll.IsEnabled = $active.Count -ge 2
     $controls.MixRemove.IsEnabled = $script:MixSources.Count -gt 0; $controls.MixEqual.IsEnabled = $script:MixSources.Count -gt 0
     Update-RunSummary; Request-AutoSave
 }
@@ -70,6 +74,11 @@ $controls.MixAdd.Add_Click({ Add-MixSources (Pick-Files 'Lightroom preset (*.xmp
 $controls.MixFolder.Add_Click({ $folder = Pick-Folder ''; if ($folder) { Add-MixSources @(Get-ChildItem -LiteralPath $folder -Filter '*.xmp' -File -Recurse | ForEach-Object { $_.FullName }) } })
 $controls.MixFromSeeds.Add_Click({ Add-MixSources @($script:Seeds | Where-Object { $_.Use } | ForEach-Object { $_.path }) })
 $controls.MixRemove.Add_Click({ Remove-MixSources })
+$controls.MixRandomAll.Add_Click({
+    Set-MixGroupChoices @{ tone = 'random'; color = 'random'; texture = 'random'; curves = 'random' }
+    $controls.MixBase.SelectedValue = 'random'; Update-MixSummary
+    Set-Status '네 항목과 기준 프리셋을 후보마다 무작위로 정합니다. 생성 개수를 정하고 믹스매치 생성을 누르세요.'
+})
 $controls.MixEqual.Add_Click({ foreach ($source in $script:MixSources) { $source.weight = 50.0 }; $controls.MixGrid.Items.Refresh(); Update-MixSummary })
 $controls.MixCard.Add_DragOver({ param($sender,$e) Set-DropFeedback $sender $e })
 $controls.MixCard.Add_DragLeave({ param($sender,$e) Clear-DropFeedback $sender })

@@ -167,7 +167,7 @@ function Update-RunSummary {
         $used = @($script:MixSources | Where-Object { $_.weight -gt 0 }).Count; $count = 0
         if ($used -lt 2) { $text = '프리셋 2개 이상의 비율을 0보다 높게 설정하세요.'; $warn = $true }
         elseif (-not [int]::TryParse($controls.MixCount.Text, [ref]$count) -or $count -lt 1 -or $count -gt 24) { $text = '생성 개수는 1–24 사이로 입력하세요'; $warn = $true }
-        else { $text = '프리셋 ' + $used + '개 혼합 · 후보 ' + $count + '개 · ' + $(if ($controls.MixUseAi.IsChecked) { 'AI 설계 약 ' + [Math]::Ceiling($count / 6) + '회' } else { '로컬 처리 (API 비용 없음)' }) }
+        else { $random = $controls.MixBase.SelectedValue -eq 'random' -or @((Get-MixGroupChoices).Values | Where-Object { $_ -eq 'random' }).Count -gt 0; $text = '프리셋 ' + $used + '개 ' + $(if ($random) { '랜덤 혼합' } else { '혼합' }) + ' · 후보 ' + $count + '개 · ' + $(if ($controls.MixUseAi.IsChecked) { 'AI 설계 약 ' + [Math]::Ceiling($count / 6) + '회' } else { '로컬 처리 (API 비용 없음)' }) }
     } elseif ($script:CurrentView -eq 'reference') {
         $photos = $script:References.Count; $mode = $controls.RefMode.SelectedItem.Tag
         $count = 0; $validCount = [int]::TryParse($controls.RefCount.Text, [ref]$count) -and $count -ge 1 -and $count -le 120

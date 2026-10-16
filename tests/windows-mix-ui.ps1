@@ -30,6 +30,16 @@ try {
         Assert-MixUI ($controls.RunSummary.Text.Contains('API 비용 없음')) 'Local run summary missing.'
         $req = New-MixRequest
         Assert-MixUI (-not $req.useAi -and -not $req.apiKey -and $req.generationMode -eq 'mix') 'Local UI request included AI credentials.'
+        $controls.MixRandomAll.RaiseEvent([Windows.RoutedEventArgs]::new([Windows.Controls.Button]::ClickEvent))
+        Assert-MixUI ($controls.MixBase.SelectedValue -eq 'random' -and @((Get-MixGroupChoices).Values | Where-Object { $_ -eq 'random' }).Count -eq 4 -and $controls.MixRandomHint.Visibility -eq 'Visible') 'Random-all button did not set all groups and the base.'
+        Refresh-MixChoices
+        Assert-MixUI ($controls.MixBase.SelectedValue -eq 'random' -and $controls.MixTone.SelectedValue -eq 'random') 'Refreshing sources discarded random choices.'
+        $controls.MixColor.SelectedValue = $script:MixSources[1].id
+        $partial = New-MixRequest
+        Assert-MixUI ($partial.mixGroups.tone -eq 'random' -and $partial.mixGroups.color -eq $script:MixSources[1].id) 'Random groups cannot be combined with an explicit donor.'
+        $controls.MixColor.SelectedValue = 'random'; $controls.MixCount.Text = '3'
+        $request = New-MixRequest
+        Assert-MixUI ($request.baseId -eq 'random' -and $request.mixGroups.curves -eq 'random' -and $controls.RunSummary.Text.Contains('랜덤 혼합')) 'Random UI request or summary is incorrect.'
         for ($paint = 0; $paint -lt 4; $paint++) { $window.Dispatcher.Invoke([Action]{}, [Windows.Threading.DispatcherPriority]::ApplicationIdle); $window.UpdateLayout(); Start-Sleep -Milliseconds 40 }
         if ($script:MixUiScreenshot) {
             $bitmap = [Windows.Media.Imaging.RenderTargetBitmap]::new([int]$window.ActualWidth,[int]$window.ActualHeight,96,96,[Windows.Media.PixelFormats]::Pbgra32)
@@ -39,8 +49,11 @@ try {
         Start-Generation
         $deadline = [DateTime]::UtcNow.AddSeconds(60)
         while ($script:Job -and [DateTime]::UtcNow -lt $deadline) { $window.Dispatcher.Invoke([Action]{}, [Windows.Threading.DispatcherPriority]::Background); Start-Sleep -Milliseconds 100 }
-        Assert-MixUI (-not $script:Job -and $controls.Status.Text -like 'XMP 1/1*') ('Mix generation failed: ' + $controls.Status.Text)
+        Assert-MixUI (-not $script:Job -and $controls.Status.Text -like 'XMP 3/3*') ('Mix generation failed: ' + $controls.Status.Text)
         Assert-MixUI ($controls.DetailReason.Text.Contains('%') -and $controls.DetailMode.Text -eq '믹스매치') 'Result details omitted mixture ratios.'
+        foreach ($row in $controls.Results.Items) {
+            Assert-MixUI ($row.Details.randomized -and $row.Details.baseId -in @($script:MixSources.id) -and $row.Reason.Contains('기준 프리셋:')) 'Random output lost its actual base or original recipe.'
+        }
         $ledger = Read-UsageEvents
         Assert-MixUI (@($ledger.events | Where-Object { $_.kind -eq 'api' }).Count -eq 0) 'Local UI mix recorded an API call.'
         Set-View 'mix'; Save-AutoNow; Save-Settings
@@ -51,9 +64,9 @@ try {
     } else {
         Assert-MixUI ($script:CurrentView -eq 'mix' -and $script:MixSources.Count -eq 2) 'Mix tab/sources did not restore.'
         Assert-MixUI ($script:MixSources[0].weight -eq 25 -and $script:MixSources[1].weight -eq 75) 'Mixture weights did not restore.'
-        Assert-MixUI ($controls.MixTone.SelectedValue -eq $script:MixSources[1].id -and $controls.MixTexture.SelectedValue -eq 'base') 'Component choices did not restore.'
-        Assert-MixUI ($controls.MixCount.Text -eq '1' -and $controls.MixVariation.Value -eq 60 -and $controls.MixNote.Text -eq '핑크 톤은 부드럽게') 'Mix options did not restore.'
-        Assert-MixUI ($controls.Results.Items.Count -eq 1 -and $controls.Detail.Text.Contains('기준 프리셋')) 'Last mixture results/warnings did not restore.'
+        Assert-MixUI ($controls.MixBase.SelectedValue -eq 'random' -and $controls.MixTone.SelectedValue -eq 'random' -and $controls.MixTexture.SelectedValue -eq 'random') 'Component choices did not restore.'
+        Assert-MixUI ($controls.MixCount.Text -eq '3' -and $controls.MixVariation.Value -eq 60 -and $controls.MixNote.Text -eq '핑크 톤은 부드럽게') 'Mix options did not restore.'
+        Assert-MixUI ($controls.Results.Items.Count -eq 3 -and $controls.Detail.Text.Contains('기준 프리셋')) 'Last mixture results/warnings did not restore.'
     }
 } finally { if ($script:Job) { Stop-TrackedJob -Force; Remove-Job $script:Job -Force; $script:Job = $null }; $window.Close() }
 '@
@@ -62,6 +75,6 @@ try {
     $source = $source.Replace('$PSScriptRoot', '$script:MixUiTestRoot').Replace('[void]$window.ShowDialog()', $exercise)
     $source = $source.Replace('[void][Windows.MessageBox]::Show($_.Exception.Message, ''Preset Seed Lab 시작 오류'')', 'throw')
     for ($script:MixUiPass = 1; $script:MixUiPass -le 2; $script:MixUiPass++) { & ([scriptblock]::Create($source)) }
-    Write-Host 'PASS: real app mix page, source import, local Start-Job generation, shared optional key, output details, no API, project/options/last-results restore.'
+    Write-Host 'PASS: real app mix page, source import, random-all/per-component choices, random base, local Start-Job generation, shared optional key, output details, no API, project/options/last-results restore.'
 } catch { Write-Host ('FAIL: ' + $_.Exception.Message + "`n" + $_.ScriptStackTrace); exit 1 }
 finally { $env:SEEDLAB_TEST_USAGE_DIR = $previousUsage; if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Recurse -Force } }
