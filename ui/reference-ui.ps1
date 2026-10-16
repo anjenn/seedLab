@@ -62,8 +62,8 @@ function Update-MaskState {
     elseif ($hasTemplate) { $text = [IO.Path]::GetFileName($script:ReferenceMask) + ' · ' + @($controls.RefSubjectGroup.ItemsSource).Count + '개 그룹. 인물·배경 매핑이 맞는지 확인하세요.'; $ok = $true }
     else { $text = '템플릿 필요 · Select Subject와 Select Background를 저장한 XMP를 선택하거나, 전체 보정만 원하면 두 항목을 끄세요.'; $ok = $false }
     $controls.RefMaskInfo.Text = $text
-    $controls.RefMaskInfoBox.Background = $(if ($ok) { '#EEF7F2' } else { '#FFF6E5' }); $controls.RefMaskInfoBox.BorderBrush = $(if ($ok) { '#C6E3D2' } else { '#EFD9A8' })
-    $controls.RefMaskInfo.Foreground = $(if ($ok) { '#2E6B4C' } else { '#7F5A12' }); $controls.RefMaskIcon.Foreground = $controls.RefMaskInfo.Foreground
+    $tone = Get-Brush $(if ($ok) { 'AccentBrush' } else { 'WarnBrush' })
+    $controls.RefMaskBar.Background = $tone; $controls.RefMaskIcon.Foreground = $tone
     $controls.RefMaskIcon.Text = $(if ($ok) { [string][char]0xE73E } else { [string][char]0xE946 })
 }
 $script:References.Add_CollectionChanged({ Update-ReferenceCount })

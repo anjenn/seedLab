@@ -7,6 +7,8 @@ $script:Job = $null; $script:LastFolder = $null; $script:ActiveRequest = $null; 
 $script:KeywordChecks = [Collections.Generic.List[object]]::new(); $script:CurrentView = ''; $script:SyncingKey = $false
 [xml]$xaml = [IO.File]::ReadAllText((Join-Path $script:AppRoot 'ui\window.xaml'), [Text.Encoding]::UTF8)
 $window = [Windows.Markup.XamlReader]::Load(([Xml.XmlNodeReader]::new($xaml)))
+# Colors live in ui/window.xaml; code asks for them by token name.
+function Get-Brush([string]$Key) { return $window.FindResource($Key) }
 $controls = @{}
 foreach ($element in $xaml.SelectNodes('//*')) { $name = $element.GetAttribute('Name', 'http://schemas.microsoft.com/winfx/2006/xaml'); if ($name) { $controls[$name] = $window.FindName($name) } }
 $controls.SeedGrid.ItemsSource = $script:Seeds
@@ -69,11 +71,11 @@ function Show-Notice([string]$Message, [string]$Title, [string]$Icon = 'Warning'
 function Show-Question([string]$Message, [string]$Title, [string]$Buttons = 'YesNo') { return [string][Windows.MessageBox]::Show($window, $Message, $Title, $Buttons, 'Question') }
 function Set-Status([string]$Text, [string]$Tone = 'normal') {
     $controls.Status.Text = $Text
-    $controls.Status.Foreground = switch ($Tone) { 'success' { '#2E7D55' } 'error' { '#B4372F' } 'busy' { '#2F5A97' } default { '#64728A' } }
+    $controls.Status.Foreground = Get-Brush $(switch ($Tone) { 'success' { 'SuccessBrush' } 'error' { 'DangerBrush' } 'busy' { 'AccentTextBrush' } default { 'MutedBrush' } })
 }
 function Set-StatePill([string]$State, [string]$Text = '') {
-    $palette = switch ($State) { 'busy' { @('#EAF1FC', '#4F76B6', '#2F5A97', '생성 중') } 'cancel' { @('#FFF4DE', '#C98A1B', '#7F5A12', '중지 중') } default { @('#E8F4EE', '#3C9A6A', '#2E7D55', '준비됨') } }
-    $controls.StatePill.Background = $palette[0]; $controls.StateDot.Fill = $palette[1]; $controls.StateText.Foreground = $palette[2]
+    $palette = switch ($State) { 'busy' { @('AccentSoftBrush', 'AccentBrush', 'AccentTextBrush', '생성 중') } 'cancel' { @('SurfaceBrush', 'WarnBrush', 'WarnBrush', '중지 중') } default { @('SurfaceBrush', 'SuccessBrush', 'Text2Brush', '준비됨') } }
+    $controls.StatePill.Background = Get-Brush $palette[0]; $controls.StateDot.Fill = Get-Brush $palette[1]; $controls.StateText.Foreground = Get-Brush $palette[2]
     $controls.StateText.Text = $(if ($Text) { $Text } else { $palette[3] })
 }
 # Thumbnails decode at a small size and honor EXIF rotation; files are not kept open.
@@ -102,12 +104,12 @@ function Get-DropPaths($EventArgs, [string[]]$Extensions) {
 function Set-DropFeedback($Card, $EventArgs) {
     $accepted = $EventArgs.Data.GetDataPresent([Windows.DataFormats]::FileDrop) -and $Card.IsEnabled
     $EventArgs.Effects = $(if ($accepted) { 'Copy' } else { 'None' }); $EventArgs.Handled = $true
-    if ($accepted) { $Card.BorderBrush = '#4F76B6'; $Card.Background = '#FAFCFF' }
+    if ($accepted) { $Card.BorderBrush = Get-Brush 'AccentBrush'; $Card.Background = Get-Brush 'DropBgBrush' }
 }
 function Clear-DropFeedback($Card) { $Card.ClearValue([Windows.Controls.Border]::BorderBrushProperty); $Card.ClearValue([Windows.Controls.Border]::BackgroundProperty) }
 function Test-CountBox($Box) {
     $n = 0; $valid = [int]::TryParse($Box.Text, [ref]$n) -and $n -ge 1 -and $n -le 120
-    if ($valid) { $Box.ClearValue([Windows.Controls.Control]::BorderBrushProperty) } else { $Box.BorderBrush = '#D9534F' }
+    if ($valid) { $Box.ClearValue([Windows.Controls.Control]::BorderBrushProperty) } else { $Box.BorderBrush = Get-Brush 'DangerBrush' }
     Update-RunSummary
 }
 
@@ -160,7 +162,7 @@ function Update-RunSummary {
         }
     }
     $controls.RunSummary.Text = $text
-    $controls.RunSummary.Foreground = $(if ($warn) { '#8A5A12' } else { '#1F2A3D' })
+    $controls.RunSummary.Foreground = Get-Brush $(if ($warn) { 'WarnBrush' } else { 'TextBrush' })
     $controls.RunSummary.Visibility = $(if ($text) { 'Visible' } else { 'Collapsed' })
 }
 

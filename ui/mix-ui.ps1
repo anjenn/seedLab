@@ -77,7 +77,7 @@ $controls.MixCard.Add_Drop({ param($sender,$e) Clear-DropFeedback $sender; Add-M
 foreach ($name in @('MixTone','MixColor','MixTexture','MixCurves','MixBase')) { $controls[$name].Add_SelectionChanged({ if (-not $script:RefreshingMix) { Update-MixSummary } }) }
 $controls.MixCount.Add_TextChanged({
     $n = 0
-    if ([int]::TryParse($controls.MixCount.Text, [ref]$n) -and $n -ge 1 -and $n -le 24) { $controls.MixCount.ClearValue([Windows.Controls.Control]::BorderBrushProperty) } else { $controls.MixCount.BorderBrush = '#D9534F' }
+    if ([int]::TryParse($controls.MixCount.Text, [ref]$n) -and $n -ge 1 -and $n -le 24) { $controls.MixCount.ClearValue([Windows.Controls.Control]::BorderBrushProperty) } else { $controls.MixCount.BorderBrush = Get-Brush 'DangerBrush' }
     Update-RunSummary; Request-AutoSave
 })
 $controls.MixCount.Add_PreviewTextInput({ param($sender,$e) if ($e.Text -notmatch '^\d+$') { $e.Handled = $true } })

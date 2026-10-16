@@ -118,11 +118,11 @@ function Update-ProjectCard([string]$State = '', [bool]$Failed = $false) {
     $controls.ProjectName.Text = $(if ($open) { [IO.Path]::GetFileName($script:ProjectRoot) } else { '프로젝트 없음' })
     $controls.ProjectName.ToolTip = $(if ($open) { $script:ProjectRoot } else { $null })
     $controls.ProjectState.Text = $(if ($State) { $State } elseif ($open) { '변경 내용을 자동 저장합니다' } else { '폴더를 지정하면 추가한 파일과 작업이 저장됩니다' })
-    $controls.ProjectState.Foreground = $(if ($Failed) { '#B4372F' } else { '#64728A' })
+    $controls.ProjectState.Foreground = Get-Brush $(if ($Failed) { 'SideDangerBrush' } else { 'SideMutedBrush' })
     $controls.ProjectPick.Content = $(if ($open) { '변경' } else { '폴더 지정' })
-    $controls.ProjectPick.Style = $(if ($open) { $window.FindResource([Windows.Controls.Button]) } else { $window.FindResource('Primary') })
+    $controls.ProjectPick.Style = $window.FindResource($(if ($open) { 'SideButton' } else { 'Primary' }))
     $controls.ProjectOpenFolder.Visibility = $(if ($open) { 'Visible' } else { 'Collapsed' })
-    $controls.ProjectCard.Background = $(if ($open) { '#F7F9FC' } else { '#EAF1FC' })
+    $controls.ProjectCard.Background = Get-Brush $(if ($open) { 'SidePanelBrush' } else { 'SideAccentPanelBrush' })
 }
 function Clear-Work {
     $script:Seeds.Clear(); $script:References.Clear(); $script:MixSources.Clear(); Refresh-MixChoices; $controls.MixNote.Text = ''

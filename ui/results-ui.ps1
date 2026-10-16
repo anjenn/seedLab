@@ -29,11 +29,11 @@ function New-ValueChip([string]$Label, $Value, [bool]$Signed) {
     if ([double]::TryParse([string]$Value, [Globalization.NumberStyles]::Float, [Globalization.CultureInfo]::InvariantCulture, [ref]$number)) {
         $text = $number.ToString($(if ($Signed) { '+0.##;-0.##;0' } else { '0.##' }), [Globalization.CultureInfo]::InvariantCulture)
     }
-    $chip = [Windows.Controls.Border]::new(); $chip.CornerRadius = [Windows.CornerRadius]::new(8); $chip.Background = '#F6F8FC'; $chip.BorderBrush = '#E3E8F0'
+    $chip = [Windows.Controls.Border]::new(); $chip.CornerRadius = [Windows.CornerRadius]::new(8); $chip.Background = Get-Brush 'SubtleBrush'; $chip.BorderBrush = Get-Brush 'LineBrush'
     $chip.BorderThickness = [Windows.Thickness]::new(1); $chip.Padding = [Windows.Thickness]::new(9,4,9,4); $chip.Margin = [Windows.Thickness]::new(0,0,6,6)
     $row = [Windows.Controls.StackPanel]::new(); $row.Orientation = 'Horizontal'
-    $name = [Windows.Controls.TextBlock]::new(); $name.Text = $Label; $name.FontSize = 12; $name.Foreground = '#64728A'; $name.Margin = [Windows.Thickness]::new(0,0,6,0)
-    $value = [Windows.Controls.TextBlock]::new(); $value.Text = $text; $value.FontSize = 12; $value.FontWeight = [Windows.FontWeights]::SemiBold; $value.Foreground = '#1F2A3D'
+    $name = [Windows.Controls.TextBlock]::new(); $name.Text = $Label; $name.FontSize = 12; $name.Foreground = Get-Brush 'MutedBrush'; $name.Margin = [Windows.Thickness]::new(0,0,6,0)
+    $value = [Windows.Controls.TextBlock]::new(); $value.Text = $text; $value.FontSize = 12; $value.FontWeight = [Windows.FontWeights]::SemiBold; $value.Foreground = Get-Brush 'TextBrush'
     [void]$row.Children.Add($name); [void]$row.Children.Add($value); $chip.Child = $row
     return $chip
 }
@@ -84,9 +84,9 @@ function Show-Results($Rows, [string]$Folder, [string]$Title, [string]$Meta, [bo
     $controls.Results.ItemsSource = $items
     $controls.ResultsEmpty.Visibility = 'Collapsed'; $controls.ResultsBody.Visibility = 'Visible'
     $controls.ResultSummary.Text = $Title; $controls.ResultMeta.Text = $Meta; $controls.ResultMeta.ToolTip = $Folder
-    $controls.ResultBadge.Background = $(if ($Partial) { '#FFF4DE' } else { '#E6F4EC' })
+    $controls.ResultBadge.Background = Get-Brush $(if ($Partial) { 'NeutralPillBrush' } else { 'AccentSoftBrush' })
     $controls.ResultBadgeIcon.Text = $(if ($Partial) { [string][char]0xE7BA } else { [string][char]0xE73E })
-    $controls.ResultBadgeIcon.Foreground = $(if ($Partial) { '#7F5A12' } else { '#2E7D55' })
+    $controls.ResultBadgeIcon.Foreground = Get-Brush $(if ($Partial) { 'WarnBrush' } else { 'AccentBrush' })
     foreach ($name in @('OpenOutput','ResultsOpenFolder')) { $controls[$name].IsEnabled = [bool]$Folder }
     if ($Activate) { Set-View 'results' } elseif ($script:CurrentView -and $script:CurrentView -ne 'results') { $controls.OpenOutput.Visibility = $(if ($Folder) { 'Visible' } else { 'Collapsed' }) }
     if ($items.Count) { $controls.Results.SelectedIndex = 0; $controls.Results.ScrollIntoView($items[0]) } else { Show-ResultDetail $null }

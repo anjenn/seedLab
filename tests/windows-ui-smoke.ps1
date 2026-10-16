@@ -93,5 +93,6 @@ try {
 } finally {
     if ($windowElement) { $windowElement.GetCurrentPattern([Windows.Automation.WindowPattern]::Pattern).Close() }
     $env:SEEDLAB_TEST_USAGE_DIR = $previousUsage
-    if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Recurse -Force }
+    # The closing app may still be flushing settings; give it a moment before deleting its folders.
+    for ($attempt = 0; $attempt -lt 10 -and (Test-Path -LiteralPath $temporary); $attempt++) { try { Remove-Item -LiteralPath $temporary -Recurse -Force -ErrorAction Stop } catch { Start-Sleep -Milliseconds 500 } }
 }

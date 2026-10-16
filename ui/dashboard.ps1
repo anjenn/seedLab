@@ -3,7 +3,7 @@ function Format-Cost($Value) { if ($null -eq $Value) { return '—' }; return '$
 function Set-View([string]$View) {
     $script:CurrentView = $View
     foreach ($name in @('DashboardPage','GeneratorPage','ReferencePage','MixPage','ResultsPage')) { $controls[$name].Visibility = 'Collapsed' }
-    foreach ($name in @('DashboardNav','GeneratorNav','ReferenceNav','MixNav','ResultsNav')) { $controls[$name].Background = 'Transparent'; $controls[$name].Foreground = '#3E4C63'; $controls[$name].FontWeight = [Windows.FontWeights]::Normal }
+    foreach ($name in @('DashboardNav','GeneratorNav','ReferenceNav','MixNav','ResultsNav')) { $controls[$name].Background = 'Transparent'; $controls[$name].Foreground = Get-Brush 'SideNavBrush'; $controls[$name].FontWeight = [Windows.FontWeights]::Normal }
     switch ($View) {
         'dashboard' { $page = 'DashboardPage'; $nav = 'DashboardNav'; $title = '사용량 대시보드'; $subtitle = '토큰과 이용 추세를 한눈에 확인하세요.' }
         'generator' { $page = 'GeneratorPage'; $nav = 'GeneratorNav'; $title = '프리셋 생성'; $subtitle = '내 스타일을 유지하며 새로운 보정 방향을 탐색하세요.' }
@@ -11,7 +11,7 @@ function Set-View([string]$View) {
         'mix' { $page = 'MixPage'; $nav = 'MixNav'; $title = '프리셋 믹스매치'; $subtitle = '내 프리셋의 톤과 색감을 원하는 비율로 조합하세요.' }
         'results' { $page = 'ResultsPage'; $nav = 'ResultsNav'; $title = '생성 결과'; $subtitle = '후보별 변화와 보정값을 확인하고 Lightroom의 프리셋 가져오기로 불러오세요.' }
     }
-    $controls[$page].Visibility = 'Visible'; $controls[$nav].Background = '#EAF1FC'; $controls[$nav].Foreground = '#2F5A97'; $controls[$nav].FontWeight = [Windows.FontWeights]::SemiBold
+    $controls[$page].Visibility = 'Visible'; $controls[$nav].Background = Get-Brush 'SideActiveBrush'; $controls[$nav].Foreground = [Windows.Media.Brushes]::White; $controls[$nav].FontWeight = [Windows.FontWeights]::SemiBold
     $controls.PageTitle.Text = $title; $controls.PageSubtitle.Text = $subtitle
     # The primary action only appears where a run can be configured.
     $controls.Generate.Visibility = $(if ($View -in @('generator','reference','mix')) { 'Visible' } else { 'Collapsed' })
@@ -21,7 +21,7 @@ function Set-View([string]$View) {
     if ($View -eq 'dashboard') { Refresh-Dashboard }
 }
 function Add-ChartText([string]$Text, [double]$X, [double]$Y, [double]$Size = 10) {
-    $label = [Windows.Controls.TextBlock]::new(); $label.Text = $Text; $label.FontSize = $Size; $label.Foreground = '#8C98AB'
+    $label = [Windows.Controls.TextBlock]::new(); $label.Text = $Text; $label.FontSize = $Size; $label.Foreground = Get-Brush 'FaintBrush'
     [Windows.Controls.Canvas]::SetLeft($label, $X); [Windows.Controls.Canvas]::SetTop($label, $Y); [void]$controls.TrendCanvas.Children.Add($label)
 }
 function Draw-UsageChart {
@@ -37,7 +37,7 @@ function Draw-UsageChart {
     $left = 42.0; $plotWidth = [Math]::Max(50, $width - 54); $plotHeight = 146.0; $baseY = 160.0
     for ($tick = 0; $tick -le 4; $tick++) {
         $y = $baseY - $plotHeight * $tick / 4
-        $line = [Windows.Shapes.Line]::new(); $line.X1 = $left; $line.X2 = $width - 5; $line.Y1 = $y; $line.Y2 = $y; $line.Stroke = '#EDF1F6'; $line.StrokeThickness = 1
+        $line = [Windows.Shapes.Line]::new(); $line.X1 = $left; $line.X2 = $width - 5; $line.Y1 = $y; $line.Y2 = $y; $line.Stroke = Get-Brush 'ChartGridBrush'; $line.StrokeThickness = 1
         [void]$canvas.Children.Add($line)
         $n = $top * $tick / 4; $label = $(if ($n -ge 1000000) { ($n/1000000).ToString('0.#') + 'M' } elseif ($n -ge 1000) { ($n/1000).ToString('0.#') + 'k' } else { $n.ToString('0') })
         Add-ChartText $label 0 ($y - 7)
@@ -51,12 +51,12 @@ function Draw-UsageChart {
         $bottomHeight = $bottomValue / $top * $plotHeight
         if ($bottomHeight -gt 0) {
             $bar = [Windows.Shapes.Rectangle]::new(); $bar.Width = $barWidth; $bar.Height = $bottomHeight
-            $bar.Fill = $(if ($metric -eq 'tokens') { '#B9CDEB' } else { '#4F76B6' }); $bar.RadiusX = 4; $bar.RadiusY = 4; $bar.ToolTip = $tooltip
+            $bar.Fill = Get-Brush $(if ($metric -eq 'tokens') { 'ChartInputBrush' } else { 'AccentBrush' }); $bar.RadiusX = 4; $bar.RadiusY = 4; $bar.ToolTip = $tooltip
             [Windows.Controls.Canvas]::SetLeft($bar, $x); [Windows.Controls.Canvas]::SetTop($bar, $baseY - $bottomHeight); [void]$canvas.Children.Add($bar)
         }
         if ($metric -eq 'tokens' -and $day.outputTokens -gt 0) {
             $bar = [Windows.Shapes.Rectangle]::new(); $bar.Width = $barWidth; $bar.Height = [double]$day.outputTokens / $top * $plotHeight
-            $bar.Fill = '#4F76B6'; $bar.RadiusX = 4; $bar.RadiusY = 4; $bar.ToolTip = $tooltip
+            $bar.Fill = Get-Brush 'AccentBrush'; $bar.RadiusX = 4; $bar.RadiusY = 4; $bar.ToolTip = $tooltip
             [Windows.Controls.Canvas]::SetLeft($bar, $x); [Windows.Controls.Canvas]::SetTop($bar, $baseY - $bottomHeight - $bar.Height); [void]$canvas.Children.Add($bar)
         }
         if ($series.Count -le 10 -or $i % [Math]::Ceiling($series.Count / 6.0) -eq 0 -or $i -eq $series.Count - 1) { Add-ChartText $day.date.Substring(5).Replace('-', '/') ($x + $barWidth / 2 - 15) 172 }
