@@ -4,7 +4,7 @@
   "private": true,
   "description": "Windows Lightroom preset generator; Node is only used for development tests.",
   "scripts": {
-    "test": "node tests/engine.test.js && node tests/usage.test.js && node tests/reference.test.js",
+    "test": "node tests/engine.test.js && node tests/usage.test.js && node tests/reference.test.js && node tests/mix.test.js",
     "build:launcher": "python3 src/build_launcher.py"
   }
 }
